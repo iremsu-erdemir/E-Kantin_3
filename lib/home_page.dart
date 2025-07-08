@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
+import 'login_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -12,289 +13,430 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  // Figma'ya göre bottom bar ikon isimleri (assets/images altında)
   final List<String> _bottomIcons = [
-    'cart.png',        // Home
-    'wishlist.png',    // Favorites
-    'categories.png',  // Orders
-    'shop.png',        // Download
-    'person.png',      // Profile
+    'home.png',
+    'wishlist.png',
+    'categories.png',
+    'cart.png',
+    'person.png',
   ];
 
   @override
   void initState() {
     super.initState();
-    // Durum çubuğu rengini ayarla
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Color(0xFFD32F2F), // Kırmızı başlık ile uyumlu
-      statusBarIconBrightness: Brightness.light,
-    ));
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle.dark.copyWith(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final double headerHeight = 170; // Figma: 375x170
-    final double cardWidth = 328;    // Figma: 328
-    final double cardHeight = 160;   // Figma: 160
-    final double smallCardWidth = 156; // Figma: 156
-    final double smallCardHeight = 160;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-      body: Stack(
+      // Custom Header (AppBar yok)
+      body: Column(
         children: [
-          // Ana arka plan (Rectangle 33)
-          Positioned(
-            left: 0,
-            right: 0,
-            top: headerHeight - 16, // başlık altına hizala
-            child: Container(
-              width: screenWidth,
-              height: screenHeight - (headerHeight - 16) - 84, // ekran yüksekliğinden header ve bottom barı çıkar
-              decoration: const BoxDecoration(
-                color: Color(0xFFF5F5F5),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                ),
+          Container(
+            width: screenWidth,
+            height: 170,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFFD32F2F), Color(0xFFEE4343)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              image: DecorationImage(
+                image: AssetImage('assets/images/Pattern.png'),
+                repeat: ImageRepeat.repeat,
+                alignment: Alignment.topLeft,
+                scale: 2.0,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 48, left: 24, right: 24),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: const CircleAvatar(
+                      radius: 28,
+                      backgroundImage: AssetImage(
+                        'assets/images/person_avatar.png',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Text(
+                          'Cengiz Demir',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 19,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Yazılım Şube Müdürü',
+                          style: TextStyle(color: Colors.white70, fontSize: 14),
+                        ),
+                      ],
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        barrierDismissible: true,
+                        builder: (context) {
+                          return Dialog(
+                            backgroundColor: Colors.transparent,
+                            child: Material(
+                              borderRadius: BorderRadius.circular(24),
+                              color: Colors.white,
+                              child: Padding(
+                                padding: const EdgeInsets.all(24.0),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Text(
+                                      'Çıkmak İstediğinizden\nEmin misiniz?',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 28),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Material(
+                                            color: Colors.transparent,
+                                            child: OutlinedButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: const [
+                                                  Icon(
+                                                    Icons.close,
+                                                    color: Colors.red,
+                                                    size: 22,
+                                                  ),
+                                                  SizedBox(width: 6),
+                                                  Text(
+                                                    'Hayır',
+                                                    style: TextStyle(
+                                                      color: Colors.red,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 16,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: Material(
+                                            color: Colors.transparent,
+                                            child: OutlinedButton(
+                                              onPressed: () {
+                                                Navigator.of(
+                                                  context,
+                                                ).pushAndRemoveUntil(
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        const LoginPage(),
+                                                  ),
+                                                  (route) => false,
+                                                );
+                                              },
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: const [
+                                                  Icon(
+                                                    Icons.check_circle,
+                                                    color: Colors.green,
+                                                    size: 22,
+                                                  ),
+                                                  SizedBox(width: 6),
+                                                  Text(
+                                                    'Evet',
+                                                    style: TextStyle(
+                                                      color: Colors.green,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 16,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.logout,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          Column(
-            children: [
-              // Kırmızı başlık alanı
-              Container(
-                width: screenWidth,
-                height: headerHeight,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFD32F2F),
-                  image: DecorationImage(
-                    image: AssetImage('assets/images/Pattern.png'),
-                    repeat: ImageRepeat.repeat,
-                    fit: BoxFit.none,
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 48, left: 20, right: 20),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 3),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: const CircleAvatar(
-                          radius: 28,
-                          backgroundImage: AssetImage('assets/images/profile.png'),
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Text(
-                              'Cengiz Demir',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 19,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'Yazılım Şube Müdürü',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.logout, color: Colors.white, size: 24),
-                        onPressed: () {
-                          // Logout işlemi
-                        },
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              // Kategori kartları
-              Expanded(
-                child: Container(
-                  color: Colors.transparent,
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    children: [
-                      // Tostlar kartı
-                      Center(
-                        child: _buildCategoryCard(
-                          context,
-                          title: 'Tostlar',
-                          imagePath: 'assets/images/tost.png',
-                          width: cardWidth,
-                          height: cardHeight,
-                          borderRadius: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      // Sandviçler kartı
-                      Center(
-                        child: _buildCategoryCard(
-                          context,
-                          title: 'Sandviçler',
-                          imagePath: 'assets/images/sandwich.png',
-                          width: cardWidth,
-                          height: cardHeight,
-                          borderRadius: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      // Kendi Menünü Oluştur & Çay Ocağı kartları yan yana
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+
+          // Ana içerik
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: Column(
+                children: [
+                  Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    elevation: 4,
+                    clipBehavior: Clip.antiAlias,
+                    margin: EdgeInsets.zero,
+                    child: SizedBox(
+                      height: 160,
+                      child: Stack(
+                        fit: StackFit.expand,
                         children: [
-                          _buildCategoryCard(
-                            context,
-                            title: 'Kendi Menünü Oluştur',
-                            imagePath: 'assets/images/karisik.png',
-                            width: smallCardWidth,
-                            height: smallCardHeight,
-                            borderRadius: 16,
-                          ),
-                          const SizedBox(width: 16),
-                          _buildCategoryCard(
-                            context,
-                            title: 'Çay Ocağı',
-                            imagePath: 'assets/images/cay.png',
-                            width: smallCardWidth,
-                            height: smallCardHeight,
-                            borderRadius: 16,
+                          Image.asset(
+                            'assets/images/tost.png',
+                            fit: BoxFit.cover,
+                            width: 300,
                           ),
                         ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-              // Custom Bottom Bar
-              Container(
-                color: Colors.white,
-                height: 84,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: List.generate(_bottomIcons.length, (index) {
-                    final isSelected = _selectedIndex == index;
-                    final iconName = _bottomIcons[index];
-                    return Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedIndex = index;
-                          });
-                        },
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Image.asset(
-                              'assets/images/$iconName',
-                              width: 28,
-                              height: 28,
-                              color: isSelected ? const Color(0xFFD32F2F) : Colors.grey[400],
+                  const SizedBox(height: 16),
+                  Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    elevation: 4,
+                    clipBehavior: Clip.antiAlias,
+                    margin: EdgeInsets.zero,
+                    child: SizedBox(
+                      height: 160,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Image.asset(
+                            'assets/images/sandwich.png',
+                            fit: BoxFit.cover,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          elevation: 4,
+                          clipBehavior: Clip.antiAlias,
+                          margin: EdgeInsets.zero,
+                          child: SizedBox(
+                            height: 160,
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                Image.asset(
+                                  'assets/images/karisik.png',
+                                  fit: BoxFit.cover,
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 6),
-                            AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              height: 4,
-                              width: 32,
-                              decoration: BoxDecoration(
-                                color: isSelected ? Colors.black : Colors.transparent,
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
-                    );
-                  }),
-                ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          elevation: 4,
+                          clipBehavior: Clip.antiAlias,
+                          margin: EdgeInsets.zero,
+                          child: SizedBox(
+                            height: 160,
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                Image.asset(
+                                  'assets/images/cay.png',
+                                  fit: BoxFit.cover,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ],
+            ),
+          ),
+
+          // Alt navigasyon
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, -5),
+                ),
+              ],
+            ),
+            height: 84,
+            padding: const EdgeInsets.only(bottom: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: List.generate(_bottomIcons.length, (index) {
+                final isSelected = _selectedIndex == index;
+                final iconName = _bottomIcons[index];
+                return Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedIndex = index;
+                      });
+                    },
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          height: 4,
+                          width: 32,
+                          color: isSelected ? Colors.black : Colors.transparent,
+                        ),
+                        const SizedBox(height: 6),
+                        Image.asset(
+                          'assets/images/$iconName',
+                          width: 28,
+                          height: 28,
+                          color: isSelected ? Colors.black : Colors.grey[400],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCategoryCard(
-    BuildContext context, {
+  Widget _buildCategoryCard({
+    required String image,
     required String title,
-    required String imagePath,
-    double width = 328,
-    double height = 160,
-    double borderRadius = 16,
+    required BorderRadius borderRadius,
+    required double height,
   }) {
     return Container(
-      width: width,
       height: height,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(borderRadius),
+        borderRadius: borderRadius,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.07),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(borderRadius),
+        borderRadius: borderRadius,
         child: Stack(
           children: [
-            Image.asset(
-              imagePath,
-              width: width,
-              height: height,
-              fit: BoxFit.cover,
-            ),
-            // Blur ve yarı saydam beyaz arka planlı kategori adı
+            Positioned.fill(child: Image.asset(image, fit: BoxFit.cover)),
             Positioned(
               left: 12,
               bottom: 12,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Container(
-                    color: Colors.white.withOpacity(0.30),
-                    padding: EdgeInsets.zero,
-                    child: Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.1,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.55),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black38,
+                        blurRadius: 4,
+                        offset: Offset(0, 1),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
