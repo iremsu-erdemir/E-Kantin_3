@@ -9,6 +9,8 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _rememberMe = false;
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -74,12 +76,20 @@ class _LoginPageState extends State<LoginPage> {
                           color: Colors.black54,
                         ),
                       ),
-                      const SizedBox(height: 24), // Boşluk
-                      // Kullanıcı Adı TextField
-                      _buildTextField('Kullanıcı Adı'),
-                      const SizedBox(height: 16), // Boşluk
-                      // Şifre TextField
-                      _buildTextField('Şifre', obscureText: true),
+                      const SizedBox(height: 48), // veya 56, 64... (gözünüze en uygun olanı seçin)
+                      Align(
+                        alignment: Alignment.center,
+                        child: _buildTextField(
+                          controller: _usernameController,
+                          hintText: 'Kullanıcı Adı',
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                        controller: _passwordController,
+                        hintText: 'Şifre',
+                        obscureText: true,
+                      ),
                       const SizedBox(height: 10), // Boşluk
                       Row(
                         children: [
@@ -129,24 +139,21 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       const SizedBox(height: 32), // Boşluk
-                      // Parmak izi ikonu
                       Center(
-                        child: Icon(
-                          Icons.fingerprint,
-                          size: 56,
-                          color: Colors.grey[400],
+                        child: Image.asset(
+                          'assets/images/Fingerprint.png',
+                          width: 64,
+                          height: 64,
+                          fit: BoxFit.contain,
                         ),
                       ),
-                      const SizedBox(height: 8), // Boşluk
-                      // Alt çizgi (home indicator gibi)
+                      const SizedBox(height: 8),
                       Center(
-                        child: Container(
-                          width: 40, // Genişlik
-                          height: 4, // Yükseklik
-                          decoration: BoxDecoration(
-                            color: Colors.grey[300], // Renk
-                            borderRadius: BorderRadius.circular(2), // Köşeleri yuvarla
-                          ),
+                        child: Image.asset(
+                          'assets/images/DisplayDown.png',
+                          width: 375,
+                          height: 34,
+                          fit: BoxFit.contain,
                         ),
                       ),
                     ],
@@ -160,25 +167,35 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // Standart TextField widget'ı
-  Widget _buildTextField(String hintText, {bool obscureText = false}) {
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hintText,
+    bool obscureText = false,
+  }) {
     return Container(
+      width: MediaQuery.of(context).size.width - 48, // 24 px sağ ve sol padding
+      height: 44,
       decoration: BoxDecoration(
-        color: Colors.grey[100], // TextField'ın arka plan rengi
-        borderRadius: BorderRadius.circular(12), // Köşeleri yuvarla
-        border: Border.all(color: Colors.grey[300]!), // Kenarlık
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12), // Oval köşe
+        border: Border.all(color: Colors.grey.shade300, width: 1), // Gri çerçeve
       ),
+      alignment: Alignment.center,
       child: TextField(
-        obscureText: obscureText, // Şifre alanı ise metni gizle
+        controller: controller,
+        obscureText: obscureText,
         decoration: InputDecoration(
-          border: InputBorder.none, // Kenarlığı kaldır
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14), // İç boşluk
-          hintText: hintText, // İpucu metni
-          hintStyle: const TextStyle(color: Colors.grey), // İpucu metni stili
+          border: InputBorder.none,
+          hintText: hintText,
+          hintStyle: const TextStyle(color: Colors.black54),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+          isDense: true,
         ),
         style: const TextStyle(
-          color: Colors.black, // Yazı rengi
+          color: Colors.black87,
+          fontSize: 16,
         ),
+        cursorColor: Colors.redAccent,
       ),
     );
   }
