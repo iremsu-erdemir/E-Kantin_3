@@ -38,9 +38,9 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-      // Custom Header (AppBar yok)
       body: Column(
         children: [
+          // Header
           Container(
             width: screenWidth,
             height: 170,
@@ -76,9 +76,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: const CircleAvatar(
                       radius: 28,
-                      backgroundImage: AssetImage(
-                        'assets/images/person_avatar.png',
-                      ),
+                      backgroundImage: AssetImage('assets/images/person.png'),
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -108,106 +106,152 @@ class _HomePageState extends State<HomePage> {
                       showDialog(
                         context: context,
                         barrierDismissible: true,
+                        barrierColor: Colors.black.withOpacity(0.3),
                         builder: (context) {
-                          return Dialog(
-                            backgroundColor: Colors.transparent,
-                            child: Material(
-                              borderRadius: BorderRadius.circular(24),
-                              color: Colors.white,
-                              child: Padding(
-                                padding: const EdgeInsets.all(24.0),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Text(
-                                      'Çıkmak İstediğinizden\nEmin misiniz?',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
-                                      ),
+                          return Stack(
+                            children: [
+                              BackdropFilter(
+                                filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                                child: Container(color: Colors.transparent),
+                              ),
+                              Center(
+                                child: Material(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  elevation: 0,
+                                  child: Container(
+                                    width: 320,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                      vertical: 28,
                                     ),
-                                    const SizedBox(height: 28),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Material(
-                                            color: Colors.transparent,
-                                            child: OutlinedButton(
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                              },
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: const [
-                                                  Icon(
-                                                    Icons.close,
-                                                    color: Colors.red,
-                                                    size: 22,
-                                                  ),
-                                                  SizedBox(width: 6),
-                                                  Text(
-                                                    'Hayır',
-                                                    style: TextStyle(
-                                                      color: Colors.red,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 16,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 16),
-                                        Expanded(
-                                          child: Material(
-                                            color: Colors.transparent,
-                                            child: OutlinedButton(
-                                              onPressed: () {
-                                                Navigator.of(
-                                                  context,
-                                                ).pushAndRemoveUntil(
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        const LoginPage(),
-                                                  ),
-                                                  (route) => false,
-                                                );
-                                              },
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: const [
-                                                  Icon(
-                                                    Icons.check_circle,
-                                                    color: Colors.green,
-                                                    size: 22,
-                                                  ),
-                                                  SizedBox(width: 6),
-                                                  Text(
-                                                    'Evet',
-                                                    style: TextStyle(
-                                                      color: Colors.green,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 16,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(20),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.07),
+                                          blurRadius: 18,
+                                          offset: const Offset(0, 6),
                                         ),
                                       ],
                                     ),
-                                  ],
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        const Text(
+                                          "Çıkmak İstediğinizden\nEmin misiniz?",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 20,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 28),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: OutlinedButton(
+                                                style: OutlinedButton.styleFrom(
+                                                  side: const BorderSide(
+                                                    color: Colors.red,
+                                                    width: 1.5,
+                                                  ),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          16,
+                                                        ),
+                                                  ),
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        vertical: 14,
+                                                      ),
+                                                  backgroundColor: Colors.white,
+                                                ),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: const Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.close,
+                                                      color: Colors.red,
+                                                    ),
+                                                    SizedBox(width: 8),
+                                                    Text(
+                                                      "Hayır",
+                                                      style: TextStyle(
+                                                        color: Colors.red,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 16),
+                                            Expanded(
+                                              child: OutlinedButton(
+                                                style: OutlinedButton.styleFrom(
+                                                  side: const BorderSide(
+                                                    color: Colors.green,
+                                                    width: 1.5,
+                                                  ),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          16,
+                                                        ),
+                                                  ),
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        vertical: 14,
+                                                      ),
+                                                  backgroundColor: Colors.white,
+                                                ),
+                                                onPressed: () {
+                                                  Navigator.of(
+                                                    context,
+                                                  ).pushAndRemoveUntil(
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          const LoginPage(),
+                                                    ),
+                                                    (route) => false,
+                                                  );
+                                                },
+                                                child: const Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.check,
+                                                      color: Colors.green,
+                                                    ),
+                                                    SizedBox(width: 8),
+                                                    Text(
+                                                      "Evet",
+                                                      style: TextStyle(
+                                                        color: Colors.green,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
+                            ],
                           );
                         },
                       );
@@ -231,110 +275,93 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
 
-          // Ana içerik
+          // Cards
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              padding: const EdgeInsets.symmetric(vertical: 16),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    elevation: 4,
-                    clipBehavior: Clip.antiAlias,
-                    margin: EdgeInsets.zero,
-                    child: SizedBox(
-                      height: 160,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          Image.asset(
-                            'assets/images/tost.png',
-                            fit: BoxFit.cover,
-                            width: 300,
-                          ),
-                        ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      elevation: 4,
+                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                      margin: EdgeInsets.zero,
+                      child: Image.asset(
+                        'assets/images/tost.png',
+                        height: 160,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    elevation: 4,
-                    clipBehavior: Clip.antiAlias,
-                    margin: EdgeInsets.zero,
-                    child: SizedBox(
-                      height: 160,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          Image.asset(
-                            'assets/images/sandwich.png',
-                            fit: BoxFit.cover,
-                          ),
-                        ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      elevation: 4,
+                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                      margin: EdgeInsets.zero,
+                      child: Image.asset(
+                        'assets/images/sandwich.png',
+                        height: 160,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          elevation: 4,
-                          clipBehavior: Clip.antiAlias,
-                          margin: EdgeInsets.zero,
-                          child: SizedBox(
-                            height: 160,
-                            child: Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                Image.asset(
-                                  'assets/images/karisik.png',
-                                  fit: BoxFit.cover,
-                                ),
-                              ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            elevation: 4,
+                            clipBehavior: Clip.antiAliasWithSaveLayer,
+                            margin: EdgeInsets.zero,
+                            child: Image.asset(
+                              'assets/images/karisik.png',
+                              height: 160,
+                              fit: BoxFit.cover,
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          elevation: 4,
-                          clipBehavior: Clip.antiAlias,
-                          margin: EdgeInsets.zero,
-                          child: SizedBox(
-                            height: 160,
-                            child: Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                Image.asset(
-                                  'assets/images/cay.png',
-                                  fit: BoxFit.cover,
-                                ),
-                              ],
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            elevation: 4,
+                            clipBehavior: Clip.antiAliasWithSaveLayer,
+                            margin: EdgeInsets.zero,
+                            child: Image.asset(
+                              'assets/images/cay.png',
+                              height: 160,
+                              fit: BoxFit.cover,
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
           ),
 
-          // Alt navigasyon
+          // Bottom Navigation
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -385,64 +412,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildCategoryCard({
-    required String image,
-    required String title,
-    required BorderRadius borderRadius,
-    required double height,
-  }) {
-    return Container(
-      height: height,
-      decoration: BoxDecoration(
-        borderRadius: borderRadius,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: borderRadius,
-        child: Stack(
-          children: [
-            Positioned.fill(child: Image.asset(image, fit: BoxFit.cover)),
-            Positioned(
-              left: 12,
-              bottom: 12,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.55),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black38,
-                        blurRadius: 4,
-                        offset: Offset(0, 1),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

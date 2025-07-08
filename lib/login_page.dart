@@ -17,7 +17,7 @@ class _LoginPageState extends State<LoginPage> {
     final double screenWidth = MediaQuery.of(context).size.width;
     // Görseldeki ekmekli arka planın en boy oranına göre yüksekliği hesaplayın
     // Yaklaşık olarak 408.89 / 440.73 oranı kullanıldı.
-    final double imageHeight = screenWidth * (408.89 / 440.73); 
+    final double imageHeight = screenWidth * (408.89 / 440.73);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5), // Arka plan rengi
@@ -35,12 +35,16 @@ class _LoginPageState extends State<LoginPage> {
           // Beyaz kart ve form alanı
           Align(
             alignment: Alignment.bottomCenter,
-            child: SingleChildScrollView( // İçerik kaydırılabilir olsun diye
+            child: SingleChildScrollView(
+              // İçerik kaydırılabilir olsun diye
               child: Container(
                 width: screenWidth,
                 // Beyaz kartın üst kenarının, resmin alt kenarından biraz yukarıda olmasını sağlar
-                margin: EdgeInsets.only(top: imageHeight - 40), 
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
+                margin: EdgeInsets.only(top: imageHeight - 40),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 0,
+                ),
                 decoration: const BoxDecoration(
                   color: Colors.white, // Beyaz kartın rengi
                   borderRadius: BorderRadius.only(
@@ -58,7 +62,8 @@ class _LoginPageState extends State<LoginPage> {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 32, bottom: 24),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start, // İçeriği sola hizala
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start, // İçeriği sola hizala
                     children: [
                       const Text(
                         'E-Kantin',
@@ -71,12 +76,11 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(height: 8), // Boşluk
                       const Text(
                         'Lütfen Giriş Yapınız !',
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: Colors.black54,
-                        ),
+                        style: TextStyle(fontSize: 15, color: Colors.black54),
                       ),
-                      const SizedBox(height: 48), // veya 56, 64... (gözünüze en uygun olanı seçin)
+                      const SizedBox(
+                        height: 48,
+                      ), // veya 56, 64... (gözünüze en uygun olanı seçin)
                       Align(
                         alignment: Alignment.center,
                         child: _buildTextField(
@@ -103,14 +107,19 @@ class _LoginPageState extends State<LoginPage> {
                                 });
                               },
                               activeColor: Colors.redAccent, // Aktif renk
-                              inactiveThumbColor: Colors.grey[300], // Pasif başparmak rengi
-                              inactiveTrackColor: Colors.grey[200], // Pasif iz rengi
+                              inactiveThumbColor:
+                                  Colors.grey[300], // Pasif başparmak rengi
+                              inactiveTrackColor:
+                                  Colors.grey[200], // Pasif iz rengi
                             ),
                           ),
                           const SizedBox(width: 4), // Boşluk
                           const Text(
                             'Kullanıcı Adı / Şifre Kaydet',
-                            style: TextStyle(fontSize: 13, color: Colors.black54),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.black54,
+                            ),
                           ),
                         ],
                       ),
@@ -124,10 +133,13 @@ class _LoginPageState extends State<LoginPage> {
                             // Giriş butonu tıklandığında yapılacak işlemler
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.redAccent, // Buton arka plan rengi
+                            backgroundColor:
+                                Colors.redAccent, // Buton arka plan rengi
                             foregroundColor: Colors.white, // Buton yazı rengi
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12), // Buton köşelerini yuvarla
+                              borderRadius: BorderRadius.circular(
+                                12,
+                              ), // Buton köşelerini yuvarla
                             ),
                             textStyle: const TextStyle(
                               fontSize: 18,
@@ -178,7 +190,10 @@ class _LoginPageState extends State<LoginPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12), // Oval köşe
-        border: Border.all(color: Colors.grey.shade300, width: 1), // Gri çerçeve
+        border: Border.all(
+          color: Colors.grey.shade300,
+          width: 1,
+        ), // Gri çerçeve
       ),
       alignment: Alignment.center,
       child: TextField(
@@ -188,13 +203,13 @@ class _LoginPageState extends State<LoginPage> {
           border: InputBorder.none,
           hintText: hintText,
           hintStyle: const TextStyle(color: Colors.black54),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 0,
+          ),
           isDense: true,
         ),
-        style: const TextStyle(
-          color: Colors.black87,
-          fontSize: 16,
-        ),
+        style: const TextStyle(color: Colors.black87, fontSize: 16),
         cursorColor: Colors.redAccent,
       ),
     );
