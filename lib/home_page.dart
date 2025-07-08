@@ -284,13 +284,8 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      elevation: 4,
-                      clipBehavior: Clip.antiAliasWithSaveLayer,
-                      margin: EdgeInsets.zero,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
                       child: Image.asset(
                         'assets/images/tost.png',
                         height: 160,
@@ -302,13 +297,8 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      elevation: 4,
-                      clipBehavior: Clip.antiAliasWithSaveLayer,
-                      margin: EdgeInsets.zero,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
                       child: Image.asset(
                         'assets/images/sandwich.png',
                         height: 160,
@@ -323,32 +313,24 @@ class _HomePageState extends State<HomePage> {
                     child: Row(
                       children: [
                         Expanded(
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            elevation: 4,
-                            clipBehavior: Clip.antiAliasWithSaveLayer,
-                            margin: EdgeInsets.zero,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
                             child: Image.asset(
                               'assets/images/karisik.png',
                               height: 160,
+                              width: double.infinity,
                               fit: BoxFit.cover,
                             ),
                           ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            elevation: 4,
-                            clipBehavior: Clip.antiAliasWithSaveLayer,
-                            margin: EdgeInsets.zero,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
                             child: Image.asset(
                               'assets/images/cay.png',
                               height: 160,
+                              width: double.infinity,
                               fit: BoxFit.cover,
                             ),
                           ),
