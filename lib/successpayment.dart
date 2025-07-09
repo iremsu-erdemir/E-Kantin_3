@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 
 class SuccessPaymentPage extends StatelessWidget {
-  const SuccessPaymentPage({Key? key}) : super(key: key);
+  final double totalPrice;
+  final String orderNumber;
+  const SuccessPaymentPage({
+    Key? key,
+    required this.totalPrice,
+    required this.orderNumber,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +33,9 @@ class SuccessPaymentPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                '4 4 5 6',
-                style: TextStyle(
+              Text(
+                orderNumber,
+                style: const TextStyle(
                   color: Colors.redAccent,
                   fontWeight: FontWeight.bold,
                   fontSize: 36,
@@ -43,9 +49,9 @@ class SuccessPaymentPage extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
-              const Text(
-                'Siparişinizi merkez kantinden yukarıdaki takip numarası ile alabilirsiniz',
-                style: TextStyle(fontSize: 15, color: Colors.black54),
+              Text(
+                'Siparişinizi merkez kantinden yukarıdaki takip numarası ile alabilirsiniz\nToplam: ₺${totalPrice.toStringAsFixed(2)}',
+                style: const TextStyle(fontSize: 15, color: Colors.black54),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
@@ -54,7 +60,6 @@ class SuccessPaymentPage extends StatelessWidget {
                 height: 48,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Siparişlerim sayfasına yönlendirme yapılabilir
                     Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                   style: ElevatedButton.styleFrom(

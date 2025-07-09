@@ -1,9 +1,16 @@
 import 'package:e_kantin/favorilerim.dart';
 import 'package:flutter/material.dart';
 import 'login_page.dart';
+import 'package:provider/provider.dart';
+import 'providers/cart_provider.dart';
 
 void main() {
-  runApp(const EKantinApp());
+  runApp(
+    MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => CartProvider())],
+      child: const EKantinApp(),
+    ),
+  );
 }
 
 class EKantinApp extends StatelessWidget {

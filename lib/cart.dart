@@ -1,63 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'models/cart.dart';
+import 'providers/cart_provider.dart';
 import 'payment.dart';
 
-class CartPage extends StatefulWidget {
+class CartPage extends StatelessWidget {
   const CartPage({Key? key}) : super(key: key);
 
   @override
-  State<CartPage> createState() => _CartPageState();
-}
-
-class _CartPageState extends State<CartPage> {
-  List<CartItem> cartItems = [
-    CartItem(
-      id: '1',
-      name: 'Favorim 1',
-      imagePath: 'assets/images/sandwichmenu.png',
-      price: 85.5,
-    ),
-    CartItem(
-      id: '2',
-      name: 'Kendi Seçimim',
-      imagePath: 'assets/images/sandwichmenu.png',
-      price: 85.5,
-    ),
-    CartItem(
-      id: '3',
-      name: 'Tost Menü 3',
-      imagePath: 'assets/images/sandwichmenu.png',
-      price: 171.0,
-    ),
-    CartItem(
-      id: '4',
-      name: 'Sandviç Menü 1',
-      imagePath: 'assets/images/sandwichmenu.png',
-      price: 85.5,
-    ),
-  ];
-
-  double get totalPrice =>
-      cartItems.fold(0, (sum, item) => sum + item.price * item.quantity);
-
-  void removeItem(int index) {
-    setState(() {
-      cartItems.removeAt(index);
-    });
-  }
-
-  void changeQuantity(int index, int delta) {
-    setState(() {
-      final item = cartItems[index];
-      final newQty = item.quantity + delta;
-      if (newQty > 0) {
-        item.quantity = newQty;
-      }
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final cartProvider = context.watch<CartProvider>();
+    final cartItems = cartProvider.items;
+    final double totalPrice = cartItems.fold(
+      0,
+      (sum, item) => sum + item.price * item.quantity,
+    );
+
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
       appBar: AppBar(
@@ -158,7 +116,19 @@ class _CartPageState extends State<CartPage> {
                                     color: Colors.redAccent,
                                     size: 22,
                                   ),
-                                  onPressed: () => changeQuantity(index, -1),
+                                  onPressed: () {
+                                    if (item.quantity > 1) {
+                                      cartProvider.addOrUpdate(
+                                        CartItem(
+                                          id: item.id,
+                                          name: item.name,
+                                          imagePath: item.imagePath,
+                                          price: item.price,
+                                          quantity: -1,
+                                        ),
+                                      );
+                                    }
+                                  },
                                 ),
                                 Container(
                                   width: 28,
@@ -177,7 +147,17 @@ class _CartPageState extends State<CartPage> {
                                     color: Colors.redAccent,
                                     size: 22,
                                   ),
-                                  onPressed: () => changeQuantity(index, 1),
+                                  onPressed: () {
+                                    cartProvider.addOrUpdate(
+                                      CartItem(
+                                        id: item.id,
+                                        name: item.name,
+                                        imagePath: item.imagePath,
+                                        price: item.price,
+                                        quantity: 1,
+                                      ),
+                                    );
+                                  },
                                 ),
                                 IconButton(
                                   icon: const Icon(
@@ -185,7 +165,10 @@ class _CartPageState extends State<CartPage> {
                                     color: Colors.grey,
                                     size: 26,
                                   ),
-                                  onPressed: () => removeItem(index),
+                                  onPressed: () {
+                                    cartProvider.items.removeAt(index);
+                                    cartProvider.notifyListeners();
+                                  },
                                 ),
                               ],
                             ),
@@ -216,7 +199,8 @@ class _CartPageState extends State<CartPage> {
                         : () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) => const PaymentPage(),
+                                builder: (context) =>
+                                    PaymentPage(totalPrice: totalPrice),
                               ),
                             );
                           },

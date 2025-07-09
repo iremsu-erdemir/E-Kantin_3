@@ -3,6 +3,8 @@ import 'home_page.dart';
 import 'favorilerim.dart';
 import 'cart.dart';
 import 'models/cart.dart';
+import 'package:provider/provider.dart';
+import 'providers/cart_provider.dart';
 
 class CartSingleton {
   static final CartSingleton _instance = CartSingleton._internal();
@@ -379,25 +381,26 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
                         height: 44,
                         child: ElevatedButton(
                           onPressed: () {
-                            CartSingleton().items.add(
-                              CartItem(
-                                id: DateTime.now().millisecondsSinceEpoch
-                                    .toString(),
-                                name: widget.title,
-                                imagePath: widget.imagePath,
-                                price:
-                                    double.tryParse(
-                                      widget.price
-                                          .replaceAll('₺', '')
-                                          .replaceAll(',', '.'),
-                                    ) ??
-                                    0,
-                              ),
+                            final cartProvider = Provider.of<CartProvider>(
+                              context,
+                              listen: false,
                             );
+                            final newItem = CartItem(
+                              id: widget.title,
+                              name: widget.title,
+                              imagePath: widget.imagePath,
+                              price:
+                                  double.tryParse(
+                                    widget.price
+                                        .replaceAll('₺', '')
+                                        .replaceAll(',', '.'),
+                                  ) ??
+                                  0,
+                              quantity: 1,
+                            );
+                            cartProvider.addOrUpdate(newItem);
                             Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => const CartPage(),
-                              ),
+                              MaterialPageRoute(builder: (_) => CartPage()),
                             );
                           },
                           style: ElevatedButton.styleFrom(

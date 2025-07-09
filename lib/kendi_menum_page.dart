@@ -4,6 +4,8 @@ import 'home_page.dart';
 import 'models/favorite_menu.dart';
 import 'cart.dart';
 import 'models/cart.dart';
+import 'providers/cart_provider.dart';
+import 'package:provider/provider.dart';
 
 class CartSingleton {
   static final CartSingleton _instance = CartSingleton._internal();
@@ -429,22 +431,57 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
                 SizedBox(
                   height: 44,
                   child: ElevatedButton(
-                    onPressed: () {
-                      CartSingleton().items.add(
-                        CartItem(
-                          id: DateTime.now().millisecondsSinceEpoch.toString(),
-                          name: 'Kendi Seçimim',
-                          imagePath: ekmekTipi == 'Tost'
-                              ? 'assets/images/tost.png'
-                              : 'assets/images/sandwichmenu.png',
-                          price: totalPrice,
-                        ),
+                    onPressed: () async {
+                      String? menuName = await showDialog<String>(
+                        context: context,
+                        builder: (context) {
+                          final controller = TextEditingController();
+                          return AlertDialog(
+                            title: Text('Menü İsmi Girin'),
+                            content: TextField(
+                              controller: controller,
+                              decoration: InputDecoration(hintText: 'Menü adı'),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text('İptal'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  if (controller.text.trim().isNotEmpty) {
+                                    Navigator.pop(
+                                      context,
+                                      controller.text.trim(),
+                                    );
+                                  }
+                                },
+                                child: Text('Ekle'),
+                              ),
+                            ],
+                          );
+                        },
                       );
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const CartPage(),
-                        ),
+                      if (menuName == null || menuName.isEmpty) return;
+
+                      final cartProvider = Provider.of<CartProvider>(
+                        context,
+                        listen: false,
                       );
+                      final newItem = CartItem(
+                        id: menuName,
+                        name: menuName,
+                        imagePath: ekmekTipi == 'Tost'
+                            ? 'assets/images/tost.png'
+                            : 'assets/images/sandwichmenu.png',
+                        price: totalPrice,
+                        quantity: 1,
+                      );
+                      cartProvider.addOrUpdate(newItem);
+
+                      Navigator.of(
+                        context,
+                      ).push(MaterialPageRoute(builder: (_) => CartPage()));
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.redAccent,
