@@ -1,5 +1,15 @@
 import 'package:flutter/material.dart';
 import 'home_page.dart';
+import 'favorilerim.dart';
+import 'cart.dart';
+import 'models/cart.dart';
+
+class CartSingleton {
+  static final CartSingleton _instance = CartSingleton._internal();
+  factory CartSingleton() => _instance;
+  CartSingleton._internal();
+  final List<CartItem> items = [];
+}
 
 class SandwichDetailPage extends StatefulWidget {
   final String imagePath;
@@ -24,6 +34,136 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
   String ekmekTipi = 'Normal';
 
   double get totalPrice => 85.5 + (isCeyrek ? 5.5 : 0.0);
+
+  void _showFavoriteDialog() {
+    final TextEditingController _controller = TextEditingController();
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return Center(
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              width: 320,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.07),
+                    blurRadius: 18,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Favorilere Eklemek\nİster misiniz ?',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 20,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  TextField(
+                    controller: _controller,
+                    decoration: const InputDecoration(
+                      hintText: 'İsim Yazınız....',
+                      border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(
+                              color: Colors.red,
+                              width: 1.5,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            backgroundColor: Colors.white,
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.close, color: Colors.red),
+                              SizedBox(width: 8),
+                              Text(
+                                'Hayır',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(
+                              color: Colors.green,
+                              width: 1.5,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            backgroundColor: Colors.white,
+                          ),
+                          onPressed: () {
+                            final String isim = _controller.text.trim();
+                            if (isim.isEmpty) return;
+                            Navigator.of(context).pop();
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => FavorilerimPage(
+                                  favoriler: [],
+                                ), // örnek olarak boş liste
+                              ),
+                            );
+                          },
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.check, color: Colors.green),
+                              SizedBox(width: 8),
+                              Text(
+                                'Evet',
+                                style: TextStyle(color: Colors.green),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +192,16 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
           ),
         ),
         centerTitle: false,
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.add_circle_outline,
+              color: Colors.redAccent,
+              size: 28,
+            ),
+            onPressed: _showFavoriteDialog,
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -228,7 +378,28 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
                       SizedBox(
                         height: 44,
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            CartSingleton().items.add(
+                              CartItem(
+                                id: DateTime.now().millisecondsSinceEpoch
+                                    .toString(),
+                                name: widget.title,
+                                imagePath: widget.imagePath,
+                                price:
+                                    double.tryParse(
+                                      widget.price
+                                          .replaceAll('₺', '')
+                                          .replaceAll(',', '.'),
+                                    ) ??
+                                    0,
+                              ),
+                            );
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const CartPage(),
+                              ),
+                            );
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.redAccent,
                             foregroundColor: Colors.white,

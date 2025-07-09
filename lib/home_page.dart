@@ -6,6 +6,7 @@ import 'tost.page.dart';
 import 'models/user.dart';
 import 'sandwich.page.dart';
 import 'kendi_menum_page.dart';
+import 'favorilerim.dart';
 
 class HomePage extends StatefulWidget {
   final User user;
@@ -382,6 +383,15 @@ class _HomePageState extends State<HomePage> {
               setState(() {
                 _selectedIndex = index;
               });
+              if (index == 1) {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => FavorilerimPage(
+                      favoriler: [],
+                    ), // örnek olarak boş liste
+                  ),
+                );
+              }
             },
             icons: _bottomIcons,
           ),

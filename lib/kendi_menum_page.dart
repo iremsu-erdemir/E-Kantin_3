@@ -1,5 +1,16 @@
+import 'package:e_kantin/favorilerim.dart';
 import 'package:flutter/material.dart';
 import 'home_page.dart';
+import 'models/favorite_menu.dart';
+import 'cart.dart';
+import 'models/cart.dart';
+
+class CartSingleton {
+  static final CartSingleton _instance = CartSingleton._internal();
+  factory CartSingleton() => _instance;
+  CartSingleton._internal();
+  final List<CartItem> items = [];
+}
 
 class KendiMenumPage extends StatefulWidget {
   const KendiMenumPage({Key? key}) : super(key: key);
@@ -24,6 +35,10 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
   List<String> icerikFiyat = ['+₺5,50', '+₺5,50', '+₺5,50', 'Tükendi'];
 
   double get totalPrice => 85.5;
+  int _selectedIndex = 0;
+  List<FavoriteMenu> favoriListesi = [];
+  // İçindekiler için seçili indexi tutan bir değişken ekle
+  int? seciliIcerikIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -186,7 +201,45 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
                                       backgroundColor: Colors.white,
                                     ),
                                     onPressed: () {
+                                      if (_favController.text.trim().isEmpty)
+                                        return;
+                                      final yeniFavori = FavoriteMenu(
+                                        name: _favController.text.trim(),
+                                        isCeyrek: isCeyrek,
+                                        isTam: isTam,
+                                        ekmekTipi: ekmekTipi,
+                                        ekmekTuru: ekmekTuru,
+                                        secilenIcerikler:
+                                            seciliIcerikIndex != null
+                                            ? [icerikler[seciliIcerikIndex!]]
+                                            : [],
+                                        imagePath: ekmekTipi == 'Tost'
+                                            ? 'assets/images/tost.png'
+                                            : 'assets/images/sandwich.png',
+                                      );
+                                      setState(() {
+                                        favoriListesi.add(yeniFavori);
+                                      });
                                       Navigator.of(context).pop();
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: const Text(
+                                            'Favorilere başarıyla eklendi!',
+                                          ),
+                                          backgroundColor: Colors.green,
+                                          behavior: SnackBarBehavior.floating,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          duration: const Duration(
+                                            milliseconds: 900,
+                                          ), // Süreyi kısalttık
+                                        ),
+                                      );
                                     },
                                     child: const Row(
                                       mainAxisAlignment:
@@ -221,6 +274,7 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 8),
+            // Ekmek Seçimi için radio butonlar:
             const Text(
               'Ekmek Seçimi',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -228,12 +282,13 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
             const SizedBox(height: 10),
             Row(
               children: [
-                Checkbox(
-                  value: isCeyrek,
+                Radio<String>(
+                  value: 'Çeyrek',
+                  groupValue: isCeyrek ? 'Çeyrek' : 'Tam',
                   onChanged: (val) {
                     setState(() {
-                      isCeyrek = val!;
-                      if (isCeyrek) isTam = false;
+                      isCeyrek = val == 'Çeyrek';
+                      isTam = val == 'Tam';
                     });
                   },
                   activeColor: Colors.redAccent,
@@ -245,12 +300,13 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
             ),
             Row(
               children: [
-                Checkbox(
-                  value: isTam,
+                Radio<String>(
+                  value: 'Tam',
+                  groupValue: isCeyrek ? 'Çeyrek' : 'Tam',
                   onChanged: (val) {
                     setState(() {
-                      isTam = val!;
-                      if (isTam) isCeyrek = false;
+                      isCeyrek = val == 'Çeyrek';
+                      isTam = val == 'Tam';
                     });
                   },
                   activeColor: Colors.redAccent,
@@ -324,12 +380,13 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
             ...List.generate(icerikler.length, (i) {
               return Row(
                 children: [
-                  Checkbox(
-                    value: icerikSecili[i],
+                  Radio<int>(
+                    value: i,
+                    groupValue: seciliIcerikIndex,
                     onChanged: icerikEnabled[i]
                         ? (val) {
                             setState(() {
-                              icerikSecili[i] = val!;
+                              seciliIcerikIndex = val;
                             });
                           }
                         : null,
@@ -372,7 +429,23 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
                 SizedBox(
                   height: 44,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      CartSingleton().items.add(
+                        CartItem(
+                          id: DateTime.now().millisecondsSinceEpoch.toString(),
+                          name: 'Kendi Seçimim',
+                          imagePath: ekmekTipi == 'Tost'
+                              ? 'assets/images/tost.png'
+                              : 'assets/images/sandwichmenu.png',
+                          price: totalPrice,
+                        ),
+                      );
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const CartPage(),
+                        ),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.redAccent,
                       foregroundColor: Colors.white,
@@ -394,9 +467,20 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
         ),
       ),
       bottomNavigationBar: EKBottomNavBar(
-        selectedIndex: 0,
+        selectedIndex: _selectedIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+          if (index == 1) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => FavorilerimPage(favoriler: favoriListesi),
+              ),
+            );
+          }
+        },
         icons: bottomIcons,
-        onTap: (index) {},
       ),
     );
   }
