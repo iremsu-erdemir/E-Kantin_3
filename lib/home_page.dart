@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'login_page.dart';
 import 'tost.page.dart';
 import 'models/user.dart';
+import 'sandwich.page.dart';
 
 class HomePage extends StatefulWidget {
   final User user;
@@ -312,10 +313,19 @@ class _HomePageState extends State<HomePage> {
                   // Ortada tam genişlikte kart (Sandviçler)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: _CategoryCard(
-                      imagePath: 'assets/images/sandwich.png',
-                      title: 'Sandviçler',
-                      height: 160,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const SandwichPage(),
+                          ),
+                        );
+                      },
+                      child: _CategoryCard(
+                        imagePath: 'assets/images/sandwich.png',
+                        title: 'Sandviçler',
+                        height: 160,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -327,7 +337,7 @@ class _HomePageState extends State<HomePage> {
                         Expanded(
                           child: _CategoryCard(
                             imagePath: 'assets/images/karisik.png',
-                            title: 'Kendi Menünü Oluştur',
+                            title: '',
                             height: 100,
                           ),
                         ),
@@ -335,7 +345,7 @@ class _HomePageState extends State<HomePage> {
                         Expanded(
                           child: _CategoryCard(
                             imagePath: 'assets/images/cay.png',
-                            title: 'Çay Ocağı',
+                            title: '',
                             height: 100,
                           ),
                         ),
@@ -390,11 +400,7 @@ class _CategoryCard extends StatelessWidget {
         ],
       ),
       clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: [
-          Positioned.fill(child: Image.asset(imagePath, fit: BoxFit.cover)),
-        ],
-      ),
+      child: Image.asset(imagePath, fit: BoxFit.cover),
     );
   }
 }
