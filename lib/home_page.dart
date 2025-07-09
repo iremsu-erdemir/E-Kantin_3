@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'login_page.dart';
+import 'tost.page.dart';
+import 'models/user.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final User user;
+  const HomePage({Key? key, required this.user}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -74,9 +77,11 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ],
                     ),
-                    child: const CircleAvatar(
+                    child: CircleAvatar(
                       radius: 28,
-                      backgroundImage: AssetImage('assets/images/person.png'),
+                      backgroundImage: widget.user.image != null
+                          ? AssetImage(widget.user.image!) as ImageProvider
+                          : const AssetImage('assets/images/person.png'),
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -84,19 +89,22 @@ class _HomePageState extends State<HomePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         Text(
-                          'Cengiz Demir',
-                          style: TextStyle(
+                          widget.user.name ?? '',
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 19,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
-                          'Yazılım Şube Müdürü',
-                          style: TextStyle(color: Colors.white70, fontSize: 14),
+                          widget.user.role ?? '',
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
                         ),
                       ],
                     ),
@@ -282,57 +290,53 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  // Üstte büyük kart (Tostlar)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: Image.asset(
-                        'assets/images/tost.png',
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const TostPage(),
+                          ),
+                        );
+                      },
+                      child: _CategoryCard(
+                        imagePath: 'assets/images/tost.png',
+                        title: 'Tostlar',
                         height: 160,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
+                  // Ortada tam genişlikte kart (Sandviçler)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: Image.asset(
-                        'assets/images/sandwich.png',
-                        height: 160,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
+                    child: _CategoryCard(
+                      imagePath: 'assets/images/sandwich.png',
+                      title: 'Sandviçler',
+                      height: 160,
                     ),
                   ),
                   const SizedBox(height: 16),
+                  // Altta iki küçük kart yan yana
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Row(
                       children: [
                         Expanded(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Image.asset(
-                              'assets/images/karisik.png',
-                              height: 160,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
+                          child: _CategoryCard(
+                            imagePath: 'assets/images/karisik.png',
+                            title: 'Kendi Menünü Oluştur',
+                            height: 100,
                           ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Image.asset(
-                              'assets/images/cay.png',
-                              height: 160,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
+                          child: _CategoryCard(
+                            imagePath: 'assets/images/cay.png',
+                            title: 'Çay Ocağı',
+                            height: 100,
                           ),
                         ),
                       ],
@@ -344,56 +348,114 @@ class _HomePageState extends State<HomePage> {
           ),
 
           // Bottom Navigation
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, -5),
-                ),
-              ],
-            ),
-            height: 84,
-            padding: const EdgeInsets.only(bottom: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(_bottomIcons.length, (index) {
-                final isSelected = _selectedIndex == index;
-                final iconName = _bottomIcons[index];
-                return Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedIndex = index;
-                      });
-                    },
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          height: 4,
-                          width: 32,
-                          color: isSelected ? Colors.black : Colors.transparent,
-                        ),
-                        const SizedBox(height: 6),
-                        Image.asset(
-                          'assets/images/$iconName',
-                          width: 28,
-                          height: 28,
-                          color: isSelected ? Colors.black : Colors.grey[400],
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-            ),
+          EKBottomNavBar(
+            selectedIndex: _selectedIndex,
+            onTap: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
+            icons: _bottomIcons,
           ),
         ],
+      ),
+    );
+  }
+}
+
+// Widget: _CategoryCard
+class _CategoryCard extends StatelessWidget {
+  final String imagePath;
+  final String title;
+  final double height;
+  const _CategoryCard({
+    required this.imagePath,
+    required this.title,
+    required this.height,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          Positioned.fill(child: Image.asset(imagePath, fit: BoxFit.cover)),
+        ],
+      ),
+    );
+  }
+}
+
+// Yeni widget: EKBottomNavBar
+class EKBottomNavBar extends StatelessWidget {
+  final int selectedIndex;
+  final Function(int) onTap;
+  final List<String> icons;
+  const EKBottomNavBar({
+    required this.selectedIndex,
+    required this.onTap,
+    required this.icons,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      height: 84,
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: List.generate(icons.length, (index) {
+          final isSelected = selectedIndex == index;
+          final iconName = icons[index];
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => onTap(index),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    height: 4,
+                    width: 32,
+                    color: isSelected ? Colors.black : Colors.transparent,
+                  ),
+                  const SizedBox(height: 6),
+                  Image.asset(
+                    'assets/images/$iconName',
+                    width: 28,
+                    height: 28,
+                    color: isSelected ? Colors.black : Colors.grey[400],
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
       ),
     );
   }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart';
-import 'home_page.dart';
 
 void main() {
   runApp(const EKantinApp());
@@ -22,7 +21,7 @@ class EKantinApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Poppins',
       ),
-      home: HomePage(),
+      home: const LoginPage(),
     );
   }
 }

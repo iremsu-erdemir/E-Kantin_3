@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'services/user_service.dart';
+import 'models/user.dart';
+import 'home_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -11,16 +14,16 @@ class _LoginPageState extends State<LoginPage> {
   bool _rememberMe = false;
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _loading = false;
+  String? _error;
 
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
-    // Görseldeki ekmekli arka planın en boy oranına göre yüksekliği hesaplayın
-    // Yaklaşık olarak 408.89 / 440.73 oranı kullanıldı.
     final double imageHeight = screenWidth * (408.89 / 440.73);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5), // Arka plan rengi
+      backgroundColor: const Color(0xFFF5F5F5),
       body: Stack(
         children: [
           // Üstte ekmekli arka plan resmi
@@ -124,14 +127,23 @@ class _LoginPageState extends State<LoginPage> {
                         ],
                       ),
                       const SizedBox(height: 18), // Boşluk
+                      if (_error != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Text(
+                            _error!,
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
                       // Giriş Butonu
                       SizedBox(
                         width: double.infinity, // Genişliği doldur
                         height: 48, // Yükseklik
                         child: ElevatedButton(
-                          onPressed: () {
-                            // Giriş butonu tıklandığında yapılacak işlemler
-                          },
+                          onPressed: _loading ? null : _handleLogin,
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
                                 Colors.redAccent, // Buton arka plan rengi
@@ -147,7 +159,16 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             elevation: 0, // Gölge yok
                           ),
-                          child: const Text('Giriş'),
+                          child: _loading
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Text('Giriş'),
                         ),
                       ),
                       const SizedBox(height: 32), // Boşluk
@@ -179,6 +200,29 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  Future<void> _handleLogin() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    final user = await UserService().login(
+      _usernameController.text.trim(),
+      _passwordController.text.trim(),
+    );
+    setState(() {
+      _loading = false;
+    });
+    if (user != null) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => HomePage(user: user)),
+      );
+    } else {
+      setState(() {
+        _error = 'Kullanıcı adı veya şifre hatalı!';
+      });
+    }
+  }
+
   Widget _buildTextField({
     required TextEditingController controller,
     required String hintText,
@@ -202,9 +246,9 @@ class _LoginPageState extends State<LoginPage> {
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: hintText,
-          hintStyle: const TextStyle(color: Colors.black54),
+          hintStyle: const TextStyle(color: Colors.black26),
           contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
+            horizontal: 12,
             vertical: 0,
           ),
           isDense: true,
