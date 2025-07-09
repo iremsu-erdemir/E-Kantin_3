@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'models/tost.dart';
 import 'services/tost_service.dart';
 import 'home_page.dart';
+import 'sandwich_detail.page.dart';
 
 class TostPage extends StatelessWidget {
   const TostPage({Key? key}) : super(key: key);
@@ -32,7 +33,7 @@ class TostPage extends StatelessWidget {
             fontSize: 20,
           ),
         ),
-        centerTitle: true,
+        centerTitle: false,
       ),
       body: FutureBuilder<List<Tost>>(
         future: TostService().fetchTostlar(),
@@ -48,70 +49,84 @@ class TostPage extends StatelessWidget {
                 const Divider(height: 1, color: Color(0xFFF0F0F0)),
             itemBuilder: (context, index) {
               final item = tostlar[index];
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image.asset(
-                        item.image,
-                        width: 56,
-                        height: 56,
-                        fit: BoxFit.cover,
+              return GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => SandwichDetailPage(
+                        imagePath: 'assets/images/sandwichMenu.png',
+                        title: item.title,
+                        desc: item.desc,
+                        price: item.price,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.title,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                              color: Colors.black,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            item.desc,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Colors.black54,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              Text(
-                                item.price,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
-                                  color: Colors.black,
-                                ),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.asset(
+                          item.image,
+                          width: 56,
+                          height: 56,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.title,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                color: Colors.black,
                               ),
-                              const SizedBox(width: 12),
-                              if (!item.stock)
-                                const Text(
-                                  'Tükendi',
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              item.desc,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.black54,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Text(
+                                  item.price,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                    color: Colors.black,
                                   ),
                                 ),
-                            ],
-                          ),
-                        ],
+                                const SizedBox(width: 12),
+                                if (!item.stock)
+                                  const Text(
+                                    'Tükendi',
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },

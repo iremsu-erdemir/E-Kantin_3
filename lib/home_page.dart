@@ -5,6 +5,7 @@ import 'login_page.dart';
 import 'tost.page.dart';
 import 'models/user.dart';
 import 'sandwich.page.dart';
+import 'kendi_menum_page.dart';
 
 class HomePage extends StatefulWidget {
   final User user;
@@ -304,7 +305,7 @@ class _HomePageState extends State<HomePage> {
                       },
                       child: _CategoryCard(
                         imagePath: 'assets/images/tost.png',
-                        title: 'Tostlar',
+                        title: '',
                         height: 160,
                       ),
                     ),
@@ -323,7 +324,7 @@ class _HomePageState extends State<HomePage> {
                       },
                       child: _CategoryCard(
                         imagePath: 'assets/images/sandwich.png',
-                        title: 'Sandviçler',
+                        title: '',
                         height: 160,
                       ),
                     ),
@@ -333,20 +334,37 @@ class _HomePageState extends State<HomePage> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: _CategoryCard(
-                            imagePath: 'assets/images/karisik.png',
-                            title: '',
-                            height: 100,
+                          child: AspectRatio(
+                            aspectRatio: 1.8,
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const KendiMenumPage(),
+                                  ),
+                                );
+                              },
+                              child: _CategoryCard(
+                                imagePath: 'assets/images/karisik.png',
+                                title: '',
+                                height: double.infinity,
+                              ),
+                            ),
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 12),
                         Expanded(
-                          child: _CategoryCard(
-                            imagePath: 'assets/images/cay.png',
-                            title: '',
-                            height: 100,
+                          child: AspectRatio(
+                            aspectRatio: 1.8,
+                            child: _CategoryCard(
+                              imagePath: 'assets/images/cay.png',
+                              title: '',
+                              height: double.infinity,
+                            ),
                           ),
                         ),
                       ],
