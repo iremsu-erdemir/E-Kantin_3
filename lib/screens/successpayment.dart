@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../components/ek_bottom_nav_bar.dart';
 
 class SuccessPaymentPage extends StatelessWidget {
   final double totalPrice;
@@ -80,6 +81,11 @@ class SuccessPaymentPage extends StatelessWidget {
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: EKBottomNavBar(
+        currentIndex: 3,
+        highlightIndex: 3,
+        parentContext: context,
       ),
     );
   }

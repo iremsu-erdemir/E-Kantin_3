@@ -144,6 +144,7 @@ class _PaymentPageState extends State<PaymentPage> {
   UserCard? selectedUserCard;
   bool isLoading = true;
   bool showCardDropdown = false;
+  bool isCardSelected = false; // Dropdown'dan kart seçildi mi?
 
   // Form controllerlar
   final TextEditingController nameController = TextEditingController();
@@ -163,6 +164,12 @@ class _PaymentPageState extends State<PaymentPage> {
   void initState() {
     super.initState();
     _loadUserCards();
+    // Sayfa ilk açıldığında hiçbir kart seçili olmasın, alanlar boş gelsin
+    selectedUserCard = null;
+    nameController.clear();
+    cardController.clear();
+    dateController.clear();
+    cvcController.clear();
   }
 
   @override
@@ -179,33 +186,30 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   Future<void> _loadUserCards() async {
-    userCards = await UserCardService.getCards();
-    // Test için en az 2 kart ekle (mock)
-    if (userCards.length < 2) {
-      userCards = [
-        UserCard(
-          cardHolder: 'Ali Veli',
-          cardNumber: '1234567812345678',
-          expiryDate: '12/25',
-        ),
-        UserCard(
-          cardHolder: 'Ayşe Yılmaz',
-          cardNumber: '8765432187654321',
-          expiryDate: '11/27',
-        ),
-        UserCard(
-          cardHolder: 'Cengiz  Demir',
-          cardNumber: '1234432187654321',
-          expiryDate: '10/37',
-        ),
-      ];
-    }
+    // Sadece bir kişinin (ör. Cengiz Demir) farklı banka kartları
+    userCards = [
+      UserCard(
+        cardHolder: 'CENGIZ DEMIR',
+        cardNumber: '5400123412341234',
+        expiryDate: '12/27',
+        cvc: '123',
+      ),
+      UserCard(
+        cardHolder: 'CENGIZ DEMIR',
+        cardNumber: '4543123412345678',
+        expiryDate: '11/28',
+        cvc: '456',
+      ),
+      UserCard(
+        cardHolder: 'CENGIZ DEMIR',
+        cardNumber: '4023123412349876',
+        expiryDate: '10/29',
+        cvc: '789',
+      ),
+    ];
     setState(() {
       isLoading = false;
-      if (userCards.isNotEmpty) {
-        selectedUserCard = userCards.first;
-        _fillControllers(selectedUserCard!);
-      }
+      // selectedUserCard = null; // Zaten yukarıda null
     });
   }
 
@@ -216,10 +220,14 @@ class _PaymentPageState extends State<PaymentPage> {
     cvcController.clear();
   }
 
+  // Kayıtlı kart seçildiğinde:
   void _onCardSelected(UserCard card) {
     setState(() {
       selectedUserCard = card;
-      _fillControllers(card);
+      nameController.text = card.cardHolder;
+      cardController.text = card.cardNumber;
+      dateController.text = card.expiryDate;
+      cvcController.clear();
       showCardDropdown = false;
     });
   }
@@ -394,10 +402,12 @@ class _PaymentPageState extends State<PaymentPage> {
               const Text('Başka Kartla Ödeme Yap', style: kSectionTitleStyle),
               const SizedBox(height: 10),
               AbsorbPointer(
-                absorbing: false, // Sadece CVC aktif olacak
+                absorbing:
+                    (selectedUserCard != null && !showCardDropdown) ||
+                    showCardDropdown,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF3F3F3),
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   padding: const EdgeInsets.symmetric(
@@ -409,14 +419,14 @@ class _PaymentPageState extends State<PaymentPage> {
                       TextFormField(
                         controller: nameController,
                         focusNode: nameFocus,
-                        enabled:
-                            selectedUserCard ==
-                            null, // Sadece kart seçili değilse aktif
+                        enabled: !isCardSelected,
                         decoration: InputDecoration(
                           labelText: 'KART SAHİBİNİN ADI SOYADI',
                           labelStyle: kInputLabelStyle,
                           filled: true,
-                          fillColor: const Color(0xFFF3F3F3),
+                          fillColor: isCardSelected
+                              ? Colors.grey[200]
+                              : Colors.white,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
@@ -441,14 +451,14 @@ class _PaymentPageState extends State<PaymentPage> {
                         focusNode: cardFocus,
                         maxLength: 16,
                         keyboardType: TextInputType.number,
-                        enabled:
-                            selectedUserCard ==
-                            null, // Sadece kart seçili değilse aktif
+                        enabled: !isCardSelected,
                         decoration: InputDecoration(
                           labelText: 'KART NUMARASI',
                           labelStyle: kInputLabelStyle,
                           filled: true,
-                          fillColor: const Color(0xFFF3F3F3),
+                          fillColor: isCardSelected
+                              ? Colors.grey[200]
+                              : Colors.white,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
@@ -472,93 +482,84 @@ class _PaymentPageState extends State<PaymentPage> {
                         },
                       ),
                       const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: dateController,
-                              focusNode: dateFocus,
-                              maxLength: 5,
-                              keyboardType: TextInputType.datetime,
-                              enabled:
-                                  selectedUserCard ==
-                                  null, // Sadece kart seçili değilse aktif
-                              decoration: InputDecoration(
-                                labelText: 'GEÇERLİLİK TARİHİ',
-                                labelStyle: kInputLabelStyle,
-                                hintText: 'mm/yy',
-                                filled: true,
-                                fillColor: const Color(0xFFF3F3F3),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide.none,
-                                ),
-                                errorText: dateError,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 14,
-                                ),
-                                counterText: '',
-                              ),
-                              validator: (value) {
-                                final date = value?.trim() ?? '';
-                                if (date.isEmpty) {
-                                  return 'Tarih zorunlu';
-                                }
-                                if (!RegExp(
-                                  r'^(0[1-9]|1[0-2])\/\d{2}',
-                                ).hasMatch(date)) {
-                                  return 'MM/YY formatında girin';
-                                }
-                                return null;
-                              },
-                            ),
+                      TextFormField(
+                        controller: dateController,
+                        focusNode: dateFocus,
+                        maxLength: 5,
+                        keyboardType: TextInputType.datetime,
+                        enabled: !isCardSelected,
+                        decoration: InputDecoration(
+                          labelText: 'GEÇERLİLİK TARİHİ',
+                          labelStyle: kInputLabelStyle,
+                          hintText: 'mm/yy',
+                          filled: true,
+                          fillColor: isCardSelected
+                              ? Colors.grey[200]
+                              : Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: TextFormField(
-                              controller: cvcController,
-                              focusNode: cvcFocus,
-                              maxLength: 3,
-                              keyboardType: TextInputType.number,
-                              enabled: true, // CVC her zaman aktif
-                              style: kInputTextStyle, // Koyu renk
-                              decoration: InputDecoration(
-                                labelText: 'CVC',
-                                labelStyle: kInputLabelStyle,
-                                hintText: '***',
-                                filled: true,
-                                fillColor:
-                                    Colors.white, // Gri değil, beyaz arka plan
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide.none,
-                                ),
-                                errorText: cvcError,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 14,
-                                ),
-                                counterText: '',
-                              ),
-                              validator: (value) {
-                                final cvc = value?.trim() ?? '';
-                                if (cvc.isEmpty) {
-                                  return 'CVC zorunlu';
-                                }
-                                if (cvc.length != 3 ||
-                                    int.tryParse(cvc) == null) {
-                                  return '3 haneli CVC girin';
-                                }
-                                return null;
-                              },
-                            ),
+                          errorText: dateError,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
                           ),
-                        ],
+                          counterText: '',
+                        ),
+                        validator: (value) {
+                          final date = value?.trim() ?? '';
+                          if (date.isEmpty) {
+                            return 'Tarih zorunlu';
+                          }
+                          if (!RegExp(
+                            r'^(0[1-9]|1[0-2])\/\d{2}',
+                          ).hasMatch(date)) {
+                            return 'MM/YY formatında girin';
+                          }
+                          return null;
+                        },
                       ),
                     ],
                   ),
                 ),
+              ),
+              const SizedBox(height: 10),
+              // CVC her zaman aktif ve AbsorbPointer dışında
+              TextFormField(
+                controller: cvcController,
+                focusNode: cvcFocus,
+                maxLength: 3,
+                keyboardType: TextInputType.number,
+                enabled: true,
+                style: kInputTextStyle,
+                decoration: InputDecoration(
+                  labelText: 'CVC',
+                  labelStyle: kInputLabelStyle,
+                  hintText: '***',
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  errorText: cvcError,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  counterText: '',
+                ),
+                validator: (value) {
+                  final cvc = value?.trim() ?? '';
+                  if (cvc.isEmpty) {
+                    return 'CVC zorunlu';
+                  }
+                  if (cvc.length != 3 || int.tryParse(cvc) == null) {
+                    return '3 haneli CVC girin';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 32),
               Row(
@@ -583,11 +584,21 @@ class _PaymentPageState extends State<PaymentPage> {
                               );
                             }
                           : () {
-                              print("Kart Adı: '${nameController.text}'");
-                              print("Kart No: '${cardController.text}'");
-                              print("Tarih: '${dateController.text}'");
-                              print("CVC: '${cvcController.text}'");
                               if (_formKey.currentState!.validate()) {
+                                // Eğer kayıtlı kart seçiliyse CVC kontrolü yap
+                                if (selectedUserCard != null &&
+                                    selectedUserCard!.cvc != null) {
+                                  if (cvcController.text.trim() !=
+                                      selectedUserCard!.cvc) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Yanlış bilgi girdiniz'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                }
                                 Provider.of<CartProvider>(
                                   context,
                                   listen: false,
@@ -641,10 +652,8 @@ class _PaymentPageState extends State<PaymentPage> {
         ),
       ),
       bottomNavigationBar: EKBottomNavBar(
-        currentIndex: 2, // PaymentPage için uygun index
-        onTap: (int index) {
-          // Diğer indexler için mevcut davranış devam eder
-        },
+        currentIndex: 3,
+        highlightIndex: 3,
         parentContext: context,
       ),
     );

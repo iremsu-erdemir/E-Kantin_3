@@ -451,7 +451,7 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
                       if (seciliIcerikIndex != null &&
                           icerikFiyat[seciliIcerikIndex!] == 'Tükendi') {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
+                          SnackBar(
                             content: Text('Bu ürün stokta kalmamıştır.'),
                             backgroundColor: Colors.red,
                           ),

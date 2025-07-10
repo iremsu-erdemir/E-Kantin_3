@@ -253,10 +253,8 @@ class CartPage extends StatelessWidget {
         ],
       ),
       bottomNavigationBar: EKBottomNavBar(
-        currentIndex: 2, // CartPage için uygun index
-        onTap: (int index) {
-          // Diğer indexler için mevcut davranış devam eder
-        },
+        currentIndex: 3,
+        highlightIndex: 3,
         parentContext: context,
       ),
     );

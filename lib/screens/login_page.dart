@@ -187,11 +187,6 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ],
       ),
-      bottomNavigationBar: EKBottomNavBar(
-        currentIndex: 0,
-        onTap: (int index) {},
-        parentContext: context,
-      ),
     );
   }
 

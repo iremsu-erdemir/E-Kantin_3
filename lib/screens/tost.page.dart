@@ -54,10 +54,9 @@ class TostPage extends StatelessWidget {
                 onTap: () {
                   if (!item.stock) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Ürün tükenmiştir'),
-                        backgroundColor: Colors.redAccent,
-                        duration: Duration(seconds: 1),
+                      SnackBar(
+                        content: Text('Ürün tükendi'),
+                        backgroundColor: Colors.red,
                       ),
                     );
                   } else {

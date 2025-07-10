@@ -98,7 +98,7 @@ class FavorilerimPage extends StatelessWidget {
                             Navigator.of(context).pop();
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: const Text('Başarıyla silindi'),
+                                content: Text('Başarıyla silindi'),
                                 backgroundColor: Colors.green,
                                 behavior: SnackBarBehavior.floating,
                                 shape: RoundedRectangleBorder(

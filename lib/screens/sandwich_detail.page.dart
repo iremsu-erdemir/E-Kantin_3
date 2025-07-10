@@ -255,7 +255,10 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
                 listen: false,
               ).addFavorite(menu);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Favorilere eklendi!')),
+                SnackBar(
+                  content: Text('Favorilere eklendi!'),
+                  backgroundColor: Colors.green,
+                ),
               );
             },
           ),
@@ -439,11 +442,11 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
                           onPressed: () {
                             if (!isLoggedIn) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
+                                SnackBar(
                                   content: Text(
                                     'Lütfen giriş yapmadan önce bu işlemi gerçekleştiremezsiniz.',
                                   ),
-                                  backgroundColor: Colors.redAccent,
+                                  backgroundColor: Colors.red,
                                 ),
                               );
                               return;

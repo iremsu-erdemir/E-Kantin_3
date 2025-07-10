@@ -3,11 +3,13 @@ class UserCard {
   final String cardHolder;
   final String cardNumber; // Tam numara, sadece son 4 hane UI'de gösterilecek
   final String expiryDate; // MM/YY
+  final String? cvc; // CVC sadece modelde, UI'da gösterilmez
 
   UserCard({
     required this.cardHolder,
     required this.cardNumber,
     required this.expiryDate,
+    this.cvc,
   });
 
   /// Son 4 haneyi döndürür (güvenlik için)
@@ -19,6 +21,7 @@ class UserCard {
     'cardHolder': cardHolder,
     'cardNumber': cardNumber,
     'expiryDate': expiryDate,
+    if (cvc != null) 'cvc': cvc,
   };
 
   /// JSON'dan nesne oluştur
@@ -26,6 +29,7 @@ class UserCard {
     cardHolder: json['cardHolder'],
     cardNumber: json['cardNumber'],
     expiryDate: json['expiryDate'],
+    cvc: json['cvc'],
   );
 
   @override
