@@ -395,172 +395,168 @@ class _PaymentPageState extends State<PaymentPage> {
               const SizedBox(height: 10),
               AbsorbPointer(
                 absorbing: false, // Sadece CVC aktif olacak
-                child: Opacity(
-                  opacity: selectedUserCard != null ? 0.5 : 1.0, // Gri görünüm
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF3F3F3),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    child: Column(
-                      children: [
-                        TextFormField(
-                          controller: nameController,
-                          focusNode: nameFocus,
-                          enabled:
-                              selectedUserCard ==
-                              null, // Sadece kart seçili değilse aktif
-                          decoration: InputDecoration(
-                            labelText: 'KART SAHİBİNİN ADI SOYADI',
-                            labelStyle: kInputLabelStyle,
-                            filled: true,
-                            fillColor: const Color(0xFFF3F3F3),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
-                            ),
-                            errorText: nameError,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
-                            ),
-                            counterText: '',
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3F3F3),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: nameController,
+                        focusNode: nameFocus,
+                        enabled:
+                            selectedUserCard ==
+                            null, // Sadece kart seçili değilse aktif
+                        decoration: InputDecoration(
+                          labelText: 'KART SAHİBİNİN ADI SOYADI',
+                          labelStyle: kInputLabelStyle,
+                          filled: true,
+                          fillColor: const Color(0xFFF3F3F3),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
                           ),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'İsim zorunlu';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 10),
-                        TextFormField(
-                          controller: cardController,
-                          focusNode: cardFocus,
-                          maxLength: 16,
-                          keyboardType: TextInputType.number,
-                          enabled:
-                              selectedUserCard ==
-                              null, // Sadece kart seçili değilse aktif
-                          decoration: InputDecoration(
-                            labelText: 'KART NUMARASI',
-                            labelStyle: kInputLabelStyle,
-                            filled: true,
-                            fillColor: const Color(0xFFF3F3F3),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
-                            ),
-                            errorText: cardError,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
-                            ),
-                            counterText: '',
+                          errorText: nameError,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
                           ),
-                          validator: (value) {
-                            final card =
-                                value?.replaceAll(' ', '').trim() ?? '';
-                            if (card.isEmpty) {
-                              return 'Kart numarası zorunlu';
-                            }
-                            if (card.length != 16 ||
-                                int.tryParse(card) == null) {
-                              return '16 haneli geçerli kart numarası girin';
-                            }
-                            return null;
-                          },
+                          counterText: '',
                         ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: dateController,
-                                focusNode: dateFocus,
-                                maxLength: 5,
-                                keyboardType: TextInputType.datetime,
-                                enabled:
-                                    selectedUserCard ==
-                                    null, // Sadece kart seçili değilse aktif
-                                decoration: InputDecoration(
-                                  labelText: 'GEÇERLİLİK TARİHİ',
-                                  labelStyle: kInputLabelStyle,
-                                  hintText: 'mm/yy',
-                                  filled: true,
-                                  fillColor: const Color(0xFFF3F3F3),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  errorText: dateError,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 14,
-                                  ),
-                                  counterText: '',
-                                ),
-                                validator: (value) {
-                                  final date = value?.trim() ?? '';
-                                  if (date.isEmpty) {
-                                    return 'Tarih zorunlu';
-                                  }
-                                  if (!RegExp(
-                                    r'^(0[1-9]|1[0-2])\/\d{2}',
-                                  ).hasMatch(date)) {
-                                    return 'MM/YY formatında girin';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: TextFormField(
-                                controller: cvcController,
-                                focusNode: cvcFocus,
-                                maxLength: 3,
-                                keyboardType: TextInputType.number,
-                                enabled: true, // CVC her zaman aktif
-                                style: kInputTextStyle, // Koyu renk
-                                decoration: InputDecoration(
-                                  labelText: 'CVC',
-                                  labelStyle: kInputLabelStyle,
-                                  hintText: '***',
-                                  filled: true,
-                                  fillColor: const Color(0xFFF3F3F3),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  errorText: cvcError,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 14,
-                                  ),
-                                  counterText: '',
-                                ),
-                                validator: (value) {
-                                  final cvc = value?.trim() ?? '';
-                                  if (cvc.isEmpty) {
-                                    return 'CVC zorunlu';
-                                  }
-                                  if (cvc.length != 3 ||
-                                      int.tryParse(cvc) == null) {
-                                    return '3 haneli CVC girin';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                          ],
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'İsim zorunlu';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      TextFormField(
+                        controller: cardController,
+                        focusNode: cardFocus,
+                        maxLength: 16,
+                        keyboardType: TextInputType.number,
+                        enabled:
+                            selectedUserCard ==
+                            null, // Sadece kart seçili değilse aktif
+                        decoration: InputDecoration(
+                          labelText: 'KART NUMARASI',
+                          labelStyle: kInputLabelStyle,
+                          filled: true,
+                          fillColor: const Color(0xFFF3F3F3),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          errorText: cardError,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          counterText: '',
                         ),
-                      ],
-                    ),
+                        validator: (value) {
+                          final card = value?.replaceAll(' ', '').trim() ?? '';
+                          if (card.isEmpty) {
+                            return 'Kart numarası zorunlu';
+                          }
+                          if (card.length != 16 || int.tryParse(card) == null) {
+                            return '16 haneli geçerli kart numarası girin';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: dateController,
+                              focusNode: dateFocus,
+                              maxLength: 5,
+                              keyboardType: TextInputType.datetime,
+                              enabled:
+                                  selectedUserCard ==
+                                  null, // Sadece kart seçili değilse aktif
+                              decoration: InputDecoration(
+                                labelText: 'GEÇERLİLİK TARİHİ',
+                                labelStyle: kInputLabelStyle,
+                                hintText: 'mm/yy',
+                                filled: true,
+                                fillColor: const Color(0xFFF3F3F3),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
+                                ),
+                                errorText: dateError,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 14,
+                                ),
+                                counterText: '',
+                              ),
+                              validator: (value) {
+                                final date = value?.trim() ?? '';
+                                if (date.isEmpty) {
+                                  return 'Tarih zorunlu';
+                                }
+                                if (!RegExp(
+                                  r'^(0[1-9]|1[0-2])\/\d{2}',
+                                ).hasMatch(date)) {
+                                  return 'MM/YY formatında girin';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextFormField(
+                              controller: cvcController,
+                              focusNode: cvcFocus,
+                              maxLength: 3,
+                              keyboardType: TextInputType.number,
+                              enabled: true, // CVC her zaman aktif
+                              style: kInputTextStyle, // Koyu renk
+                              decoration: InputDecoration(
+                                labelText: 'CVC',
+                                labelStyle: kInputLabelStyle,
+                                hintText: '***',
+                                filled: true,
+                                fillColor:
+                                    Colors.white, // Gri değil, beyaz arka plan
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
+                                ),
+                                errorText: cvcError,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 14,
+                                ),
+                                counterText: '',
+                              ),
+                              validator: (value) {
+                                final cvc = value?.trim() ?? '';
+                                if (cvc.isEmpty) {
+                                  return 'CVC zorunlu';
+                                }
+                                if (cvc.length != 3 ||
+                                    int.tryParse(cvc) == null) {
+                                  return '3 haneli CVC girin';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
