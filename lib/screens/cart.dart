@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'models/cart.dart';
-import 'providers/cart_provider.dart';
+import '../models/cart.dart';
+import '../providers/cart_provider.dart';
 import 'payment.dart';
+import '../models/user.dart';
+import '../components/ek_bottom_nav_bar.dart';
+import 'favorilerim.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({Key? key}) : super(key: key);
@@ -197,10 +200,32 @@ class CartPage extends StatelessWidget {
                     onPressed: cartItems.isEmpty
                         ? null
                         : () {
+                            // Kullanıcı login kontrolü
+                            print(
+                              'DEBUG: UserSingleton().user =  [33m [1m [4m [7m [41m [30m [0m' +
+                                  (UserSingleton().user?.username ?? 'null'),
+                            );
+                            if (UserSingleton().user == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Lütfen giriş yapmadan önce bu işlemi gerçekleştiremezsiniz.',
+                                  ),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                              return;
+                            }
+                            print(
+                              'DEBUG: PaymentPage user parametresi = ' +
+                                  (UserSingleton().user?.username ?? 'null'),
+                            );
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    PaymentPage(totalPrice: totalPrice),
+                                builder: (context) => PaymentPage(
+                                  totalPrice: totalPrice,
+                                  user: UserSingleton().user,
+                                ),
                               ),
                             );
                           },
@@ -226,6 +251,13 @@ class CartPage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: EKBottomNavBar(
+        currentIndex: 2, // CartPage için uygun index
+        onTap: (int index) {
+          // Diğer indexler için mevcut davranış devam eder
+        },
+        parentContext: context,
       ),
     );
   }

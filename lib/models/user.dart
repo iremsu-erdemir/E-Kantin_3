@@ -23,3 +23,11 @@ class User {
     );
   }
 }
+
+// Kullanıcı bilgisini global tutmak için Singleton
+class UserSingleton {
+  static final UserSingleton _instance = UserSingleton._internal();
+  factory UserSingleton() => _instance;
+  UserSingleton._internal();
+  User? user;
+}

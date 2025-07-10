@@ -1,29 +1,27 @@
 import 'package:flutter/material.dart';
-import 'home_page.dart';
-import 'favorilerim.dart';
-import 'cart.dart';
-import 'models/cart.dart';
 import 'package:provider/provider.dart';
-import 'providers/cart_provider.dart';
-
-class CartSingleton {
-  static final CartSingleton _instance = CartSingleton._internal();
-  factory CartSingleton() => _instance;
-  CartSingleton._internal();
-  final List<CartItem> items = [];
-}
+import 'cart.dart';
+import 'favorilerim.dart';
+import '../models/cart.dart';
+import '../providers/cart_provider.dart';
+import '../models/favorite_menu.dart';
+import '../components/ek_bottom_nav_bar.dart';
+import '../providers/favorite_provider.dart';
 
 class SandwichDetailPage extends StatefulWidget {
   final String imagePath;
   final String title;
   final String desc;
   final String price;
+  final bool stock; // stok bilgisi
+
   const SandwichDetailPage({
     Key? key,
     required this.imagePath,
     required this.title,
     required this.desc,
     required this.price,
+    this.stock = true,
   }) : super(key: key);
 
   @override
@@ -35,17 +33,28 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
   bool isTam = false;
   String ekmekTipi = 'Normal';
 
+  List<FavoriteMenu> favoriListesi = [];
+
+  // Gerçek login kontrolünü kendi yapına göre ayarla
+  bool get isLoggedIn {
+    // Örnek: Provider'dan ya da SharedPreferences'tan alınabilir
+    // Burada true olarak ayarlandı, gerçek kontrolü yapman lazım
+    return true;
+  }
+
   double get totalPrice => 85.5 + (isCeyrek ? 5.5 : 0.0);
 
   void _showFavoriteDialog() {
-    final TextEditingController _controller = TextEditingController();
+    final TextEditingController _favController = TextEditingController();
     showDialog(
       context: context,
       barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.3),
       builder: (context) {
         return Center(
           child: Material(
-            color: Colors.transparent,
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
             child: Container(
               width: 320,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
@@ -65,7 +74,7 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const Text(
-                    'Favorilere Eklemek\nİster misiniz ?',
+                    "Favorilere Eklemek\nİster misiniz ?",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
@@ -75,13 +84,25 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
                   ),
                   const SizedBox(height: 18),
                   TextField(
-                    controller: _controller,
-                    decoration: const InputDecoration(
-                      hintText: 'İsim Yazınız....',
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(
+                    controller: _favController,
+                    decoration: InputDecoration(
+                      hintText: 'İsim Yazınız...',
+                      hintStyle: const TextStyle(color: Colors.black26),
+                      contentPadding: const EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 10,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.black12),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.black12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.redAccent),
                       ),
                     ),
                   ),
@@ -110,7 +131,7 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
                               Icon(Icons.close, color: Colors.red),
                               SizedBox(width: 8),
                               Text(
-                                'Hayır',
+                                "Hayır",
                                 style: TextStyle(color: Colors.red),
                               ),
                             ],
@@ -132,14 +153,31 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
                             backgroundColor: Colors.white,
                           ),
                           onPressed: () {
-                            final String isim = _controller.text.trim();
-                            if (isim.isEmpty) return;
+                            if (_favController.text.trim().isEmpty) return;
+                            final yeniFavori = FavoriteMenu(
+                              name: _favController.text.trim(),
+                              isCeyrek: isCeyrek,
+                              isTam: isTam,
+                              ekmekTipi: ekmekTipi,
+                              ekmekTuru: '',
+                              secilenIcerikler: [],
+                              imagePath: widget.imagePath,
+                            );
+                            setState(() {
+                              favoriListesi.add(yeniFavori);
+                            });
                             Navigator.of(context).pop();
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => FavorilerimPage(
-                                  favoriler: [],
-                                ), // örnek olarak boş liste
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text(
+                                  'Favorilere başarıyla eklendi!',
+                                ),
+                                backgroundColor: Colors.green,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                duration: const Duration(milliseconds: 900),
                               ),
                             );
                           },
@@ -149,7 +187,7 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
                               Icon(Icons.check, color: Colors.green),
                               SizedBox(width: 8),
                               Text(
-                                'Evet',
+                                "Evet",
                                 style: TextStyle(color: Colors.green),
                               ),
                             ],
@@ -176,6 +214,7 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
       'cart.png',
       'person.png',
     ];
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -201,7 +240,24 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
               color: Colors.redAccent,
               size: 28,
             ),
-            onPressed: _showFavoriteDialog,
+            onPressed: () {
+              final menu = FavoriteMenu(
+                name: widget.title,
+                isCeyrek: isCeyrek,
+                isTam: isTam,
+                ekmekTipi: ekmekTipi,
+                ekmekTuru: '',
+                secilenIcerikler: [],
+                imagePath: widget.imagePath,
+              );
+              Provider.of<FavoriteProvider>(
+                context,
+                listen: false,
+              ).addFavorite(menu);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Favorilere eklendi!')),
+              );
+            },
           ),
         ],
       ),
@@ -381,6 +437,27 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
                         height: 44,
                         child: ElevatedButton(
                           onPressed: () {
+                            if (!isLoggedIn) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Lütfen giriş yapmadan önce bu işlemi gerçekleştiremezsiniz.',
+                                  ),
+                                  backgroundColor: Colors.redAccent,
+                                ),
+                              );
+                              return;
+                            }
+                            if (!widget.stock) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Bu ürün stokta kalmamıştır.'),
+                                  backgroundColor: Colors.redAccent,
+                                ),
+                              );
+                              return;
+                            }
+
                             final cartProvider = Provider.of<CartProvider>(
                               context,
                               listen: false,
@@ -427,9 +504,9 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
         ],
       ),
       bottomNavigationBar: EKBottomNavBar(
-        selectedIndex: 0,
-        icons: bottomIcons,
-        onTap: (index) {},
+        currentIndex: 0,
+        onTap: (int index) {},
+        parentContext: context,
       ),
     );
   }

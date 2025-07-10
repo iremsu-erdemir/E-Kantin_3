@@ -1,35 +1,31 @@
-import 'package:e_kantin/favorilerim.dart';
+import 'package:e_kantin/screens/login_page.dart';
 import 'package:flutter/material.dart';
-import 'login_page.dart';
 import 'package:provider/provider.dart';
 import 'providers/cart_provider.dart';
+import 'providers/favorite_provider.dart';
+import 'screens/home_page.dart';
+import 'models/user.dart';
 
 void main() {
-  runApp(
-    MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => CartProvider())],
-      child: const EKantinApp(),
-    ),
-  );
+  runApp(const MyApp());
 }
 
-class EKantinApp extends StatelessWidget {
-  const EKantinApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'E-Kantin',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF2E7D32),
-          brightness: Brightness.light,
-        ),
-        useMaterial3: true,
-        fontFamily: 'Poppins',
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => FavoriteProvider()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'E-Kantin',
+        theme: ThemeData(primarySwatch: Colors.red, fontFamily: 'Poppins'),
+        home: LoginPage(),
       ),
-      home: const LoginPage(),
     );
   }
 }

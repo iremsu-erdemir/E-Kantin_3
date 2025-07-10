@@ -1,11 +1,14 @@
+import 'package:e_kantin/components/ek_bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'login_page.dart';
 import 'tost.page.dart';
-import 'models/user.dart';
+import '../models/user.dart';
 import 'sandwich.page.dart';
 import 'kendi_menum_page.dart';
+import 'package:provider/provider.dart';
+import '../providers/favorite_provider.dart';
 import 'favorilerim.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,14 +21,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-
-  final List<String> _bottomIcons = [
-    'home.png',
-    'wishlist.png',
-    'categories.png',
-    'cart.png',
-    'person.png',
-  ];
 
   @override
   void initState() {
@@ -44,9 +39,18 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
+      appBar: AppBar(
+        toolbarHeight: 0,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark,
+        ),
+      ),
       body: Column(
         children: [
-          // Header
+          // Header bölümü
           Container(
             width: screenWidth,
             height: 170,
@@ -149,8 +153,6 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
                                       children: [
                                         const Text(
                                           "Çıkmak İstediğinizden\nEmin misiniz?",
@@ -268,7 +270,7 @@ class _HomePageState extends State<HomePage> {
                       );
                     },
                     child: Container(
-                      width: 40,
+                      width: 80,
                       height: 40,
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.2),
@@ -286,14 +288,12 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
 
-          // Cards
+          // Kartlar
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Üstte büyük kart (Tostlar)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: GestureDetector(
@@ -304,15 +304,15 @@ class _HomePageState extends State<HomePage> {
                           ),
                         );
                       },
-                      child: _CategoryCard(
+                      child: const _CategoryCard(
                         imagePath: 'assets/images/tost.png',
                         title: '',
                         height: 160,
+                        width: 160,
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Ortada tam genişlikte kart (Sandviçler)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: GestureDetector(
@@ -323,23 +323,22 @@ class _HomePageState extends State<HomePage> {
                           ),
                         );
                       },
-                      child: _CategoryCard(
+                      child: const _CategoryCard(
                         imagePath: 'assets/images/sandwich.png',
                         title: '',
                         height: 160,
+                        width: 160,
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Altta iki küçük kart yan yana
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Expanded(
                           child: AspectRatio(
-                            aspectRatio: 1.8,
+                            aspectRatio: 2.0,
                             child: GestureDetector(
                               onTap: () {
                                 Navigator.of(context).push(
@@ -349,10 +348,11 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 );
                               },
-                              child: _CategoryCard(
+                              child: const _CategoryCard(
                                 imagePath: 'assets/images/karisik.png',
                                 title: '',
                                 height: double.infinity,
+                                width: 100,
                               ),
                             ),
                           ),
@@ -360,11 +360,12 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: AspectRatio(
-                            aspectRatio: 1.8,
-                            child: _CategoryCard(
+                            aspectRatio: 1.6,
+                            child: const _CategoryCard(
                               imagePath: 'assets/images/cay.png',
                               title: '',
                               height: double.infinity,
+                              width: 60,
                             ),
                           ),
                         ),
@@ -375,41 +376,33 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-
-          // Bottom Navigation
-          EKBottomNavBar(
-            selectedIndex: _selectedIndex,
-            onTap: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-              if (index == 1) {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => FavorilerimPage(
-                      favoriler: [],
-                    ), // örnek olarak boş liste
-                  ),
-                );
-              }
-            },
-            icons: _bottomIcons,
-          ),
         ],
+      ),
+      bottomNavigationBar: EKBottomNavBar(
+        currentIndex: _selectedIndex,
+        onTap: (int index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+          // Diğer indexler için mevcut davranış devam eder
+        },
+        parentContext: context,
       ),
     );
   }
 }
 
-// Widget: _CategoryCard
 class _CategoryCard extends StatelessWidget {
   final String imagePath;
   final String title;
   final double height;
+  final double width;
+
   const _CategoryCard({
     required this.imagePath,
     required this.title,
     required this.height,
+    required this.width,
     Key? key,
   }) : super(key: key);
 
@@ -429,68 +422,6 @@ class _CategoryCard extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: Image.asset(imagePath, fit: BoxFit.cover),
-    );
-  }
-}
-
-// Yeni widget: EKBottomNavBar
-class EKBottomNavBar extends StatelessWidget {
-  final int selectedIndex;
-  final Function(int) onTap;
-  final List<String> icons;
-  const EKBottomNavBar({
-    required this.selectedIndex,
-    required this.onTap,
-    required this.icons,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
-      height: 84,
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: List.generate(icons.length, (index) {
-          final isSelected = selectedIndex == index;
-          final iconName = icons[index];
-          return Expanded(
-            child: GestureDetector(
-              onTap: () => onTap(index),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    height: 4,
-                    width: 32,
-                    color: isSelected ? Colors.black : Colors.transparent,
-                  ),
-                  const SizedBox(height: 6),
-                  Image.asset(
-                    'assets/images/$iconName',
-                    width: 28,
-                    height: 28,
-                    color: isSelected ? Colors.black : Colors.grey[400],
-                  ),
-                ],
-              ),
-            ),
-          );
-        }),
-      ),
     );
   }
 }

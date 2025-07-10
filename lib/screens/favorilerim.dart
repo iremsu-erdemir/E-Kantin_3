@@ -1,25 +1,14 @@
 import 'package:flutter/material.dart';
-import 'models/favorite_menu.dart';
+import '../models/favorite_menu.dart';
 import 'kendi_menum_page.dart';
+import '../components/ek_bottom_nav_bar.dart';
+import 'package:provider/provider.dart';
+import '../providers/favorite_provider.dart';
 
-class FavorilerimPage extends StatefulWidget {
-  final List<FavoriteMenu> favoriler;
-  const FavorilerimPage({Key? key, required this.favoriler}) : super(key: key);
+class FavorilerimPage extends StatelessWidget {
+  const FavorilerimPage({Key? key}) : super(key: key);
 
-  @override
-  State<FavorilerimPage> createState() => _FavorilerimPageState();
-}
-
-class _FavorilerimPageState extends State<FavorilerimPage> {
-  late List<FavoriteMenu> favoriler;
-
-  @override
-  void initState() {
-    super.initState();
-    favoriler = List.from(widget.favoriler);
-  }
-
-  void _showDeleteDialog(int index) {
+  void _showDeleteDialog(BuildContext context, int index, FavoriteMenu menu) {
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -102,9 +91,10 @@ class _FavorilerimPageState extends State<FavorilerimPage> {
                             backgroundColor: Colors.white,
                           ),
                           onPressed: () {
-                            setState(() {
-                              favoriler.removeAt(index);
-                            });
+                            Provider.of<FavoriteProvider>(
+                              context,
+                              listen: false,
+                            ).removeFavorite(menu);
                             Navigator.of(context).pop();
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -115,12 +105,6 @@ class _FavorilerimPageState extends State<FavorilerimPage> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 duration: const Duration(milliseconds: 900),
-                              ),
-                            );
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => KendiMenumPage(),
                               ),
                             );
                           },
@@ -150,6 +134,7 @@ class _FavorilerimPageState extends State<FavorilerimPage> {
 
   @override
   Widget build(BuildContext context) {
+    final favoriler = Provider.of<FavoriteProvider>(context).favorites;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -203,38 +188,23 @@ class _FavorilerimPageState extends State<FavorilerimPage> {
               ),
               title: Text(
                 item.name,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.secilenIcerikler.join(", "),
-                    style: const TextStyle(fontSize: 13, color: Colors.black87),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    '₺85,50',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                  ),
-                ],
-              ),
+              subtitle: Text(item.ekmekTipi),
               trailing: IconButton(
-                icon: const Icon(
-                  Icons.remove_circle_outline,
-                  color: Colors.grey,
-                  size: 28,
-                ),
-                onPressed: () {
-                  _showDeleteDialog(index);
-                },
+                icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: () => _showDeleteDialog(context, index, item),
               ),
             ),
           );
         },
+      ),
+      bottomNavigationBar: EKBottomNavBar(
+        currentIndex: 1, // FavorilerimPage için uygun index
+        onTap: (int index) {
+          // Diğer indexler için mevcut davranış devam eder
+        },
+        parentContext: context,
       ),
     );
   }

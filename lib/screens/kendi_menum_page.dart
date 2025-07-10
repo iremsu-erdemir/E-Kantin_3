@@ -1,11 +1,13 @@
-import 'package:e_kantin/favorilerim.dart';
+import 'package:e_kantin/screens/favorilerim.dart';
 import 'package:flutter/material.dart';
-import 'home_page.dart';
-import 'models/favorite_menu.dart';
+import '../components/ek_bottom_nav_bar.dart';
+import '../models/favorite_menu.dart';
 import 'cart.dart';
-import 'models/cart.dart';
-import 'providers/cart_provider.dart';
+import '../models/cart.dart';
+import '../providers/cart_provider.dart';
 import 'package:provider/provider.dart';
+import '../providers/favorite_provider.dart';
+import '../models/user.dart';
 
 class CartSingleton {
   static final CartSingleton _instance = CartSingleton._internal();
@@ -219,9 +221,10 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
                                             ? 'assets/images/tost.png'
                                             : 'assets/images/sandwich.png',
                                       );
-                                      setState(() {
-                                        favoriListesi.add(yeniFavori);
-                                      });
+                                      Provider.of<FavoriteProvider>(
+                                        context,
+                                        listen: false,
+                                      ).addFavorite(yeniFavori);
                                       Navigator.of(context).pop();
                                       ScaffoldMessenger.of(
                                         context,
@@ -239,7 +242,7 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
                                           ),
                                           duration: const Duration(
                                             milliseconds: 900,
-                                          ), // Süreyi kısalttık
+                                          ),
                                         ),
                                       );
                                     },
@@ -432,6 +435,29 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
                   height: 44,
                   child: ElevatedButton(
                     onPressed: () async {
+                      // Kullanıcı login kontrolü
+                      if (UserSingleton().user == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Lütfen giriş yapmadan önce bu işlemi gerçekleştiremezsiniz.',
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
+                      }
+                      // Stok kontrolü (örnek: seçili içerik tükenmişse)
+                      if (seciliIcerikIndex != null &&
+                          icerikFiyat[seciliIcerikIndex!] == 'Tükendi') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Bu ürün stokta kalmamıştır.'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
+                      }
                       String? menuName = await showDialog<String>(
                         context: context,
                         builder: (context) {
@@ -504,20 +530,11 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
         ),
       ),
       bottomNavigationBar: EKBottomNavBar(
-        selectedIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-          if (index == 1) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => FavorilerimPage(favoriler: favoriListesi),
-              ),
-            );
-          }
+        currentIndex: 0, // KendiMenumPage için uygun index
+        onTap: (int index) {
+          // Diğer indexler için mevcut davranış devam eder
         },
-        icons: bottomIcons,
+        parentContext: context,
       ),
     );
   }
