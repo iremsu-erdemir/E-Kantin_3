@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import '../components/ek_bottom_nav_bar.dart';
 import 'payment.dart';
 import 'home_page.dart';
 import '../models/user.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 
 class SiparislerPage extends StatefulWidget {
-  final Map<String, String>? yeniSiparis;
-  const SiparislerPage({Key? key, this.yeniSiparis}) : super(key: key);
-
+  const SiparislerPage({Key? key}) : super(key: key);
   @override
   State<SiparislerPage> createState() => _SiparislerPageState();
 }
@@ -17,82 +15,58 @@ class SiparislerPage extends StatefulWidget {
 class _SiparislerPageState extends State<SiparislerPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  bool showBorcDialog = false;
-  double kalanBorcDialog = 0.0;
-
-  List<Map<String, String>> aktifSiparisler = [];
-  List<Map<String, String>> teslimEdilenSiparisler = [];
-
-  List<Map<String, dynamic>> cayBorclari = [
-    {'isim': 'Küçük Çay', 'tutar': 5.5, 'selected': false},
-    {'isim': 'Büyük Çay', 'tutar': 5.5, 'selected': false},
-    {'isim': 'Türk Kahvesi', 'tutar': 5.5, 'selected': false},
-    {'isim': 'Nescafe', 'tutar': 5.5, 'selected': false},
-    {'isim': 'Sakızlı', 'tutar': 5.5, 'selected': false},
-    {'isim': 'Sade Soda', 'tutar': 5.5, 'selected': false},
-    {'isim': 'Probis', 'tutar': 5.5, 'selected': false},
-  ];
-
-  double get toplamSeciliCayBorcu => cayBorclari
-      .where((b) => b['selected'] == true)
-      .fold(0.0, (sum, b) => sum + (b['tutar'] as double));
-
-  Future<void> loadData() async {
-    final prefs = await SharedPreferences.getInstance();
-    final aktif = prefs.getString('aktifSiparisler');
-    final teslim = prefs.getString('teslimEdilenSiparisler');
-    final cay = prefs.getString('cayBorclari');
-    if (aktif != null)
-      aktifSiparisler = List<Map<String, String>>.from(json.decode(aktif));
-    if (teslim != null)
-      teslimEdilenSiparisler = List<Map<String, String>>.from(
-        json.decode(teslim),
-      );
-    if (cay != null)
-      cayBorclari = List<Map<String, dynamic>>.from(json.decode(cay));
-    setState(() {});
-  }
-
-  Future<void> saveData() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('aktifSiparisler', json.encode(aktifSiparisler));
-    await prefs.setString(
-      'teslimEdilenSiparisler',
-      json.encode(teslimEdilenSiparisler),
-    );
-    await prefs.setString('cayBorclari', json.encode(cayBorclari));
-  }
+  List<Map<String, dynamic>> siparisler = [];
+  List<Map<String, dynamic>> borclar = [];
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
-    loadData().then((_) {
-      if (widget.yeniSiparis != null &&
-          widget.yeniSiparis!['title'] != 'Çay Ocağı Borcu') {
-        aktifSiparisler.add(widget.yeniSiparis!);
-        saveData();
-        setState(() {});
-      }
+    _tabController.addListener(() {
+      loadAll();
     });
+    loadAll();
   }
 
-  void siparisiTeslimEt(int index) {
-    teslimEdilenSiparisler.add(aktifSiparisler[index]);
-    aktifSiparisler.removeAt(index);
-    saveData();
+  Future<List<Map<String, dynamic>>> loadList(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = prefs.getString(key);
+    if (data == null) return [];
+    return List<Map<String, dynamic>>.from(json.decode(data));
+  }
+
+  Future<void> saveList(String key, List<Map<String, dynamic>> list) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, json.encode(list));
+  }
+
+  Future<void> loadAll() async {
+    siparisler = await loadList('siparisler');
+    borclar = await loadList('borclar');
     setState(() {});
   }
 
-  void yeniSiparisEkle(Map<String, String> siparis) {
-    aktifSiparisler.add(siparis);
-    saveData();
+  Future<void> ekleSiparis(Map<String, dynamic> siparis) async {
+    siparisler.add(siparis);
+    await saveList('siparisler', siparisler);
     setState(() {});
   }
 
-  void caySeciminiDegistir(int index, bool? value) {
-    cayBorclari[index]['selected'] = value ?? false;
-    saveData();
+  Future<void> siparisiTamamla(int index) async {
+    siparisler[index]['durum'] = 'pasif';
+    await saveList('siparisler', siparisler);
+    setState(() {});
+  }
+
+  Future<void> ekleBorc(Map<String, dynamic> borc) async {
+    borclar.add(borc);
+    await saveList('borclar', borclar);
+    setState(() {});
+  }
+
+  Future<void> borcOde(List<int> seciliIndexler) async {
+    seciliIndexler.reversed.forEach((i) => borclar.removeAt(i));
+    await saveList('borclar', borclar);
     setState(() {});
   }
 
@@ -157,9 +131,9 @@ class _SiparislerPageState extends State<SiparislerPage>
       body: TabBarView(
         controller: _tabController,
         children: [
-          _aktifSiparislerim(),
-          _pasifSiparislerim(),
-          _cayOcagiBorcu(),
+          _siparisListesi('aktif'),
+          _siparisListesi('pasif'),
+          _borcListesi(),
           _bildirimler(),
         ],
       ),
@@ -171,278 +145,241 @@ class _SiparislerPageState extends State<SiparislerPage>
     );
   }
 
-  Widget _aktifSiparislerim() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: aktifSiparisler.length,
-      itemBuilder: (context, index) {
-        final s = aktifSiparisler[index];
-        return Column(
-          children: [
-            _siparisCard(
-              s['title']!,
-              s['no']!,
-              s['img']!,
-              s['price']!,
-              s['date']!,
-              teslimButon: () => siparisiTeslimEt(index),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _pasifSiparislerim() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: teslimEdilenSiparisler.length,
-      itemBuilder: (context, index) {
-        final s = teslimEdilenSiparisler[index];
-        return _siparisCard(
-          s['title']!,
-          s['no']!,
-          s['img']!,
-          s['price']!,
-          s['date']!,
-        );
-      },
-    );
-  }
-
-  Widget _siparisCard(
-    String title,
-    String no,
-    String img,
-    String price,
-    String date, {
-    VoidCallback? teslimButon,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.asset(img, width: 56, height: 56, fit: BoxFit.cover),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              title,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              price,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            no,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Colors.black54,
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          Text(
-                            date,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Colors.black38,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  if (teslimButon != null)
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: ElevatedButton(
-                          onPressed: teslimButon,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 8,
-                            ),
-                            textStyle: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          child: const Text('Teslim Edildi'),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
+  Widget _siparisListesi(String durum) {
+    final filtreli = siparisler.where((s) => s['durum'] == durum).toList();
+    if (filtreli.isEmpty) {
+      return const Center(
+        child: Text(
+          'Sipariş yok',
+          style: TextStyle(fontSize: 16, color: Colors.black54),
         ),
-      ),
-    );
-  }
-
-  Widget _cayOcagiBorcu() {
-    return Padding(
+      );
+    }
+    return ListView.builder(
       padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Çay Ocağı Borcu',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-          ),
-          const SizedBox(height: 10),
-          Expanded(
-            child: ListView.separated(
-              itemCount: cayBorclari.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 6),
-              itemBuilder: (context, index) {
-                final b = cayBorclari[index];
-                return Row(
-                  children: [
-                    Checkbox(
-                      value: b['selected'],
-                      onChanged: (val) => caySeciminiDegistir(index, val),
-                      activeColor: Colors.redAccent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    Expanded(
-                      child: Text(
-                        b['isim'],
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ),
-                    Text(
-                      '+₺${(b['tutar'] as double).toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 18),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '₺${cayBorclari.fold(0.0, (sum, b) => sum + (b['tutar'] as double)).toStringAsFixed(2)}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24,
-                ),
-              ),
-              ElevatedButton(
-                onPressed: toplamSeciliCayBorcu > 0
-                    ? () async {
-                        final toplamBorc = cayBorclari.fold(
-                          0.0,
-                          (sum, b) => sum + (b['tutar'] as double),
-                        );
-                        final kalanBorc = toplamBorc - toplamSeciliCayBorcu;
-                        final seciliIndexler = cayBorclari
-                            .asMap()
-                            .entries
-                            .where((e) => e.value['selected'] == true)
-                            .map((e) => e.key)
-                            .toList();
-                        final result = await Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => PaymentPage(
-                              totalPrice: toplamSeciliCayBorcu,
-                              isCayOcagiBorcu: true,
-                              kalanBorc: kalanBorc,
-                            ),
-                          ),
-                        );
-                        if (result == 'odeme_basarili') {
-                          showBorcDialog = false;
-                          kalanBorcDialog = kalanBorc;
-                          seciliIndexler.reversed.forEach(
-                            (i) => cayBorclari.removeAt(i),
-                          );
-                          saveData();
-                          setState(() {});
-                        }
-                      }
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  textStyle: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 28,
-                    vertical: 12,
-                  ),
-                ),
-                child: const Text('Ödeme Yap'),
+      itemCount: filtreli.length,
+      itemBuilder: (context, index) {
+        final s = filtreli[index];
+        return Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.06),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
-        ],
-      ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.asset(
+                    s['img'] ?? 'assets/images/sandwich.png',
+                    width: 56,
+                    height: 56,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  s['urun'] ?? '',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  '₺${s['tutar'] ?? ''}',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                s['siparisNo'] ?? '',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              Text(
+                                s['tarih'] ?? '',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.black38,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      if (durum == 'aktif')
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: ElevatedButton(
+                              onPressed: () =>
+                                  siparisiTamamla(siparisler.indexOf(s)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 18,
+                                  vertical: 8,
+                                ),
+                                textStyle: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              child: const Text('Teslim Edildi'),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _borcListesi() {
+    if (borclar.isEmpty) {
+      return const Center(
+        child: Text(
+          'Borç yok',
+          style: TextStyle(fontSize: 16, color: Colors.black54),
+        ),
+      );
+    }
+    List<int> seciliIndexler = [];
+    return StatefulBuilder(
+      builder: (context, setStateSB) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: ListView.separated(
+                itemCount: borclar.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 6),
+                itemBuilder: (context, index) {
+                  final b = borclar[index];
+                  return Row(
+                    children: [
+                      Checkbox(
+                        value: seciliIndexler.contains(index),
+                        onChanged: (val) {
+                          setStateSB(() {
+                            if (val == true) {
+                              seciliIndexler.add(index);
+                            } else {
+                              seciliIndexler.remove(index);
+                            }
+                          });
+                        },
+                        activeColor: Colors.redAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      Expanded(
+                        child: Text(
+                          b['urun'] ?? '',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                      Text(
+                        '+₺${b['tutar'] ?? ''}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 18),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '₺${borclar.fold(0.0, (sum, b) => sum + (b['tutar'] as num)).toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: seciliIndexler.isNotEmpty
+                      ? () async {
+                          await borcOde(seciliIndexler);
+                          setStateSB(() => seciliIndexler.clear());
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 28,
+                      vertical: 12,
+                    ),
+                  ),
+                  child: const Text('Ödeme Yap'),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 
   Widget _bildirimler() {
+    // Bildirimler için örnek veri
     final bildirimler = [
       {
         'baslik': 'Çay Ocağı Siparişi',
@@ -519,4 +456,3 @@ class _SiparislerPageState extends State<SiparislerPage>
     );
   }
 }
-// Kodlar sepetim_page.dart dosyasından taşındı. 

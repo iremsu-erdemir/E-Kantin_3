@@ -1,12 +1,15 @@
+import 'package:e_kantin/models/user.dart';
 import 'package:flutter/material.dart';
 import '../screens/favorilerim.dart';
 import '../screens/home_page.dart';
+import '../screens/siparisler.dart';
+import '../screens/successpayment.dart';
 
 class EKBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int>? onTap;
   final BuildContext? parentContext;
-  final int? highlightIndex; // Kırmızı yapılacak ikonun indexi (opsiyonel)
+  final int? highlightIndex;
   const EKBottomNavBar({
     Key? key,
     this.currentIndex = 0,
@@ -20,26 +23,42 @@ class EKBottomNavBar extends StatelessWidget {
     return BottomNavigationBar(
       currentIndex: currentIndex,
       onTap: (index) {
+        final ctx = parentContext ?? context;
         if (index == 0) {
-          // HomePage'e yönlendirme için mevcut user'ı bul
-          final ModalRoute? route = ModalRoute.of(parentContext ?? context);
-          final user =
-              (route?.settings.arguments is Map &&
-                  (route!.settings.arguments as Map).containsKey('user'))
-              ? (route.settings.arguments as Map)['user']
-              : null;
-          if (user != null) {
-            Navigator.of(parentContext ?? context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => HomePage(user: user)),
-              (route) => false,
-            );
-          }
+          Navigator.of(ctx).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (context) => HomePage(
+                user: User(
+                  username: 'demo',
+                  password: '',
+                  name: 'Demo',
+                  role: 'Kullanıcı',
+                  image: null,
+                ),
+              ),
+            ),
+            (route) => false,
+          );
         } else if (index == 1) {
-          Navigator.of(parentContext ?? context).push(
+          Navigator.of(ctx).pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => const FavorilerimPage()),
+            (route) => false,
+          );
+        } else if (index == 2) {
+          Navigator.of(ctx).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const SiparislerPage()),
+            (route) => false,
+          );
+        } else if (index == 3) {
+          Navigator.of(ctx).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (context) =>
+                  const SuccessPaymentPage(totalPrice: 0, orderNumber: ''),
+            ), // örnek
+            (route) => false,
           );
         } else {
-          if (onTap != null) onTap!(index);
+          // 5. ikon için dummy bir sayfa veya profil
         }
       },
       type: BottomNavigationBarType.fixed,
