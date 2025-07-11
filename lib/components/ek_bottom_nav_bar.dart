@@ -44,17 +44,9 @@ class EKBottomNavBar extends StatelessWidget {
             MaterialPageRoute(builder: (context) => const FavorilerimPage()),
             (route) => false,
           );
-        } else if (index == 2) {
+        } else if (index == 2 || index == 3) {
           Navigator.of(ctx).pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => const SiparislerPage()),
-            (route) => false,
-          );
-        } else if (index == 3) {
-          Navigator.of(ctx).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (context) =>
-                  const SuccessPaymentPage(totalPrice: 0, orderNumber: ''),
-            ), // örnek
             (route) => false,
           );
         } else {

@@ -5,6 +5,9 @@ import '../components/ek_bottom_nav_bar.dart';
 import 'payment.dart';
 import 'home_page.dart';
 import '../models/user.dart';
+import '../models/siparis.dart';
+import '../models/borc.dart';
+import '../services/local_storage_service.dart';
 
 class SiparislerPage extends StatefulWidget {
   const SiparislerPage({Key? key}) : super(key: key);
@@ -15,59 +18,85 @@ class SiparislerPage extends StatefulWidget {
 class _SiparislerPageState extends State<SiparislerPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  List<Map<String, dynamic>> siparisler = [];
-  List<Map<String, dynamic>> borclar = [];
+  List<Siparis> siparisler = [];
+  List<Borc> borclar = [];
+  bool _firstLoad = true;
 
   @override
   void initState() {
     super.initState();
+
+    // clearPrefs(); // ekle
+
     _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(() {
       loadAll();
     });
-    loadAll();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      loadAll();
+    });
   }
 
-  Future<List<Map<String, dynamic>>> loadList(String key) async {
+  Future<void> clearPrefs() async {
     final prefs = await SharedPreferences.getInstance();
-    final data = prefs.getString(key);
-    if (data == null) return [];
-    return List<Map<String, dynamic>>.from(json.decode(data));
+    await prefs.clear();
+    print('SharedPreferences temizlendi');
   }
 
-  Future<void> saveList(String key, List<Map<String, dynamic>> list) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(key, json.encode(list));
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_firstLoad) {
+      loadAll();
+      _firstLoad = false;
+    }
+  }
+
+  String? get _userKey {
+    final user = UserSingleton().user;
+    return user?.username;
   }
 
   Future<void> loadAll() async {
-    siparisler = await loadList('siparisler');
-    borclar = await loadList('borclar');
+    final username = _userKey ?? "anonim";
+    siparisler = await LocalStorageService.getUserOrders(username);
+    borclar = await LocalStorageService.getUserDebts(username);
+
+    print('siparisler (sayısı): ${siparisler.length}');
+    for (var s in siparisler) {
+      print('Siparis: id=${s.id}, durum=${s.durum}, urun=${s.urun}');
+    }
+
     setState(() {});
   }
 
-  Future<void> ekleSiparis(Map<String, dynamic> siparis) async {
-    siparisler.add(siparis);
-    await saveList('siparisler', siparisler);
-    setState(() {});
+  Future<void> ekleSiparis(Siparis siparis) async {
+    final username = _userKey ?? "anonim";
+    siparis.kayitTarihi = DateTime.now().toIso8601String();
+
+    // Burada durum ataması kritik:
+    siparis.durum = 'aktif';
+
+    await LocalStorageService.addOrder(username, siparis);
+    await loadAll();
   }
 
-  Future<void> siparisiTamamla(int index) async {
-    siparisler[index]['durum'] = 'pasif';
-    await saveList('siparisler', siparisler);
-    setState(() {});
+  Future<void> siparisiTamamla(String orderId) async {
+    final username = _userKey ?? "anonim";
+    await LocalStorageService.markAsDelivered(username, orderId);
+    await loadAll();
   }
 
-  Future<void> ekleBorc(Map<String, dynamic> borc) async {
-    borclar.add(borc);
-    await saveList('borclar', borclar);
-    setState(() {});
+  Future<void> ekleBorc(Borc borc) async {
+    final username = _userKey ?? "anonim";
+    await LocalStorageService.addDebt(username, borc);
+    await loadAll();
   }
 
-  Future<void> borcOde(List<int> seciliIndexler) async {
-    seciliIndexler.reversed.forEach((i) => borclar.removeAt(i));
-    await saveList('borclar', borclar);
-    setState(() {});
+  Future<void> borcOde(List<String> seciliBorcIdler) async {
+    final username = _userKey ?? "anonim";
+    await LocalStorageService.payDebt(username, seciliBorcIdler);
+    await loadAll();
   }
 
   @override
@@ -138,15 +167,20 @@ class _SiparislerPageState extends State<SiparislerPage>
         ],
       ),
       bottomNavigationBar: EKBottomNavBar(
-        currentIndex: 2,
-        highlightIndex: 2,
+        currentIndex: 2, // veya 3, hangi indexte ise
+        highlightIndex: 2, // veya 3
         parentContext: context,
       ),
     );
   }
 
   Widget _siparisListesi(String durum) {
-    final filtreli = siparisler.where((s) => s['durum'] == durum).toList();
+    final filtreli = siparisler.where((s) => s.durum == durum).toList();
+    filtreli.sort(
+      (a, b) => DateTime.parse(
+        b.kayitTarihi,
+      ).compareTo(DateTime.parse(a.kayitTarihi)),
+    );
     if (filtreli.isEmpty) {
       return const Center(
         child: Text(
@@ -181,7 +215,7 @@ class _SiparislerPageState extends State<SiparislerPage>
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: Image.asset(
-                    s['img'] ?? 'assets/images/sandwich.png',
+                    s.img,
                     width: 56,
                     height: 56,
                     fit: BoxFit.cover,
@@ -200,7 +234,7 @@ class _SiparislerPageState extends State<SiparislerPage>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  s['urun'] ?? '',
+                                  s.urun,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 15,
@@ -208,7 +242,7 @@ class _SiparislerPageState extends State<SiparislerPage>
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  '₺${s['tutar'] ?? ''}',
+                                  '₺${s.tutar}',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 15,
@@ -221,7 +255,7 @@ class _SiparislerPageState extends State<SiparislerPage>
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                s['siparisNo'] ?? '',
+                                s.siparisNo,
                                 style: const TextStyle(
                                   fontSize: 13,
                                   color: Colors.black54,
@@ -229,7 +263,7 @@ class _SiparislerPageState extends State<SiparislerPage>
                               ),
                               const SizedBox(height: 24),
                               Text(
-                                s['tarih'] ?? '',
+                                s.tarih,
                                 style: const TextStyle(
                                   fontSize: 13,
                                   color: Colors.black38,
@@ -245,8 +279,7 @@ class _SiparislerPageState extends State<SiparislerPage>
                           child: Padding(
                             padding: const EdgeInsets.only(top: 8.0),
                             child: ElevatedButton(
-                              onPressed: () =>
-                                  siparisiTamamla(siparisler.indexOf(s)),
+                              onPressed: () => siparisiTamamla(s.id),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.green,
                                 foregroundColor: Colors.white,
@@ -285,7 +318,7 @@ class _SiparislerPageState extends State<SiparislerPage>
         ),
       );
     }
-    List<int> seciliIndexler = [];
+    List<String> seciliIdler = [];
     return StatefulBuilder(
       builder: (context, setStateSB) {
         return Column(
@@ -300,13 +333,13 @@ class _SiparislerPageState extends State<SiparislerPage>
                   return Row(
                     children: [
                       Checkbox(
-                        value: seciliIndexler.contains(index),
+                        value: seciliIdler.contains(b.id),
                         onChanged: (val) {
                           setStateSB(() {
                             if (val == true) {
-                              seciliIndexler.add(index);
+                              seciliIdler.add(b.id);
                             } else {
-                              seciliIndexler.remove(index);
+                              seciliIdler.remove(b.id);
                             }
                           });
                         },
@@ -318,12 +351,12 @@ class _SiparislerPageState extends State<SiparislerPage>
                       ),
                       Expanded(
                         child: Text(
-                          b['urun'] ?? '',
+                          b.urun,
                           style: const TextStyle(fontSize: 16),
                         ),
                       ),
                       Text(
-                        '+₺${b['tutar'] ?? ''}',
+                        '+₺${b.tutar}',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -339,17 +372,17 @@ class _SiparislerPageState extends State<SiparislerPage>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '₺${borclar.fold(0.0, (sum, b) => sum + (b['tutar'] as num)).toStringAsFixed(2)}',
+                  '₺${borclar.fold(0.0, (sum, b) => sum + b.tutar).toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 24,
                   ),
                 ),
                 ElevatedButton(
-                  onPressed: seciliIndexler.isNotEmpty
+                  onPressed: seciliIdler.isNotEmpty
                       ? () async {
-                          await borcOde(seciliIndexler);
-                          setStateSB(() => seciliIndexler.clear());
+                          await borcOde(seciliIdler);
+                          setStateSB(() => seciliIdler.clear());
                         }
                       : null,
                   style: ElevatedButton.styleFrom(
@@ -454,5 +487,11 @@ class _SiparislerPageState extends State<SiparislerPage>
         );
       },
     );
+  }
+
+  void teslimEt(String orderId) async {
+    final username = UserSingleton().user?.username ?? 'anonim';
+    await LocalStorageService.markAsDelivered(username, orderId);
+    await loadAll();
   }
 }

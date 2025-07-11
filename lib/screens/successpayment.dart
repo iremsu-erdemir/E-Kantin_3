@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import '../components/ek_bottom_nav_bar.dart';
 import 'sepetim_page.dart';
 import 'package:intl/intl.dart';
+import '../models/siparis.dart';
+import '../models/user.dart';
+import '../services/local_storage_service.dart';
+import 'siparisler.dart';
 
 class SuccessPaymentPage extends StatelessWidget {
   final double totalPrice;
@@ -62,22 +66,27 @@ class SuccessPaymentPage extends StatelessWidget {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    final username = UserSingleton().user?.username ?? 'anonim';
                     final now = DateTime.now();
                     final formattedDate = DateFormat(
                       'dd/MM/yyyy HH:mm',
                     ).format(now);
+                    final yeniSiparis = Siparis(
+                      id: UniqueKey().toString(),
+                      urun:
+                          'Ürün', // Buraya gerçek ürün adı parametre ile gelmeli, örnek olarak 'Ürün' yazıldı
+                      tutar: totalPrice,
+                      durum: 'aktif',
+                      img: 'assets/images/sandwich.png',
+                      siparisNo: orderNumber,
+                      tarih: formattedDate,
+                      kayitTarihi: now.toIso8601String(),
+                    );
+                    await LocalStorageService.addOrder(username, yeniSiparis);
                     Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(
-                        builder: (context) => SepetimPage(
-                          yeniSiparis: {
-                            'title': 'Yeni Sipariş',
-                            'no': 'Sipariş No: $orderNumber',
-                            'img': 'assets/images/sandwich.png',
-                            'price': '₺${totalPrice.toStringAsFixed(2)}',
-                            'date': formattedDate,
-                          },
-                        ),
+                        builder: (context) => const SiparislerPage(),
                       ),
                       (route) => false,
                     );
