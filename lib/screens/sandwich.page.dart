@@ -56,7 +56,7 @@ class SandwichPage extends StatelessWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Ürün tükendi'),
-                        backgroundColor: Colors.red,
+                        duration: Duration(milliseconds: 900),
                       ),
                     );
                   } else {

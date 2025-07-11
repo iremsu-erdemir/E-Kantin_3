@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../components/ek_bottom_nav_bar.dart';
+import 'sepetim_page.dart';
+import 'package:intl/intl.dart';
 
 class SuccessPaymentPage extends StatelessWidget {
   final double totalPrice;
@@ -61,7 +63,24 @@ class SuccessPaymentPage extends StatelessWidget {
                 height: 48,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
+                    final now = DateTime.now();
+                    final formattedDate = DateFormat(
+                      'dd/MM/yyyy HH:mm',
+                    ).format(now);
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (context) => SepetimPage(
+                          yeniSiparis: {
+                            'title': 'Yeni Sipariş',
+                            'no': 'Sipariş No: $orderNumber',
+                            'img': 'assets/images/sandwich.png',
+                            'price': '₺${totalPrice.toStringAsFixed(2)}',
+                            'date': formattedDate,
+                          },
+                        ),
+                      ),
+                      (route) => false,
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.redAccent,

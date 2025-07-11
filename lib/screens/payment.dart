@@ -9,6 +9,7 @@ import '../components/ek_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
 import 'favorilerim.dart';
+import 'home_page.dart';
 
 // Renkler ve text stilleri
 const Color kRed = Color(0xFFFF5A5A);
@@ -131,8 +132,15 @@ class CardDisplayBox extends StatelessWidget {
 class PaymentPage extends StatefulWidget {
   final double totalPrice;
   final User? user;
-  const PaymentPage({Key? key, required this.totalPrice, this.user})
-    : super(key: key);
+  final bool isCayOcagiBorcu;
+  final double? kalanBorc;
+  const PaymentPage({
+    Key? key,
+    required this.totalPrice,
+    this.user,
+    this.isCayOcagiBorcu = false,
+    this.kalanBorc,
+  }) : super(key: key);
 
   @override
   State<PaymentPage> createState() => _PaymentPageState();
@@ -293,7 +301,8 @@ class _PaymentPageState extends State<PaymentPage> {
   Widget build(BuildContext context) {
     final double totalPrice = widget.totalPrice;
     final bool isLoggedIn =
-        widget.user != null && (widget.user!.name?.isNotEmpty ?? false);
+        UserSingleton().user != null &&
+        (UserSingleton().user!.name?.isNotEmpty ?? false);
     if (isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -583,7 +592,7 @@ class _PaymentPageState extends State<PaymentPage> {
                                 ),
                               );
                             }
-                          : () {
+                          : () async {
                               if (_formKey.currentState!.validate()) {
                                 // Eğer kayıtlı kart seçiliyse CVC kontrolü yap
                                 if (selectedUserCard != null &&
@@ -603,19 +612,78 @@ class _PaymentPageState extends State<PaymentPage> {
                                   context,
                                   listen: false,
                                 ).clear();
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => SuccessPaymentPage(
-                                      totalPrice: totalPrice,
-                                      orderNumber:
-                                          (1000 +
-                                                  DateTime.now()
-                                                          .millisecondsSinceEpoch %
-                                                      9000)
-                                              .toString(),
+                                if (widget.isCayOcagiBorcu) {
+                                  await showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (context) => AlertDialog(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 24,
+                                            vertical: 32,
+                                          ),
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(
+                                            Icons.check_circle,
+                                            color: Colors.green,
+                                            size: 48,
+                                          ),
+                                          const SizedBox(height: 16),
+                                          const Text(
+                                            'Ödeme Başarıyla Tamamlandı!',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 12),
+                                          Text(
+                                            'Şu kadar borcunuz kaldı: ₺${(widget.kalanBorc ?? 0).toStringAsFixed(2)}',
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 18),
+                                          ElevatedButton(
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.redAccent,
+                                              foregroundColor: Colors.white,
+                                            ),
+                                            child: const Text('Kapat'),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                );
+                                  );
+                                  Navigator.of(context).pushAndRemoveUntil(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          HomePage(user: UserSingleton().user!),
+                                    ),
+                                    (route) => false,
+                                  );
+                                } else {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => SuccessPaymentPage(
+                                        totalPrice: totalPrice,
+                                        orderNumber:
+                                            (1000 +
+                                                    DateTime.now()
+                                                            .millisecondsSinceEpoch %
+                                                        9000)
+                                                .toString(),
+                                      ),
+                                    ),
+                                  );
+                                }
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
