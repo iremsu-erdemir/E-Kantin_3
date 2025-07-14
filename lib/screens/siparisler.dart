@@ -12,6 +12,8 @@ import '../services/local_storage_service.dart';
 import '../providers/notification_provider.dart';
 import 'package:provider/provider.dart';
 import '../providers/debt_provider.dart';
+import '../providers/cart_provider.dart';
+import '../models/cart.dart';
 
 class SiparislerPage extends StatefulWidget {
   final int initialTab;
@@ -391,6 +393,95 @@ class _SiparislerPageState extends State<SiparislerPage>
   }
 
   Widget _borcListesi() {
+    // Segmented Control için state
+    int selectedTab = 0;
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Column(
+          children: [
+            // Segmented Control
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  _toggleButton(
+                    icon: Icons.receipt,
+                    text: 'Borçlar',
+                    index: 0,
+                    selected: selectedTab,
+                    onChanged: (i) => setState(() => selectedTab = i),
+                  ),
+                  _toggleButton(
+                    icon: Icons.local_cafe,
+                    text: 'Ürünler',
+                    index: 1,
+                    selected: selectedTab,
+                    onChanged: (i) => setState(() => selectedTab = i),
+                  ),
+                ],
+              ),
+            ),
+            // Animasyonlu geçiş
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (child, animation) =>
+                    FadeTransition(opacity: animation, child: child),
+                child: selectedTab == 0 ? _borclarTab() : _urunlerTab(context),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _toggleButton({
+    required IconData icon,
+    required String text,
+    required int index,
+    required int selected,
+    required Function(int) onChanged,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => onChanged(index),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: selected == index ? Colors.redAccent : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: selected == index ? Colors.white : Colors.black54,
+                size: 20,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                text,
+                style: TextStyle(
+                  color: selected == index ? Colors.white : Colors.black54,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Borçlar sekmesi (mevcut kod)
+  Widget _borclarTab() {
     return Consumer<DebtProvider>(
       builder: (context, debtProvider, _) {
         final borclar = debtProvider.debts;
@@ -586,6 +677,170 @@ class _SiparislerPageState extends State<SiparislerPage>
                         ),
                       ),
                       child: const Text('Ödeme Yap'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Ürünler sekmesi (yeni kod)
+  Widget _urunlerTab(BuildContext context) {
+    // Sabit ürün listesi
+    final urunler = [
+      {'name': 'Küçük Çay', 'price': 5.5},
+      {'name': 'Büyük Çay', 'price': 6.5},
+      {'name': 'Türk Kahvesi', 'price': 15.0},
+      {'name': 'Nescafe', 'price': 15.0},
+      {'name': 'Saklıköy', 'price': 6.5},
+      {'name': 'Sade Soda', 'price': 6.5},
+      {'name': 'Probis', 'price': 6.5},
+    ];
+    final List<String> seciliUrunler = [];
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
+              child: Text(
+                'Çay Ocağı Ürünleri',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+            ),
+            Expanded(
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: urunler.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  final urun = urunler[index];
+                  final secili = seciliUrunler.contains(urun['name']);
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          value: secili,
+                          onChanged: (val) {
+                            setState(() {
+                              if (val == true) {
+                                seciliUrunler.add(urun['name'] as String);
+                              } else {
+                                seciliUrunler.remove(urun['name'] as String);
+                              }
+                            });
+                          },
+                          activeColor: Colors.redAccent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 18.0),
+                            child: Text(
+                              urun['name'] as String,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 16.0),
+                          child: Text(
+                            '+₺${(urun['price'] as double).toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  SizedBox(
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: seciliUrunler.isNotEmpty
+                          ? () {
+                              // Seçili ürünleri sepete ekle
+                              final cartProvider = Provider.of<CartProvider>(
+                                context,
+                                listen: false,
+                              );
+                              for (var urun in urunler) {
+                                if (seciliUrunler.contains(urun['name'])) {
+                                  cartProvider.addOrUpdate(
+                                    CartItem(
+                                      id: urun['name'] as String,
+                                      name: urun['name'] as String,
+                                      imagePath: '',
+                                      price: urun['price'] as double,
+                                    ),
+                                  );
+                                }
+                              }
+                              // Sepet ödeme ekranına yönlendir
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PaymentPage(
+                                    totalPrice: seciliUrunler.fold(
+                                      0.0,
+                                      (sum, name) =>
+                                          sum +
+                                          (urunler.firstWhere(
+                                                (u) => u['name'] == name,
+                                              )['price']
+                                              as double),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 12,
+                        ),
+                      ),
+                      child: const Text('Sepete Ekle'),
                     ),
                   ),
                 ],
