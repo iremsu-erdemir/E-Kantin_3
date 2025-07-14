@@ -6,6 +6,9 @@ import '../models/siparis.dart';
 import '../models/user.dart';
 import '../services/local_storage_service.dart';
 import 'siparisler.dart';
+import 'package:provider/provider.dart';
+import '../providers/notification_provider.dart';
+import '../models/notification.dart';
 
 class SuccessPaymentPage extends StatelessWidget {
   final double totalPrice;
@@ -84,6 +87,19 @@ class SuccessPaymentPage extends StatelessWidget {
                       kayitTarihi: now.toIso8601String(),
                     );
                     await LocalStorageService.addOrder(username, yeniSiparis);
+                    // Bildirim ekle
+                    await Provider.of<NotificationProvider>(
+                      context,
+                      listen: false,
+                    ).addNotification(
+                      username,
+                      NotificationModel(
+                        title: 'Yeni Sipariş',
+                        content:
+                            'Yeni bir sipariş oluşturuldu: ${yeniSiparis.urun}',
+                        date: now.toString(),
+                      ),
+                    );
                     Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(
                         builder: (context) => const SiparislerPage(),
@@ -112,7 +128,6 @@ class SuccessPaymentPage extends StatelessWidget {
       ),
       bottomNavigationBar: EKBottomNavBar(
         currentIndex: 3,
-        highlightIndex: 3,
         parentContext: context,
       ),
     );

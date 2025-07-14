@@ -508,7 +508,6 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
       ),
       bottomNavigationBar: EKBottomNavBar(
         currentIndex: 0,
-        onTap: (int index) {},
         parentContext: context,
       ),
     );

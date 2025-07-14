@@ -1,113 +1,71 @@
-import 'package:e_kantin/models/user.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../screens/favorilerim.dart';
-import '../screens/home_page.dart';
-import '../screens/siparisler.dart';
-import '../screens/successpayment.dart';
-import '../providers/debt_provider.dart'; // ⚠️ Ekledik
 
 class EKBottomNavBar extends StatelessWidget {
   final int currentIndex;
-  final ValueChanged<int>? onTap;
   final BuildContext? parentContext;
-  final int? highlightIndex;
 
-  const EKBottomNavBar({
-    Key? key,
-    this.currentIndex = 0,
-    this.onTap,
-    this.parentContext,
-    this.highlightIndex,
-  }) : super(key: key);
+  const EKBottomNavBar({Key? key, this.currentIndex = 0, this.parentContext})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: currentIndex,
-      onTap: (index) async {
-        final ctx = parentContext ?? context;
-        final username = UserSingleton().user?.username ?? 'anonim';
-
-        if (index == 0) {
-          Navigator.of(ctx).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (context) => HomePage(
-                user: User(
-                  username: 'demo',
-                  password: '',
-                  name: 'Demo',
-                  role: 'Kullanıcı',
-                  image: null,
+    final ctx = parentContext ?? context;
+    return Container(
+      color: Colors.white,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildIcon(ctx, 0, Icons.home_outlined),
+              _buildIcon(ctx, 1, Icons.favorite_border),
+              _buildIcon(ctx, 2, Icons.receipt_long),
+              _buildIcon(ctx, 3, Icons.inventory_2_outlined),
+              _buildIcon(ctx, 4, Icons.person_outline),
+            ],
+          ),
+          SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(
+              5,
+              (i) => AnimatedContainer(
+                duration: Duration(milliseconds: 200),
+                width: 32,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: currentIndex == i ? Colors.black : Colors.transparent,
+                  borderRadius: BorderRadius.circular(3),
                 ),
               ),
             ),
-            (route) => false,
-          );
-        } else if (index == 1) {
-          Navigator.of(ctx).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const FavorilerimPage()),
-            (route) => false,
-          );
-        } else if (index == 2 || index == 3) {
-          // ⚠️ Borçları yüklemeden önce Provider çağır
-          await Provider.of<DebtProvider>(
-            ctx,
-            listen: false,
-          ).loadDebts(username);
+          ),
+        ],
+      ),
+    );
+  }
 
-          Navigator.of(ctx).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const SiparislerPage()),
-            (route) => false,
-          );
-        } else {
-          // Profil veya dummy bir sayfa
+  Widget _buildIcon(BuildContext ctx, int index, IconData icon) {
+    Color color = currentIndex == index ? Color(0xFFFF3D3D) : Colors.grey;
+    return IconButton(
+      icon: Icon(icon, color: color, size: 32),
+      onPressed: () {
+        if (index == 0) {
+          Navigator.pushReplacementNamed(
+            ctx,
+            '/homepage',
+          ); // HomePage'e yönlendir
+        } else if (index == 1) {
+          Navigator.pushReplacementNamed(ctx, '/favorilerim');
+        } else if (index == 2) {
+          Navigator.pushReplacementNamed(ctx, '/siparisler');
+        } else if (index == 3) {
+          Navigator.pushReplacementNamed(ctx, '/sepetim');
+        } else if (index == 4) {
+          Navigator.pushReplacementNamed(ctx, '/profil');
         }
       },
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: const Color(0xFFFF3D3D),
-      unselectedItemColor: Colors.black54,
-      showSelectedLabels: true,
-      showUnselectedLabels: true,
-      items: [
-        BottomNavigationBarItem(
-          icon: Icon(
-            Icons.home_outlined,
-            color: currentIndex == 0 ? const Color(0xFFFF3D3D) : Colors.black54,
-          ),
-          label: '',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(
-            Icons.favorite_border,
-            color: currentIndex == 1 ? const Color(0xFFFF3D3D) : Colors.black54,
-          ),
-          label: '',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(
-            Icons.list_rounded,
-            color: currentIndex == 2 ? const Color(0xFFFF3D3D) : Colors.black54,
-          ),
-          label: '',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(
-            Icons.inventory_2_outlined,
-            color: (highlightIndex == 3 || currentIndex == 3)
-                ? const Color(0xFFFF3D3D)
-                : Colors.black54,
-          ),
-          label: '',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(
-            Icons.person_outline,
-            color: currentIndex == 4 ? const Color(0xFFFF3D3D) : Colors.black54,
-          ),
-          label: '',
-        ),
-      ],
     );
   }
 }

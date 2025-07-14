@@ -37,6 +37,17 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // Kullanıcı oturumu kontrolü
+    if (UserSingleton().user == null) {
+      Future.microtask(() {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => LoginPage()),
+          (route) => false,
+        );
+      });
+      return const SizedBox.shrink();
+    }
+
     final double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
@@ -230,6 +241,7 @@ class _HomePageState extends State<HomePage> {
                                                   backgroundColor: Colors.white,
                                                 ),
                                                 onPressed: () {
+                                                  UserSingleton().user = null;
                                                   Navigator.of(
                                                     context,
                                                   ).pushAndRemoveUntil(
@@ -392,12 +404,6 @@ class _HomePageState extends State<HomePage> {
       ),
       bottomNavigationBar: EKBottomNavBar(
         currentIndex: _selectedIndex,
-        onTap: (int index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-          // Diğer indexler için mevcut davranış devam eder
-        },
         parentContext: context,
       ),
     );

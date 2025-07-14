@@ -249,8 +249,7 @@ class _SiparislerPageState extends State<SiparislerPage>
         ],
       ),
       bottomNavigationBar: EKBottomNavBar(
-        currentIndex: 2, // veya 3, hangi indexte ise
-        highlightIndex: 2, // veya 3
+        currentIndex: 2,
         parentContext: context,
       ),
     );
@@ -415,44 +414,67 @@ class _SiparislerPageState extends State<SiparislerPage>
             ),
             Expanded(
               child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 0,
+                ),
                 itemCount: borclar.length,
                 separatorBuilder: (context, index) => const SizedBox(height: 8),
                 itemBuilder: (context, index) {
                   final b = borclar[index];
-                  return Row(
-                    children: [
-                      Checkbox(
-                        value: seciliIdler.contains(b.id),
-                        onChanged: (val) {
-                          setState(() {
-                            if (val == true) {
-                              seciliIdler.add(b.id);
-                            } else {
-                              seciliIdler.remove(b.id);
-                            }
-                          });
-                        },
-                        activeColor: Colors.redAccent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4),
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
                         ),
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      Expanded(
-                        child: Text(
-                          b.urun,
-                          style: const TextStyle(fontSize: 16),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          value: seciliIdler.contains(b.id),
+                          onChanged: (val) {
+                            setState(() {
+                              if (val == true) {
+                                seciliIdler.add(b.id);
+                              } else {
+                                seciliIdler.remove(b.id);
+                              }
+                            });
+                          },
+                          activeColor: Colors.redAccent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
                         ),
-                      ),
-                      Text(
-                        '+₺${b.tutar.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 18.0),
+                            child: Text(
+                              b.urun,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
+                        Padding(
+                          padding: const EdgeInsets.only(right: 16.0),
+                          child: Text(
+                            '+₺${b.tutar.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 },
               ),
@@ -469,75 +491,91 @@ class _SiparislerPageState extends State<SiparislerPage>
                       fontSize: 28,
                     ),
                   ),
-                  ElevatedButton(
-                    onPressed: seciliIdler.isNotEmpty
-                        ? () async {
-                            // Ödeme ekranına yönlendir
-                            final username = _userKey ?? "anonim";
-                            final debtProvider = Provider.of<DebtProvider>(
-                              context,
-                              listen: false,
-                            );
-                            final selectedIds = List<String>.from(seciliIdler);
-                            final selectedDebts = debtProvider.debts
-                                .where((b) => selectedIds.contains(b.id))
-                                .toList();
-                            double toplamBorc = debtProvider.debts.fold(
-                              0,
-                              (sum, item) => sum + item.tutar,
-                            );
-                            double seciliBorc = selectedDebts.fold(
-                              0,
-                              (sum, item) => sum + item.tutar,
-                            );
-                            double kalanBorc = toplamBorc - seciliBorc;
-                            final result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PaymentPage(
-                                  totalPrice: seciliBorc,
-                                  isCayOcagiBorcu: true,
-                                  kalanBorc: kalanBorc,
+                  SizedBox(
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: seciliIdler.isNotEmpty
+                          ? () async {
+                              // Ödeme ekranına yönlendir
+                              final username = _userKey ?? "anonim";
+                              final debtProvider = Provider.of<DebtProvider>(
+                                context,
+                                listen: false,
+                              );
+                              final selectedIds = List<String>.from(
+                                seciliIdler,
+                              );
+                              final selectedDebts = debtProvider.debts
+                                  .where((b) => selectedIds.contains(b.id))
+                                  .toList();
+                              double toplamBorc = debtProvider.debts.fold(
+                                0,
+                                (sum, item) => sum + item.tutar,
+                              );
+                              double seciliBorc = selectedDebts.fold(
+                                0,
+                                (sum, item) => sum + item.tutar,
+                              );
+                              double kalanBorc = toplamBorc - seciliBorc;
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PaymentPage(
+                                    totalPrice: seciliBorc,
+                                    isCayOcagiBorcu: true,
+                                    kalanBorc: kalanBorc,
+                                  ),
                                 ),
-                              ),
-                            );
-                            debugPrint(
-                              'Ödeme sonrası kontrol: result = $result, seciliIdler = $seciliIdler',
-                            );
-                            if (result == 'odeme_basarili') {
+                              );
                               debugPrint(
-                                'payDebts fonksiyonu çağrılıyor, selectedIds: $selectedIds',
+                                'Ödeme sonrası kontrol: result = $result, seciliIdler = $seciliIdler',
                               );
-                              await debtProvider.payDebts(
-                                username,
-                                selectedIds,
-                              );
-                              setState(() {
-                                seciliIdler.clear();
-                              });
-                              // Borçlar güncellendikten sonra tekrar yükle ve arayüzü yenile
-                              await debtProvider.loadDebts(username);
-                              setState(() {});
+                              if (result == 'odeme_basarili') {
+                                debugPrint(
+                                  'payDebts fonksiyonu çağrılıyor, selectedIds: $selectedIds',
+                                );
+                                await debtProvider.payDebts(
+                                  username,
+                                  selectedIds,
+                                );
+                                // Bildirim ekle
+                                await Provider.of<NotificationProvider>(
+                                  context,
+                                  listen: false,
+                                ).addNotification(
+                                  username,
+                                  NotificationModel(
+                                    title: 'Borç Ödendi',
+                                    content: 'Çay ocağı borcunuz ödendi.',
+                                    date: DateTime.now().toString(),
+                                  ),
+                                );
+                                setState(() {
+                                  seciliIdler.clear();
+                                });
+                                await debtProvider.loadDebts(username);
+                                setState(() {});
+                              }
                             }
-                          }
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.redAccent,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 12,
+                        ),
                       ),
-                      textStyle: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 12,
-                      ),
+                      child: const Text('Ödeme Yap'),
                     ),
-                    child: const Text('Ödeme Yap'),
                   ),
                 ],
               ),

@@ -147,10 +147,7 @@ class TostPage extends StatelessWidget {
         },
       ),
       bottomNavigationBar: EKBottomNavBar(
-        currentIndex: 0, // TostPage için uygun index
-        onTap: (int index) {
-          // Diğer indexler için mevcut davranış devam eder
-        },
+        currentIndex: 0,
         parentContext: context,
       ),
     );

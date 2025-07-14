@@ -531,9 +531,6 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
       ),
       bottomNavigationBar: EKBottomNavBar(
         currentIndex: 0, // KendiMenumPage için uygun index
-        onTap: (int index) {
-          // Diğer indexler için mevcut davranış devam eder
-        },
         parentContext: context,
       ),
     );

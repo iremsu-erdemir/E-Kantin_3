@@ -766,7 +766,6 @@ class _PaymentPageState extends State<PaymentPage> {
       ),
       bottomNavigationBar: EKBottomNavBar(
         currentIndex: 3,
-        highlightIndex: 3,
         parentContext: context,
       ),
     );

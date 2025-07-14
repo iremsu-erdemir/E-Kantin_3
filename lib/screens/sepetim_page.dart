@@ -136,7 +136,6 @@ class _SepetimPageState extends State<SepetimPage>
       ),
       bottomNavigationBar: EKBottomNavBar(
         currentIndex: 2,
-        highlightIndex: 2,
         parentContext: context,
       ),
     );

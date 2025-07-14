@@ -8,6 +8,9 @@ import 'models/user.dart';
 import 'package:provider/provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/debt_provider.dart';
+import 'screens/favorilerim.dart';
+import 'screens/siparisler.dart';
+import 'screens/sepetim_page.dart';
 
 void main() {
   runApp(
@@ -39,7 +42,32 @@ class MyApp extends StatelessWidget {
         title: 'E-Kantin',
         theme: ThemeData(primarySwatch: Colors.red, fontFamily: 'Poppins'),
         home: LoginPage(),
+        routes: {
+          '/homepage': (context) {
+            final user = UserSingleton().user;
+            if (user == null) {
+              return LoginPage();
+            }
+            return HomePage(user: user);
+          },
+          '/favorilerim': (context) => FavorilerimPage(),
+          '/siparisler': (context) => SiparislerPage(),
+          '/sepetim': (context) => SepetimPage(),
+          '/profil': (context) => ProfilPage(),
+        },
       ),
+    );
+  }
+}
+
+class ProfilPage extends StatelessWidget {
+  const ProfilPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Profil')),
+      body: const Center(child: Text('Profil Sayfası')),
     );
   }
 }

@@ -254,7 +254,6 @@ class CartPage extends StatelessWidget {
       ),
       bottomNavigationBar: EKBottomNavBar(
         currentIndex: 3,
-        highlightIndex: 3,
         parentContext: context,
       ),
     );

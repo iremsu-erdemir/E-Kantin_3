@@ -200,10 +200,7 @@ class FavorilerimPage extends StatelessWidget {
         },
       ),
       bottomNavigationBar: EKBottomNavBar(
-        currentIndex: 1, // FavorilerimPage için uygun index
-        onTap: (int index) {
-          // Diğer indexler için mevcut davranış devam eder
-        },
+        currentIndex: 1,
         parentContext: context,
       ),
     );
