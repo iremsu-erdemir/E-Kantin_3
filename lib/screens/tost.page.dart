@@ -4,6 +4,7 @@ import '../models/tost.dart';
 import '../services/tost_service.dart';
 import '../components/ek_bottom_nav_bar.dart';
 import 'favorilerim.dart';
+import 'package:intl/intl.dart';
 
 class TostPage extends StatelessWidget {
   const TostPage({Key? key}) : super(key: key);
@@ -53,6 +54,10 @@ class TostPage extends StatelessWidget {
               return GestureDetector(
                 onTap: () {
                   if (!item.stock) {
+                    final now = DateTime.now();
+                    final formattedDate = DateFormat(
+                      'dd/MM/yyyy HH:mm',
+                    ).format(now);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Ürün tükendi'),

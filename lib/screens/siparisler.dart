@@ -458,7 +458,7 @@ class _SiparislerPageState extends State<SiparislerPage>
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 18.0),
                             child: Text(
-                              b.urun,
+                              b.count > 1 ? '${b.urun} x${b.count}' : b.urun,
                               style: const TextStyle(fontSize: 16),
                             ),
                           ),
@@ -538,15 +538,26 @@ class _SiparislerPageState extends State<SiparislerPage>
                                   username,
                                   selectedIds,
                                 );
-                                // Bildirim ekle
+                                // Adetli ürün metni oluştur
+                                final urunAdetMap = <String, int>{};
+                                for (var b in selectedDebts) {
+                                  urunAdetMap[b.urun] =
+                                      (urunAdetMap[b.urun] ?? 0) +
+                                      (b.count > 0 ? b.count : 1);
+                                }
+                                final urunlerMetni = urunAdetMap.entries
+                                    .map((e) => '${e.value} adet ${e.key}')
+                                    .join(', ');
+                                final bildirimIcerik =
+                                    'B Blok 7 nolu çay ocağından $urunlerMetni borcu ödendi.';
                                 await Provider.of<NotificationProvider>(
                                   context,
                                   listen: false,
                                 ).addNotification(
                                   username,
                                   NotificationModel(
-                                    title: 'Borç Ödendi',
-                                    content: 'Çay ocağı borcunuz ödendi.',
+                                    title: 'Çay Ocağı Siparişi',
+                                    content: bildirimIcerik,
                                     date: DateTime.now().toString(),
                                   ),
                                 );
@@ -603,7 +614,8 @@ class _SiparislerPageState extends State<SiparislerPage>
           itemCount: notifications.length,
           separatorBuilder: (context, index) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
-            final n = notifications[index];
+            // Bildirimleri en yeni en üstte göstermek için ters sırala
+            final n = notifications.reversed.toList()[index];
             return ListTile(
               leading: const Icon(Icons.notifications),
               title: Text(n.title),

@@ -652,6 +652,8 @@ class _PaymentPageState extends State<PaymentPage> {
                                     return;
                                   }
                                 }
+                                // Ürün adını sepet temizlenmeden önce al
+                                final productName = _getProductName(context);
                                 Provider.of<CartProvider>(
                                   context,
                                   listen: false,
@@ -725,6 +727,7 @@ class _PaymentPageState extends State<PaymentPage> {
                                                             .millisecondsSinceEpoch %
                                                         9000)
                                                 .toString(),
+                                        productName: productName,
                                       ),
                                     ),
                                   );
@@ -818,4 +821,21 @@ class _CustomInput extends StatelessWidget {
       ),
     );
   }
+}
+
+String _getProductName(BuildContext context) {
+  // SepetimPage'den gelen ürün adı varsa onu kullan
+  final ModalRoute<Object?>? route = ModalRoute.of(context);
+  if (route != null && route.settings.arguments is Map) {
+    final args = route.settings.arguments as Map;
+    if (args['title'] != null && args['title'] is String) {
+      return args['title'] as String;
+    }
+  }
+  // Sepetteki tüm ürünlerin adını virgül ile birleştir
+  final cartProvider = Provider.of<CartProvider>(context, listen: false);
+  if (cartProvider.items.isNotEmpty) {
+    return cartProvider.items.map((e) => e.name).join(', ');
+  }
+  return 'Ürün';
 }

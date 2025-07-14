@@ -13,10 +13,12 @@ import '../models/notification.dart';
 class SuccessPaymentPage extends StatelessWidget {
   final double totalPrice;
   final String orderNumber;
+  final String productName;
   const SuccessPaymentPage({
     Key? key,
     required this.totalPrice,
     required this.orderNumber,
+    required this.productName,
   }) : super(key: key);
 
   @override
@@ -77,8 +79,7 @@ class SuccessPaymentPage extends StatelessWidget {
                     ).format(now);
                     final yeniSiparis = Siparis(
                       id: UniqueKey().toString(),
-                      urun:
-                          'Ürün', // Buraya gerçek ürün adı parametre ile gelmeli, örnek olarak 'Ürün' yazıldı
+                      urun: productName,
                       tutar: totalPrice,
                       durum: 'aktif',
                       img: 'assets/images/sandwich.png',
@@ -95,8 +96,7 @@ class SuccessPaymentPage extends StatelessWidget {
                       username,
                       NotificationModel(
                         title: 'Yeni Sipariş',
-                        content:
-                            'Yeni bir sipariş oluşturuldu: ${yeniSiparis.urun}',
+                        content: 'Yeni bir sipariş oluşturuldu: $productName',
                         date: now.toString(),
                       ),
                     );
