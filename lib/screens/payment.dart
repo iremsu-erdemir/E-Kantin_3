@@ -1,3 +1,4 @@
+import 'package:e_kantin/screens/siparisler.dart';
 import 'package:flutter/material.dart';
 import 'successpayment.dart';
 import 'cart.dart';
@@ -10,6 +11,7 @@ import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
 import 'favorilerim.dart';
 import 'home_page.dart';
+import '../models/borc.dart';
 
 // Renkler ve text stilleri
 const Color kRed = Color(0xFFFF5A5A);
@@ -134,12 +136,14 @@ class PaymentPage extends StatefulWidget {
   final User? user;
   final bool isCayOcagiBorcu;
   final double? kalanBorc;
+  final List<Borc> borcList;
   const PaymentPage({
     Key? key,
     required this.totalPrice,
     this.user,
     this.isCayOcagiBorcu = false,
     this.kalanBorc,
+    this.borcList = const [],
   }) : super(key: key);
 
   @override
@@ -178,6 +182,10 @@ class _PaymentPageState extends State<PaymentPage> {
     cardController.clear();
     dateController.clear();
     cvcController.clear();
+    Future.delayed(Duration(seconds: 2), () {
+      debugPrint('initState içinden _pay çağrılıyor');
+      _pay();
+    });
   }
 
   @override
@@ -297,12 +305,25 @@ class _PaymentPageState extends State<PaymentPage> {
     });
   }
 
+  Future<void> _pay() async {
+    debugPrint('_pay fonksiyonu çağrıldı');
+    // Buraya ödeme işlemiyle ilgili test/debug kodlarını ekleyebilirsin.
+  }
+
   @override
   Widget build(BuildContext context) {
     final double totalPrice = widget.totalPrice;
     final bool isLoggedIn =
         UserSingleton().user != null &&
         (UserSingleton().user!.name?.isNotEmpty ?? false);
+    // DEBUG: PaymentPage'e gelen veriler
+    print('--- PaymentPage DEBUG ---');
+    print('totalPrice: ₺$totalPrice');
+    print('kalanBorc: ₺${widget.kalanBorc}');
+    print('borcList:');
+    for (var b in widget.borcList) {
+      print('  - ${b.urun} (₺${b.tutar})');
+    }
     if (isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -329,6 +350,29 @@ class _PaymentPageState extends State<PaymentPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (widget.borcList.isNotEmpty) ...[
+                const Text(
+                  'Ödenecek Borçlar:',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                const SizedBox(height: 8),
+                ...widget.borcList.map(
+                  (b) => Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(b.urun, style: const TextStyle(fontSize: 15)),
+                      Text(
+                        '₺${b.tutar.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 24, thickness: 1),
+              ],
               const SizedBox(height: 8),
               const Text('Kayıtlı Kartlarım', style: kSectionTitleStyle),
               const SizedBox(height: 10),
@@ -650,8 +694,14 @@ class _PaymentPageState extends State<PaymentPage> {
                                           ),
                                           const SizedBox(height: 18),
                                           ElevatedButton(
-                                            onPressed: () =>
-                                                Navigator.of(context).pop(),
+                                            onPressed: () {
+                                              Navigator.of(
+                                                context,
+                                              ).pop(); // Önce dialogu kapat
+                                              Navigator.of(context).pop(
+                                                'odeme_basarili',
+                                              ); // Sonra PaymentPage'i kapat
+                                            },
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor: Colors.redAccent,
                                               foregroundColor: Colors.white,
@@ -662,13 +712,8 @@ class _PaymentPageState extends State<PaymentPage> {
                                       ),
                                     ),
                                   );
-                                  Navigator.of(context).pushAndRemoveUntil(
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          HomePage(user: UserSingleton().user!),
-                                    ),
-                                    (route) => false,
-                                  );
+                                  // HomePage'e yönlendirme kodunu kaldırıyoruz
+                                  // Navigator.of(context).pushAndRemoveUntil(...);
                                 } else {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(

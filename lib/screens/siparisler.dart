@@ -1,3 +1,4 @@
+import 'package:e_kantin/models/notification.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -8,9 +9,13 @@ import '../models/user.dart';
 import '../models/siparis.dart';
 import '../models/borc.dart';
 import '../services/local_storage_service.dart';
+import '../providers/notification_provider.dart';
+import 'package:provider/provider.dart';
+import '../providers/debt_provider.dart';
 
 class SiparislerPage extends StatefulWidget {
-  const SiparislerPage({Key? key}) : super(key: key);
+  final int initialTab;
+  const SiparislerPage({Key? key, this.initialTab = 0}) : super(key: key);
   @override
   State<SiparislerPage> createState() => _SiparislerPageState();
 }
@@ -19,8 +24,10 @@ class _SiparislerPageState extends State<SiparislerPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   List<Siparis> siparisler = [];
-  List<Borc> borclar = [];
+  // List<Borc> borclar = []; // KALDIRILDI
   bool _firstLoad = true;
+  List<String> seciliIdler = [];
+  List<String> odenenBorcIdler = [];
 
   @override
   void initState() {
@@ -28,8 +35,21 @@ class _SiparislerPageState extends State<SiparislerPage>
 
     // clearPrefs(); // ekle
 
-    _tabController = TabController(length: 4, vsync: this);
-    _tabController.addListener(() {
+    _tabController = TabController(
+      length: 4,
+      vsync: this,
+      initialIndex: widget.initialTab,
+    );
+    _tabController.addListener(() async {
+      // Tab değişiminde Çay Ocağı Borcu sekmesine gelindiyse borçları güncelle
+      if (_tabController.index == 2) {
+        final username = _userKey ?? "anonim";
+        await Provider.of<DebtProvider>(
+          context,
+          listen: false,
+        ).loadDebts(username);
+        setState(() {}); // Arayüzü yenile
+      }
       loadAll();
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -46,10 +66,10 @@ class _SiparislerPageState extends State<SiparislerPage>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_firstLoad) {
-      loadAll();
-      _firstLoad = false;
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final username = _userKey ?? "anonim";
+      Provider.of<DebtProvider>(context, listen: false).loadDebts(username);
+    });
   }
 
   String? get _userKey {
@@ -60,42 +80,104 @@ class _SiparislerPageState extends State<SiparislerPage>
   Future<void> loadAll() async {
     final username = _userKey ?? "anonim";
     siparisler = await LocalStorageService.getUserOrders(username);
-    borclar = await LocalStorageService.getUserDebts(username);
 
-    print('siparisler (sayısı): ${siparisler.length}');
+    // Eğer hiç borç yoksa örnek borçlar ekle (sadece SharedPreferences boşsa)
+    final borclar = await LocalStorageService.getUserDebts(username);
+    if (borclar.isEmpty) {
+      await LocalStorageService.addDebt(
+        username,
+        Borc(
+          id: '1',
+          urun: 'Küçük Çay',
+          tutar: 5.5,
+          tarih: DateTime.now().toString(),
+        ),
+      );
+      await LocalStorageService.addDebt(
+        username,
+        Borc(
+          id: '2',
+          urun: 'Büyük Çay',
+          tutar: 7.0,
+          tarih: DateTime.now().toString(),
+        ),
+      );
+      await LocalStorageService.addDebt(
+        username,
+        Borc(
+          id: '3',
+          urun: 'Nescafe',
+          tutar: 8.0,
+          tarih: DateTime.now().toString(),
+        ),
+      );
+      // Borçlar eklendikten sonra Provider'ı güncelle
+      await Provider.of<DebtProvider>(
+        context,
+        listen: false,
+      ).loadDebts(username);
+    }
+
+    print(
+      'siparisler (sayısı):  [33m [1m [4m [7m [41m [30m [0m${siparisler.length}',
+    );
     for (var s in siparisler) {
       print('Siparis: id=${s.id}, durum=${s.durum}, urun=${s.urun}');
     }
 
-    setState(() {});
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {});
+    });
   }
 
   Future<void> ekleSiparis(Siparis siparis) async {
     final username = _userKey ?? "anonim";
     siparis.kayitTarihi = DateTime.now().toIso8601String();
-
     // Burada durum ataması kritik:
     siparis.durum = 'aktif';
-
     await LocalStorageService.addOrder(username, siparis);
+    // Bildirim ekle
+    final now = DateTime.now();
+    await Provider.of<NotificationProvider>(
+      context,
+      listen: false,
+    ).addNotification(
+      username,
+      NotificationModel(
+        title: 'Yeni Sipariş',
+        content: 'Yeni bir sipariş oluşturuldu: ${siparis.urun}',
+        date: now.toString(),
+      ),
+    );
     await loadAll();
   }
 
   Future<void> siparisiTamamla(String orderId) async {
     final username = _userKey ?? "anonim";
     await LocalStorageService.markAsDelivered(username, orderId);
+    // Bildirim ekle
+    final now = DateTime.now();
+    // Çift bildirim olmaması için sadece NotificationProvider ile ekle
+    await Provider.of<NotificationProvider>(
+      context,
+      listen: false,
+    ).addNotification(
+      username,
+      NotificationModel(
+        title: 'Sipariş Teslim Edildi',
+        content: 'Bir sipariş teslim edildi.',
+        date: now.toString(),
+      ),
+    );
     await loadAll();
   }
 
   Future<void> ekleBorc(Borc borc) async {
     final username = _userKey ?? "anonim";
-    await LocalStorageService.addDebt(username, borc);
-    await loadAll();
-  }
-
-  Future<void> borcOde(List<String> seciliBorcIdler) async {
-    final username = _userKey ?? "anonim";
-    await LocalStorageService.payDebt(username, seciliBorcIdler);
+    await Provider.of<DebtProvider>(
+      context,
+      listen: false,
+    ).addDebt(username, borc);
     await loadAll();
   }
 
@@ -310,24 +392,32 @@ class _SiparislerPageState extends State<SiparislerPage>
   }
 
   Widget _borcListesi() {
-    if (borclar.isEmpty) {
-      return const Center(
-        child: Text(
-          'Borç yok',
-          style: TextStyle(fontSize: 16, color: Colors.black54),
-        ),
-      );
-    }
-    List<String> seciliIdler = [];
-    return StatefulBuilder(
-      builder: (context, setStateSB) {
+    return Consumer<DebtProvider>(
+      builder: (context, debtProvider, _) {
+        final borclar = debtProvider.debts;
+        if (borclar.isEmpty) {
+          return const Center(
+            child: Text(
+              'Borç bulunamadı',
+              style: TextStyle(fontSize: 16, color: Colors.black54),
+            ),
+          );
+        }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
+              child: Text(
+                'Çay Ocağı Borcu',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+            ),
             Expanded(
               child: ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: borclar.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 6),
+                separatorBuilder: (context, index) => const SizedBox(height: 8),
                 itemBuilder: (context, index) {
                   final b = borclar[index];
                   return Row(
@@ -335,7 +425,7 @@ class _SiparislerPageState extends State<SiparislerPage>
                       Checkbox(
                         value: seciliIdler.contains(b.id),
                         onChanged: (val) {
-                          setStateSB(() {
+                          setState(() {
                             if (val == true) {
                               seciliIdler.add(b.id);
                             } else {
@@ -356,7 +446,7 @@ class _SiparislerPageState extends State<SiparislerPage>
                         ),
                       ),
                       Text(
-                        '+₺${b.tutar}',
+                        '+₺${b.tutar.toStringAsFixed(2)}',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -367,43 +457,90 @@ class _SiparislerPageState extends State<SiparislerPage>
                 },
               ),
             ),
-            const SizedBox(height: 18),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '₺${borclar.fold(0.0, (sum, b) => sum + b.tutar).toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: seciliIdler.isNotEmpty
-                      ? () async {
-                          await borcOde(seciliIdler);
-                          setStateSB(() => seciliIdler.clear());
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    textStyle: const TextStyle(
-                      fontSize: 16,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '₺${borclar.where((b) => seciliIdler.contains(b.id)).fold(0.0, (sum, b) => sum + b.tutar).toStringAsFixed(2)}',
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                    ),
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 28,
-                      vertical: 12,
+                      fontSize: 28,
                     ),
                   ),
-                  child: const Text('Ödeme Yap'),
-                ),
-              ],
+                  ElevatedButton(
+                    onPressed: seciliIdler.isNotEmpty
+                        ? () async {
+                            // Ödeme ekranına yönlendir
+                            final username = _userKey ?? "anonim";
+                            final debtProvider = Provider.of<DebtProvider>(
+                              context,
+                              listen: false,
+                            );
+                            final selectedIds = List<String>.from(seciliIdler);
+                            final selectedDebts = debtProvider.debts
+                                .where((b) => selectedIds.contains(b.id))
+                                .toList();
+                            double toplamBorc = debtProvider.debts.fold(
+                              0,
+                              (sum, item) => sum + item.tutar,
+                            );
+                            double seciliBorc = selectedDebts.fold(
+                              0,
+                              (sum, item) => sum + item.tutar,
+                            );
+                            double kalanBorc = toplamBorc - seciliBorc;
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PaymentPage(
+                                  totalPrice: seciliBorc,
+                                  isCayOcagiBorcu: true,
+                                  kalanBorc: kalanBorc,
+                                ),
+                              ),
+                            );
+                            debugPrint(
+                              'Ödeme sonrası kontrol: result = $result, seciliIdler = $seciliIdler',
+                            );
+                            if (result == 'odeme_basarili') {
+                              debugPrint(
+                                'payDebts fonksiyonu çağrılıyor, selectedIds: $selectedIds',
+                              );
+                              await debtProvider.payDebts(
+                                username,
+                                selectedIds,
+                              );
+                              setState(() {
+                                seciliIdler.clear();
+                              });
+                              // Borçlar güncellendikten sonra tekrar yükle ve arayüzü yenile
+                              await debtProvider.loadDebts(username);
+                              setState(() {});
+                            }
+                          }
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      textStyle: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 12,
+                      ),
+                    ),
+                    child: const Text('Ödeme Yap'),
+                  ),
+                ],
+              ),
             ),
           ],
         );
@@ -412,86 +549,35 @@ class _SiparislerPageState extends State<SiparislerPage>
   }
 
   Widget _bildirimler() {
-    // Bildirimler için örnek veri
-    final bildirimler = [
-      {
-        'baslik': 'Çay Ocağı Siparişi',
-        'tarih': '11/03/2024 11:53',
-        'icerik':
-            'Hesabınız üzerinden #4456 numaralı çay siparişi sisteme girdi.',
-      },
-      {
-        'baslik': 'Kantin Siparişi',
-        'tarih': '11/03/2024 11:53',
-        'icerik': 'Hesabınız üzerinden #4455 numaralı ürün siparişi alındı.',
-      },
-      {
-        'baslik': 'Çay Ocağı Siparişi',
-        'tarih': '11/03/2024 11:53',
-        'icerik':
-            'Hesabınız üzerinden #4452 numaralı çay siparişi sisteme girdi.',
-      },
-      {
-        'baslik': 'Kantin Siparişi',
-        'tarih': '11/03/2024 11:53',
-        'icerik': 'Hesabınız üzerinden #4451 numaralı ürün siparişi alındı.',
-      },
-      {
-        'baslik': 'Kantin Siparişi',
-        'tarih': '11/03/2024 11:53',
-        'icerik': 'Hesabınız üzerinden #4450 numaralı ürün siparişi alındı.',
-      },
-    ];
-    return ListView.separated(
-      padding: const EdgeInsets.all(16),
-      itemCount: bildirimler.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        final b = bildirimler[index];
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+    return Consumer<NotificationProvider>(
+      builder: (context, notificationProvider, _) {
+        final notifications = notificationProvider.notifications;
+        if (notifications.isEmpty) {
+          return const Center(
+            child: Text(
+              'Bildirim yok',
+              style: TextStyle(fontSize: 16, color: Colors.black54),
+            ),
+          );
+        }
+        return ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemCount: notifications.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 8),
+          itemBuilder: (context, index) {
+            final n = notifications[index];
+            return ListTile(
+              leading: const Icon(Icons.notifications),
+              title: Text(n.title),
+              subtitle: Text(n.content),
+              trailing: Text(
+                n.date.split('T')[0],
+                style: const TextStyle(fontSize: 12, color: Colors.black45),
               ),
-            ],
-          ),
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 10,
-            ),
-            title: Text(
-              b['baslik']!,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.redAccent,
-              ),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(b['icerik']!, style: const TextStyle(fontSize: 15)),
-                const SizedBox(height: 4),
-                Text(
-                  b['tarih']!,
-                  style: const TextStyle(fontSize: 13, color: Colors.black45),
-                ),
-              ],
-            ),
-          ),
+            );
+          },
         );
       },
     );
-  }
-
-  void teslimEt(String orderId) async {
-    final username = UserSingleton().user?.username ?? 'anonim';
-    await LocalStorageService.markAsDelivered(username, orderId);
-    await loadAll();
   }
 }

@@ -10,6 +10,8 @@ import 'kendi_menum_page.dart';
 import 'package:provider/provider.dart';
 import '../providers/favorite_provider.dart';
 import 'favorilerim.dart';
+import '../models/notification.dart';
+import 'siparisler.dart';
 
 class HomePage extends StatefulWidget {
   final User user;
@@ -361,11 +363,21 @@ class _HomePageState extends State<HomePage> {
                         Expanded(
                           child: AspectRatio(
                             aspectRatio: 1.6,
-                            child: const _CategoryCard(
-                              imagePath: 'assets/images/cay.png',
-                              title: '',
-                              height: double.infinity,
-                              width: 60,
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        SiparislerPage(initialTab: 2),
+                                  ),
+                                );
+                              },
+                              child: const _CategoryCard(
+                                imagePath: 'assets/images/cay.png',
+                                title: '',
+                                height: double.infinity,
+                                width: 60,
+                              ),
                             ),
                           ),
                         ),

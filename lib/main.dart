@@ -5,9 +5,22 @@ import 'providers/cart_provider.dart';
 import 'providers/favorite_provider.dart';
 import 'screens/home_page.dart';
 import 'models/user.dart';
+import 'package:provider/provider.dart';
+import 'providers/notification_provider.dart';
+import 'providers/debt_provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => FavoriteProvider()),
+        ChangeNotifierProvider(create: (_) => DebtProvider()),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -19,6 +32,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => FavoriteProvider()),
+        ChangeNotifierProvider(create: (_) => DebtProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

@@ -1,15 +1,18 @@
 import 'package:e_kantin/models/user.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../screens/favorilerim.dart';
 import '../screens/home_page.dart';
 import '../screens/siparisler.dart';
 import '../screens/successpayment.dart';
+import '../providers/debt_provider.dart'; // ⚠️ Ekledik
 
 class EKBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int>? onTap;
   final BuildContext? parentContext;
   final int? highlightIndex;
+
   const EKBottomNavBar({
     Key? key,
     this.currentIndex = 0,
@@ -22,8 +25,10 @@ class EKBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       currentIndex: currentIndex,
-      onTap: (index) {
+      onTap: (index) async {
         final ctx = parentContext ?? context;
+        final username = UserSingleton().user?.username ?? 'anonim';
+
         if (index == 0) {
           Navigator.of(ctx).pushAndRemoveUntil(
             MaterialPageRoute(
@@ -45,12 +50,18 @@ class EKBottomNavBar extends StatelessWidget {
             (route) => false,
           );
         } else if (index == 2 || index == 3) {
+          // ⚠️ Borçları yüklemeden önce Provider çağır
+          await Provider.of<DebtProvider>(
+            ctx,
+            listen: false,
+          ).loadDebts(username);
+
           Navigator.of(ctx).pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => const SiparislerPage()),
             (route) => false,
           );
         } else {
-          // 5. ikon için dummy bir sayfa veya profil
+          // Profil veya dummy bir sayfa
         }
       },
       type: BottomNavigationBarType.fixed,
