@@ -34,4 +34,19 @@ class UserCardService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_key);
   }
+
+  /// Kartı günceller (eski kartı bulup yenisiyle değiştirir)
+  static Future<void> updateCard(UserCard oldCard, UserCard newCard) async {
+    final cards = await getCards();
+    final index = cards.indexWhere(
+      (c) =>
+          c.cardNumber == oldCard.cardNumber &&
+          c.expiryDate == oldCard.expiryDate &&
+          c.cardHolder == oldCard.cardHolder,
+    );
+    if (index != -1) {
+      cards[index] = newCard;
+      await _saveCards(cards);
+    }
+  }
 }

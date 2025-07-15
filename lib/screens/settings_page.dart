@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../components/ek_bottom_nav_bar.dart';
 import '../models/user.dart';
 import 'home_page.dart';
+import '../models/user_card.dart';
+import '../services/user_card_service.dart';
+import 'card_list_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -84,7 +87,16 @@ class SettingsPage extends StatelessWidget {
             _SettingsTile(
               icon: Icons.credit_card,
               title: 'Kayıtlı Kartlarım',
-              onTap: () {},
+              onTap: () async {
+                final cards = await UserCardService.getCards();
+                if (context.mounted) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => OdemeKartiYonetimPage(),
+                    ),
+                  );
+                }
+              },
             ),
             // Yönetim başlığı
             Container(
