@@ -53,6 +53,14 @@ class _SiparislerPageState extends State<SiparislerPage>
         ).loadDebts(username);
         setState(() {}); // Arayüzü yenile
       }
+      if (_tabController.index == 3) {
+        final username = _userKey ?? "anonim";
+        await Provider.of<NotificationProvider>(
+          context,
+          listen: false,
+        ).loadNotifications(username);
+        setState(() {});
+      }
       loadAll();
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {

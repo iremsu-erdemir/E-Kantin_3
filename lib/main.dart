@@ -11,6 +11,7 @@ import 'providers/debt_provider.dart';
 import 'screens/favorilerim.dart';
 import 'screens/siparisler.dart';
 import 'screens/sepetim_page.dart';
+import 'screens/settings_page.dart';
 
 void main() {
   runApp(
@@ -54,6 +55,7 @@ class MyApp extends StatelessWidget {
           '/siparisler': (context) => SiparislerPage(),
           '/sepetim': (context) => SepetimPage(),
           '/profil': (context) => ProfilPage(),
+          '/settings': (context) => const SettingsPage(),
         },
       ),
     );

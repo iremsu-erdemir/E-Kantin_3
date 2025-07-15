@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../components/ek_bottom_nav_bar.dart';
+import 'settings_page.dart';
 
 void main() {
   runApp(
@@ -34,6 +35,7 @@ class EKantinApp extends StatelessWidget {
         fontFamily: 'Poppins',
       ),
       home: LoginPage(),
+      routes: {'/settings': (context) => const SettingsPage()},
     );
   }
 }

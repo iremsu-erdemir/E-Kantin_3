@@ -65,7 +65,7 @@ class EKBottomNavBar extends StatelessWidget {
               } else if (index == 2) {
                 Navigator.pushReplacementNamed(ctx, '/siparisler');
               } else if (index == 4) {
-                Navigator.pushReplacementNamed(ctx, '/profil');
+                Navigator.pushReplacementNamed(ctx, '/settings');
               }
             },
     );
