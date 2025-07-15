@@ -180,7 +180,7 @@ class FavorilerimPage extends StatelessWidget {
               leading: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.asset(
-                  'assets/images/sandwichmenu.png',
+                  'assets/images/sandwichMenu.png',
                   width: 56,
                   height: 56,
                   fit: BoxFit.cover,

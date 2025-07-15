@@ -499,7 +499,7 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
                         name: menuName,
                         imagePath: ekmekTipi == 'Tost'
                             ? 'assets/images/tost.png'
-                            : 'assets/images/sandwichmenu.png',
+                            : 'assets/images/sandwichMenu.png',
                         price: totalPrice,
                         quantity: 1,
                       );

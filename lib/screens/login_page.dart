@@ -20,38 +20,42 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final double imageHeight = screenWidth * (408.89 / 440.73);
+    final double breadImageWidth = 440.73;
+    final double breadImageHeight = 600.00;
+    final double cardWidth = breadImageWidth;
+    final double cardHeight = 447;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       body: Stack(
         children: [
-          // Üstte ekmekli arka plan resmi
-          SizedBox(
-            width: screenWidth,
-            height: imageHeight,
+          // Ekmek görseli
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
             child: Image.asset(
               'assets/images/bread_background.png',
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height * 0.42,
               fit: BoxFit.cover,
             ),
           ),
-          // Beyaz kart ve form alanı
-          Align(
-            alignment: Alignment.bottomCenter,
+          // Container (form)
+          Positioned(
+            top: MediaQuery.of(context).size.height * 0.36,
+            left: 0,
+            right: 0,
             child: SingleChildScrollView(
               child: Container(
-                width: screenWidth,
-                margin: EdgeInsets.only(top: imageHeight - 40),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 0,
-                ),
+                width: MediaQuery.of(context).size.width,
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(36),
                     topRight: Radius.circular(36),
+                    bottomLeft: Radius.circular(24),
+                    bottomRight: Radius.circular(24),
                   ),
                   boxShadow: [
                     BoxShadow(
@@ -62,8 +66,9 @@ class _LoginPageState extends State<LoginPage> {
                   ],
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 32, bottom: 24),
+                  padding: const EdgeInsets.all(24),
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
