@@ -49,6 +49,8 @@ class _HomePageState extends State<HomePage> {
     }
 
     final double screenWidth = MediaQuery.of(context).size.width;
+    final double cardRadius = 20;
+    final double cardWidth = MediaQuery.of(context).size.width * 0.9;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
@@ -308,8 +310,11 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                  // Tostlar
+                  Container(
+                    width: cardWidth,
+                    height: 110,
+                    margin: const EdgeInsets.only(top: 12),
                     child: GestureDetector(
                       onTap: () {
                         Navigator.of(context).push(
@@ -318,17 +323,16 @@ class _HomePageState extends State<HomePage> {
                           ),
                         );
                       },
-                      child: const _CategoryCard(
+                      child: _CategoryCardCustom(
                         imagePath: 'assets/images/tost.png',
-                        title: '',
-                        height: 160,
-                        width: 160,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                  const SizedBox(height: 8),
+                  // Sandviçler
+                  Container(
+                    width: cardWidth,
+                    height: 110,
                     child: GestureDetector(
                       onTap: () {
                         Navigator.of(context).push(
@@ -337,64 +341,51 @@ class _HomePageState extends State<HomePage> {
                           ),
                         );
                       },
-                      child: const _CategoryCard(
+                      child: _CategoryCardCustom(
                         imagePath: 'assets/images/sandwich.png',
-                        title: '',
-                        height: 160,
-                        width: 160,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: AspectRatio(
-                            aspectRatio: 2.0,
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const KendiMenumPage(),
-                                  ),
-                                );
-                              },
-                              child: const _CategoryCard(
-                                imagePath: 'assets/images/karisik.png',
-                                title: '',
-                                height: double.infinity,
-                                width: 100,
+                  const SizedBox(height: 8),
+                  // Alt satır: 2 küçük kart
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: (cardWidth - 8) / 2,
+                        height: 80,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const KendiMenumPage(),
                               ),
-                            ),
+                            );
+                          },
+                          child: _CategoryCardCustom(
+                            imagePath: 'assets/images/karisik.png',
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: AspectRatio(
-                            aspectRatio: 1.6,
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        SiparislerPage(initialTab: 2),
-                                  ),
-                                );
-                              },
-                              child: const _CategoryCard(
-                                imagePath: 'assets/images/cay.png',
-                                title: '',
-                                height: double.infinity,
-                                width: 60,
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        width: (cardWidth - 8) / 2,
+                        height: 80,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    SiparislerPage(initialTab: 2),
                               ),
-                            ),
+                            );
+                          },
+                          child: _CategoryCardCustom(
+                            imagePath: 'assets/images/cay.png',
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -410,36 +401,14 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class _CategoryCard extends StatelessWidget {
+class _CategoryCardCustom extends StatelessWidget {
   final String imagePath;
-  final String title;
-  final double height;
-  final double width;
 
-  const _CategoryCard({
-    required this.imagePath,
-    required this.title,
-    required this.height,
-    required this.width,
-    Key? key,
-  }) : super(key: key);
+  const _CategoryCardCustom({required this.imagePath, Key? key})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: height,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Image.asset(imagePath, fit: BoxFit.cover),
-    );
+    return SizedBox.expand(child: Image.asset(imagePath, fit: BoxFit.cover));
   }
 }

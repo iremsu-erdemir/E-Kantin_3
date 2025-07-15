@@ -869,15 +869,60 @@ class _SiparislerPageState extends State<SiparislerPage>
           itemCount: notifications.length,
           separatorBuilder: (context, index) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
-            // Bildirimleri en yeni en üstte göstermek için ters sırala
             final n = notifications.reversed.toList()[index];
-            return ListTile(
-              leading: const Icon(Icons.notifications),
-              title: Text(n.title),
-              subtitle: Text(n.content),
-              trailing: Text(
-                n.date.split('T')[0],
-                style: const TextStyle(fontSize: 12, color: Colors.black45),
+            // Tarih ve saat formatı (örn: 2025-07-15 03:27:53)
+            String formattedDate = n.date;
+            if (n.date.contains('T')) {
+              final dateTime = DateTime.tryParse(n.date);
+              if (dateTime != null) {
+                formattedDate =
+                    '${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} '
+                    '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}:${dateTime.second.toString().padLeft(2, '0')}';
+              }
+            }
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.notifications, color: Colors.redAccent),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          n.title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.redAccent,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    n.content,
+                    style: const TextStyle(fontSize: 15, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    formattedDate,
+                    style: const TextStyle(fontSize: 13, color: Colors.black45),
+                  ),
+                ],
               ),
             );
           },

@@ -560,6 +560,16 @@ class _PaymentPageState extends State<PaymentPage> {
                           ),
                           counterText: '',
                         ),
+                        onChanged: (value) {
+                          // Sadece rakam girilmişse ve 2 karakterden sonra '/' eklenmemişse otomatik ekle
+                          if (value.length == 2 && !value.contains('/')) {
+                            dateController.text = value + '/';
+                            dateController
+                                .selection = TextSelection.fromPosition(
+                              TextPosition(offset: dateController.text.length),
+                            );
+                          }
+                        },
                         validator: (value) {
                           final date = value?.trim() ?? '';
                           if (date.isEmpty) {
