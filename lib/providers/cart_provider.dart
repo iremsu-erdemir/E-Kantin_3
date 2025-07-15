@@ -9,7 +9,7 @@ class CartProvider extends ChangeNotifier {
   void addOrUpdate(CartItem item) {
     final index = _items.indexWhere((e) => e.id == item.id);
     if (index != -1) {
-      _items[index].quantity += item.quantity;
+      _items[index] = item; // quantity'yi doğrudan güncelle
     } else {
       _items.add(item);
     }

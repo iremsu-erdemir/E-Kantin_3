@@ -48,24 +48,26 @@ class EKBottomNavBar extends StatelessWidget {
 
   Widget _buildIcon(BuildContext ctx, int index, IconData icon) {
     Color color = currentIndex == index ? Color(0xFFFF3D3D) : Colors.grey;
+    bool isDisabled =
+        index == 3 &&
+        !(ctx.widget.runtimeType.toString().contains('PaymentPage') ||
+            ctx.widget.runtimeType.toString().contains('SiparislerPage') ||
+            ctx.widget.runtimeType.toString().contains('SuccessPaymentPage'));
     return IconButton(
       icon: Icon(icon, color: color, size: 32),
-      onPressed: () {
-        if (index == 0) {
-          Navigator.pushReplacementNamed(
-            ctx,
-            '/homepage',
-          ); // HomePage'e yönlendir
-        } else if (index == 1) {
-          Navigator.pushReplacementNamed(ctx, '/favorilerim');
-        } else if (index == 2) {
-          Navigator.pushReplacementNamed(ctx, '/siparisler');
-        } else if (index == 3) {
-          Navigator.pushReplacementNamed(ctx, '/sepetim');
-        } else if (index == 4) {
-          Navigator.pushReplacementNamed(ctx, '/profil');
-        }
-      },
+      onPressed: (index == 3)
+          ? null // 4. ikon hiçbir zaman tıklanamaz
+          : () {
+              if (index == 0) {
+                Navigator.pushReplacementNamed(ctx, '/homepage');
+              } else if (index == 1) {
+                Navigator.pushReplacementNamed(ctx, '/favorilerim');
+              } else if (index == 2) {
+                Navigator.pushReplacementNamed(ctx, '/siparisler');
+              } else if (index == 4) {
+                Navigator.pushReplacementNamed(ctx, '/profil');
+              }
+            },
     );
   }
 }

@@ -57,6 +57,7 @@ class SandwichPage extends StatelessWidget {
                       SnackBar(
                         content: Text('Ürün tükendi'),
                         duration: Duration(milliseconds: 900),
+                        backgroundColor: Colors.red,
                       ),
                     );
                   } else {

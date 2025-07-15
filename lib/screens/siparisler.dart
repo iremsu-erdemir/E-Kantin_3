@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 import '../providers/debt_provider.dart';
 import '../providers/cart_provider.dart';
 import '../models/cart.dart';
+import 'package:intl/intl.dart';
 
 class SiparislerPage extends StatefulWidget {
   final int initialTab;
@@ -919,7 +920,9 @@ class _SiparislerPageState extends State<SiparislerPage>
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    formattedDate,
+                    DateFormat(
+                      'dd/MM/yyyy HH:mm',
+                    ).format(DateTime.parse(n.date)),
                     style: const TextStyle(fontSize: 13, color: Colors.black45),
                   ),
                 ],

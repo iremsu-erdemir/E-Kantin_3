@@ -29,4 +29,20 @@ class CartItem {
     'price': price,
     'quantity': quantity,
   };
+
+  CartItem copyWith({
+    String? id,
+    String? name,
+    String? imagePath,
+    double? price,
+    int? quantity,
+  }) {
+    return CartItem(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      imagePath: imagePath ?? this.imagePath,
+      price: price ?? this.price,
+      quantity: quantity ?? this.quantity,
+    );
+  }
 }

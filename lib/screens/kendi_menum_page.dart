@@ -156,9 +156,7 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
                             Navigator.of(context).pop();
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: const Text(
-                                  'Favorilere başarıyla eklendi!',
-                                ),
+                                content: Text('Favorilere başarıyla eklendi!'),
                                 backgroundColor: Colors.green,
                                 behavior: SnackBarBehavior.floating,
                                 shape: RoundedRectangleBorder(
@@ -352,7 +350,7 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
                         // Kullanıcı login kontrolü
                         if (UserSingleton().user == null) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
+                            SnackBar(
                               content: Text(
                                 'Lütfen giriş yapmadan önce bu işlemi gerçekleştiremezsiniz.',
                               ),

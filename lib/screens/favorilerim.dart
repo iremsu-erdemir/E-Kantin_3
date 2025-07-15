@@ -154,51 +154,58 @@ class FavorilerimPage extends StatelessWidget {
         ),
         centerTitle: false,
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        itemCount: favoriler.length,
-        separatorBuilder: (context, index) => const SizedBox(height: 18),
-        itemBuilder: (context, index) {
-          final item = favoriler[index];
-          return Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+      body: favoriler.isEmpty
+          ? const Center(
+              child: Text(
+                'Favori ürününüz bulunmamaktadır.',
+                style: TextStyle(fontSize: 16, color: Colors.black54),
+              ),
+            )
+          : ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              itemCount: favoriler.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 18),
+              itemBuilder: (context, index) {
+                final item = favoriler[index];
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    leading: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.asset(
+                        'assets/images/sandwichMenu.png',
+                        width: 56,
+                        height: 56,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    title: Text(
+                      item.name,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(item.ekmekTipi),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => _showDeleteDialog(context, index, item),
+                    ),
+                  ),
+                );
+              },
             ),
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
-              leading: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.asset(
-                  'assets/images/sandwichMenu.png',
-                  width: 56,
-                  height: 56,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              title: Text(
-                item.name,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text(item.ekmekTipi),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: () => _showDeleteDialog(context, index, item),
-              ),
-            ),
-          );
-        },
-      ),
       bottomNavigationBar: EKBottomNavBar(
         currentIndex: 1,
         parentContext: context,

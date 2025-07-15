@@ -638,11 +638,11 @@ class _PaymentPageState extends State<PaymentPage> {
                       onPressed: (!isLoggedIn)
                           ? () {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
+                                SnackBar(
                                   content: Text(
                                     'Lütfen giriş yapmadan önce bu işlemi gerçekleştiremezsiniz.',
                                   ),
-                                  backgroundColor: Colors.redAccent,
+                                  backgroundColor: Colors.red,
                                 ),
                               );
                             }
@@ -744,11 +744,11 @@ class _PaymentPageState extends State<PaymentPage> {
                                 }
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
+                                  SnackBar(
                                     content: Text(
                                       'Lütfen bilgileri eksiksiz girin',
                                     ),
-                                    backgroundColor: Colors.redAccent,
+                                    backgroundColor: Colors.red,
                                   ),
                                 );
                               }

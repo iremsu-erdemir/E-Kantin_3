@@ -453,9 +453,9 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
                             }
                             if (!widget.stock) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
+                                SnackBar(
                                   content: Text('Bu ürün stokta kalmamıştır.'),
-                                  backgroundColor: Colors.redAccent,
+                                  backgroundColor: Colors.red,
                                 ),
                               );
                               return;
