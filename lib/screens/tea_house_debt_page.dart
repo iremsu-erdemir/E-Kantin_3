@@ -59,16 +59,18 @@ class TeaHouseDebtPage extends StatelessWidget {
         builder: (context, provider, _) {
           return Padding(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Çay Ocağı Borcu',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-                ),
-                const SizedBox(height: 10),
-                Expanded(
-                  child: ListView.separated(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Çay Ocağı Borcu',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                  ),
+                  const SizedBox(height: 10),
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
                     itemCount: provider.items.length,
                     separatorBuilder: (context, index) =>
                         const SizedBox(height: 6),
@@ -104,55 +106,55 @@ class TeaHouseDebtPage extends StatelessWidget {
                       );
                     },
                   ),
-                ),
-                const SizedBox(height: 18),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '₺${provider.items.fold(0.0, (sum, b) => sum + b.price).toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: provider.totalDebt > 0
-                          ? () async {
-                              final result = await Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => PaymentPage(
-                                    totalPrice: provider.totalDebt,
-                                    isCayOcagiBorcu: true,
-                                  ),
-                                ),
-                              );
-                              if (result == 'odeme_basarili') {
-                                provider.clearSelectedItems();
-                              }
-                            }
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        textStyle: const TextStyle(
-                          fontSize: 16,
+                  const SizedBox(height: 18),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '₺${provider.items.fold(0.0, (sum, b) => sum + b.price).toStringAsFixed(2)}',
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                        ),
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 28,
-                          vertical: 12,
+                          fontSize: 24,
                         ),
                       ),
-                      child: const Text('Ödeme Yap'),
-                    ),
-                  ],
-                ),
-              ],
+                      ElevatedButton(
+                        onPressed: provider.totalDebt > 0
+                            ? () async {
+                                final result = await Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => PaymentPage(
+                                      totalPrice: provider.totalDebt,
+                                      isCayOcagiBorcu: true,
+                                    ),
+                                  ),
+                                );
+                                if (result == 'odeme_basarili') {
+                                  provider.clearSelectedItems();
+                                }
+                              }
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 28,
+                            vertical: 12,
+                          ),
+                        ),
+                        child: const Text('Ödeme Yap'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           );
         },

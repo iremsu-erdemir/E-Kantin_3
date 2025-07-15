@@ -35,10 +35,11 @@ class CartPage extends StatelessWidget {
         centerTitle: false,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: cartItems.isEmpty
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Expanded kaldırıldı, sadece ListView veya Center ile devam
+            cartItems.isEmpty
                 ? const Center(
                     child: Text(
                       'Sepetiniz boş',
@@ -46,6 +47,8 @@ class CartPage extends StatelessWidget {
                     ),
                   )
                 : ListView.separated(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 16,
@@ -180,77 +183,9 @@ class CartPage extends StatelessWidget {
                       );
                     },
                   ),
-          ),
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            child: Row(
-              children: [
-                Text(
-                  '₺${totalPrice.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 22,
-                  ),
-                ),
-                const Spacer(),
-                SizedBox(
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: cartItems.isEmpty
-                        ? null
-                        : () {
-                            // Kullanıcı login kontrolü
-                            print(
-                              'DEBUG: UserSingleton().user =  [33m [1m [4m [7m [41m [30m [0m' +
-                                  (UserSingleton().user?.username ?? 'null'),
-                            );
-                            if (UserSingleton().user == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Lütfen giriş yapmadan önce bu işlemi gerçekleştiremezsiniz.',
-                                  ),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                              return;
-                            }
-                            print(
-                              'DEBUG: PaymentPage user parametresi = ' +
-                                  (UserSingleton().user?.username ?? 'null'),
-                            );
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => PaymentPage(
-                                  totalPrice: totalPrice,
-                                  user: UserSingleton().user,
-                                ),
-                              ),
-                            );
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.redAccent,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      textStyle: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      elevation: 0,
-                    ),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Text('Ödeme Yap'),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
       bottomNavigationBar: EKBottomNavBar(
         currentIndex: 3,
