@@ -342,7 +342,7 @@ class _HomePageState extends State<HomePage> {
                   // Sandviçler
                   Container(
                     width: cardWidth,
-                    height: 140,
+                    height: 180,
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -374,7 +374,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Container(
                         width: (cardWidth - 12) / 2,
-                        height: 120,
+                        height: 140,
                         margin: EdgeInsets.zero,
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -403,7 +403,7 @@ class _HomePageState extends State<HomePage> {
                       const SizedBox(width: 12),
                       Container(
                         width: (cardWidth - 12) / 2,
-                        height: 120,
+                        height: 140,
                         margin: EdgeInsets.zero,
                         decoration: BoxDecoration(
                           color: Colors.white,
