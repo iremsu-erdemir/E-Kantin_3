@@ -245,6 +245,11 @@ class _PaymentPageState extends State<PaymentPage> {
       dateController.text = card.expiryDate;
       cvcController.clear();
       showCardDropdown = false;
+      isCardSelected = true;
+      nameError = null;
+      cardError = null;
+      dateError = null;
+      cvcError = cvcController.text.trim().isEmpty ? 'CVC zorunlu' : null;
     });
   }
 
@@ -308,6 +313,32 @@ class _PaymentPageState extends State<PaymentPage> {
   Future<void> _pay() async {
     debugPrint('_pay fonksiyonu çağrıldı');
     // Buraya ödeme işlemiyle ilgili test/debug kodlarını ekleyebilirsin.
+  }
+
+  // Ödeme butonuna basınca toplu kontrol fonksiyonu ekle
+  void _validateAllFields() {
+    setState(() {
+      if (!isCardSelected) {
+        nameError = nameController.text.trim().isEmpty ? 'İsim zorunlu' : null;
+        final card = cardController.text.replaceAll(' ', '').trim();
+        if (card.isEmpty) {
+          cardError = 'Kart numarası zorunlu';
+        } else if (card.length != 16 || int.tryParse(card) == null) {
+          cardError = '16 haneli geçerli kart numarası girin';
+        } else {
+          cardError = null;
+        }
+        final date = dateController.text.trim();
+        if (date.isEmpty) {
+          dateError = 'Tarih zorunlu';
+        } else if (!RegExp(r'^(0[1-9]|1[0-2])\/\d{2}').hasMatch(date)) {
+          dateError = 'MM/YY formatında girin';
+        } else {
+          dateError = null;
+        }
+      }
+      cvcError = cvcController.text.trim().isEmpty ? 'CVC zorunlu' : null;
+    });
   }
 
   @override
@@ -382,7 +413,21 @@ class _PaymentPageState extends State<PaymentPage> {
                     selectedUserCard?.maskedNumber ?? '************ 436',
                 onTap: () {
                   setState(() {
-                    showCardDropdown = !showCardDropdown;
+                    if (selectedUserCard != null) {
+                      // Kayıtlı kart seçiliyse, manuel girişe geç
+                      selectedUserCard = null;
+                      isCardSelected = false;
+                      nameController.clear();
+                      cardController.clear();
+                      dateController.clear();
+                      cvcController.clear();
+                      nameError = null;
+                      cardError = null;
+                      dateError = null;
+                      cvcError = null;
+                    } else {
+                      showCardDropdown = !showCardDropdown;
+                    }
                   });
                 },
               ),
@@ -484,18 +529,23 @@ class _PaymentPageState extends State<PaymentPage> {
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
                           ),
-                          errorText: nameError,
+                          errorText: isCardSelected ? null : nameError,
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 14,
                           ),
                           counterText: '',
                         ),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'İsim zorunlu';
-                          }
-                          return null;
+                        onChanged: (value) {
+                          setState(() {
+                            if (isCardSelected) {
+                              nameError = null;
+                            } else {
+                              nameError = value.trim().isEmpty
+                                  ? 'İsim zorunlu'
+                                  : null;
+                            }
+                          });
                         },
                       ),
                       const SizedBox(height: 10),
@@ -516,22 +566,30 @@ class _PaymentPageState extends State<PaymentPage> {
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
                           ),
-                          errorText: cardError,
+                          errorText: isCardSelected ? null : cardError,
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 14,
                           ),
                           counterText: '',
                         ),
-                        validator: (value) {
-                          final card = value?.replaceAll(' ', '').trim() ?? '';
-                          if (card.isEmpty) {
-                            return 'Kart numarası zorunlu';
-                          }
-                          if (card.length != 16 || int.tryParse(card) == null) {
-                            return '16 haneli geçerli kart numarası girin';
-                          }
-                          return null;
+                        onChanged: (value) {
+                          setState(() {
+                            if (isCardSelected) {
+                              cardError = null;
+                            } else {
+                              final card = value.replaceAll(' ', '').trim();
+                              if (card.isEmpty) {
+                                cardError = 'Kart numarası zorunlu';
+                              } else if (card.length != 16 ||
+                                  int.tryParse(card) == null) {
+                                cardError =
+                                    '16 haneli geçerli kart numarası girin';
+                              } else {
+                                cardError = null;
+                              }
+                            }
+                          });
                         },
                       ),
                       const SizedBox(height: 10),
@@ -553,7 +611,7 @@ class _PaymentPageState extends State<PaymentPage> {
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
                           ),
-                          errorText: dateError,
+                          errorText: isCardSelected ? null : dateError,
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 14,
@@ -561,6 +619,21 @@ class _PaymentPageState extends State<PaymentPage> {
                           counterText: '',
                         ),
                         onChanged: (value) {
+                          setState(() {
+                            if (isCardSelected) {
+                              dateError = null;
+                            } else {
+                              if (value.trim().isEmpty) {
+                                dateError = 'Tarih zorunlu';
+                              } else if (!RegExp(
+                                r'^(0[1-9]|1[0-2])\/\d{2}',
+                              ).hasMatch(value)) {
+                                dateError = 'MM/YY formatında girin';
+                              } else {
+                                dateError = null;
+                              }
+                            }
+                          });
                           // Sadece rakam girilmişse ve 2 karakterden sonra '/' eklenmemişse otomatik ekle
                           if (value.length == 2 && !value.contains('/')) {
                             dateController.text = value + '/';
@@ -569,18 +642,6 @@ class _PaymentPageState extends State<PaymentPage> {
                               TextPosition(offset: dateController.text.length),
                             );
                           }
-                        },
-                        validator: (value) {
-                          final date = value?.trim() ?? '';
-                          if (date.isEmpty) {
-                            return 'Tarih zorunlu';
-                          }
-                          if (!RegExp(
-                            r'^(0[1-9]|1[0-2])\/\d{2}',
-                          ).hasMatch(date)) {
-                            return 'MM/YY formatında girin';
-                          }
-                          return null;
                         },
                       ),
                     ],
@@ -613,15 +674,10 @@ class _PaymentPageState extends State<PaymentPage> {
                   ),
                   counterText: '',
                 ),
-                validator: (value) {
-                  final cvc = value?.trim() ?? '';
-                  if (cvc.isEmpty) {
-                    return 'CVC zorunlu';
-                  }
-                  if (cvc.length != 3 || int.tryParse(cvc) == null) {
-                    return '3 haneli CVC girin';
-                  }
-                  return null;
+                onChanged: (value) {
+                  setState(() {
+                    cvcError = value.trim().isEmpty ? 'CVC zorunlu' : null;
+                  });
                 },
               ),
               const SizedBox(height: 32),
@@ -647,7 +703,12 @@ class _PaymentPageState extends State<PaymentPage> {
                               );
                             }
                           : () async {
-                              if (_formKey.currentState!.validate()) {
+                              _validateAllFields();
+                              if ((isCardSelected ||
+                                      (nameError == null &&
+                                          cardError == null &&
+                                          dateError == null)) &&
+                                  cvcError == null) {
                                 // Eğer kayıtlı kart seçiliyse CVC kontrolü yap
                                 if (selectedUserCard != null &&
                                     selectedUserCard!.cvc != null) {
@@ -746,7 +807,7 @@ class _PaymentPageState extends State<PaymentPage> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      'Lütfen bilgileri eksiksiz girin',
+                                      'Lütfen bilgileri eksiksiz ve doğru girin',
                                     ),
                                     backgroundColor: Colors.red,
                                   ),
