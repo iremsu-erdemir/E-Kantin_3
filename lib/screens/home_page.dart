@@ -313,8 +313,19 @@ class _HomePageState extends State<HomePage> {
                   // Tostlar
                   Container(
                     width: cardWidth,
-                    height: 110,
-                    margin: const EdgeInsets.only(top: 12),
+                    height: 160,
+                    margin: const EdgeInsets.only(top: 12, bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
                     child: GestureDetector(
                       onTap: () {
                         Navigator.of(context).push(
@@ -328,11 +339,22 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8),
                   // Sandviçler
                   Container(
                     width: cardWidth,
-                    height: 110,
+                    height: 140,
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
                     child: GestureDetector(
                       onTap: () {
                         Navigator.of(context).push(
@@ -346,14 +368,25 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8),
                   // Alt satır: 2 küçük kart
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        width: (cardWidth - 8) / 2,
-                        height: 80,
+                        width: (cardWidth - 12) / 2,
+                        height: 120,
+                        margin: EdgeInsets.zero,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 16,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
                         child: GestureDetector(
                           onTap: () {
                             Navigator.of(context).push(
@@ -367,10 +400,22 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 12),
                       Container(
-                        width: (cardWidth - 8) / 2,
-                        height: 80,
+                        width: (cardWidth - 12) / 2,
+                        height: 120,
+                        margin: EdgeInsets.zero,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 16,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
                         child: GestureDetector(
                           onTap: () {
                             Navigator.of(context).push(
@@ -409,6 +454,14 @@ class _CategoryCardCustom extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.expand(child: Image.asset(imagePath, fit: BoxFit.cover));
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20), // Kart ile aynı radius
+      child: Image.asset(
+        imagePath,
+        width: double.infinity,
+        height: double.infinity,
+        fit: BoxFit.cover,
+      ),
+    );
   }
 }
