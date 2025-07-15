@@ -337,7 +337,19 @@ class _PaymentPageState extends State<PaymentPage> {
           dateError = null;
         }
       }
-      cvcError = cvcController.text.trim().isEmpty ? 'CVC zorunlu' : null;
+      // Kayıtlı kart seçiliyse sadece CVC kontrolü yap
+      if (isCardSelected) {
+        if (cvcController.text.trim().isEmpty) {
+          cvcError = 'CVC zorunlu';
+        } else if (cvcController.text.trim().length != 3 ||
+            int.tryParse(cvcController.text.trim()) == null) {
+          cvcError = '3 haneli CVC girin';
+        } else {
+          cvcError = null;
+        }
+      } else {
+        cvcError = cvcController.text.trim().isEmpty ? 'CVC zorunlu' : null;
+      }
     });
   }
 
@@ -454,6 +466,13 @@ class _PaymentPageState extends State<PaymentPage> {
                                 dateController.text = card.expiryDate;
                                 cvcController.clear();
                                 showCardDropdown = false;
+                                isCardSelected = true;
+                                nameError = null;
+                                cardError = null;
+                                dateError = null;
+                                cvcError = cvcController.text.trim().isEmpty
+                                    ? 'CVC zorunlu'
+                                    : null;
                               });
                             },
                             child: Container(
@@ -676,7 +695,18 @@ class _PaymentPageState extends State<PaymentPage> {
                 ),
                 onChanged: (value) {
                   setState(() {
-                    cvcError = value.trim().isEmpty ? 'CVC zorunlu' : null;
+                    if (isCardSelected) {
+                      if (value.trim().isEmpty) {
+                        cvcError = 'CVC zorunlu';
+                      } else if (value.trim().length != 3 ||
+                          int.tryParse(value.trim()) == null) {
+                        cvcError = '3 haneli CVC girin';
+                      } else {
+                        cvcError = null;
+                      }
+                    } else {
+                      cvcError = value.trim().isEmpty ? 'CVC zorunlu' : null;
+                    }
                   });
                 },
               ),
