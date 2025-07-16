@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../components/ek_bottom_nav_bar.dart';
 
 class OdemeKartiYonetimPage extends StatelessWidget {
   const OdemeKartiYonetimPage({Key? key}) : super(key: key);
@@ -216,7 +217,10 @@ class OdemeKartiYonetimPage extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: const _CustomBottomNavBar(),
+      bottomNavigationBar: EKBottomNavBar(
+        currentIndex: 4,
+        parentContext: context,
+      ),
     );
   }
 }
@@ -275,29 +279,6 @@ class _LabelField extends StatelessWidget {
           ),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
-      ],
-    );
-  }
-}
-
-class _CustomBottomNavBar extends StatelessWidget {
-  const _CustomBottomNavBar({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: 4,
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: const Color(0xFFFF3D3D),
-      unselectedItemColor: Colors.black38,
-      showSelectedLabels: false,
-      showUnselectedLabels: false,
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: ''),
-        BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: ''),
-        BottomNavigationBarItem(icon: Icon(Icons.list_alt_outlined), label: ''),
-        BottomNavigationBarItem(icon: Icon(Icons.mail_outline), label: ''),
-        BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: ''),
       ],
     );
   }
