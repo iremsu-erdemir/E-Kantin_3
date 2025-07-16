@@ -233,27 +233,7 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   Future<void> _loadUserCards() async {
-    // Sadece bir kişinin (ör. Cengiz Demir) farklı banka kartları
-    userCards = [
-      UserCard(
-        cardHolder: 'CENGIZ DEMIR',
-        cardNumber: '5400123412341234',
-        expiryDate: '12/27',
-        cvc: '123',
-      ),
-      UserCard(
-        cardHolder: 'CENGIZ DEMIR',
-        cardNumber: '4543123412345678',
-        expiryDate: '11/28',
-        cvc: '456',
-      ),
-      UserCard(
-        cardHolder: 'CENGIZ DEMIR',
-        cardNumber: '4023123412349876',
-        expiryDate: '10/29',
-        cvc: '789',
-      ),
-    ];
+    userCards = await UserCardService.getCards();
     setState(() {
       isLoading = false;
       // selectedUserCard = null; // Zaten yukarıda null

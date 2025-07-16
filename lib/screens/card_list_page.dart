@@ -101,6 +101,7 @@ class _OdemeKartiYonetimPageState extends State<OdemeKartiYonetimPage> {
       const SnackBar(
         content: Text('Kart başarıyla güncellendi!'),
         backgroundColor: Colors.green,
+        duration: Duration(seconds: 1),
       ),
     );
   }
@@ -129,6 +130,7 @@ class _OdemeKartiYonetimPageState extends State<OdemeKartiYonetimPage> {
       const SnackBar(
         content: Text('Kart silindi!'),
         backgroundColor: Colors.red,
+        duration: Duration(seconds: 1),
       ),
     );
   }
