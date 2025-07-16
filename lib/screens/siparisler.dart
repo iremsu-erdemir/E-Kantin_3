@@ -15,6 +15,7 @@ import '../providers/debt_provider.dart';
 import '../providers/cart_provider.dart';
 import '../models/cart.dart';
 import 'package:intl/intl.dart';
+import 'cart.dart';
 
 class SiparislerPage extends StatefulWidget {
   final int initialTab;
@@ -119,6 +120,25 @@ class _SiparislerPageState extends State<SiparislerPage>
           id: '3',
           urun: 'Nescafe',
           tutar: 8.0,
+          tarih: DateTime.now().toString(),
+        ),
+      );
+      // Yeni ürünler
+      await LocalStorageService.addDebt(
+        username,
+        Borc(
+          id: '4',
+          urun: 'Limonlu Soda',
+          tutar: 9.0,
+          tarih: DateTime.now().toString(),
+        ),
+      );
+      await LocalStorageService.addDebt(
+        username,
+        Borc(
+          id: '5',
+          urun: 'Sütlü Nescafe',
+          tutar: 10.0,
           tarih: DateTime.now().toString(),
         ),
       );
@@ -502,6 +522,14 @@ class _SiparislerPageState extends State<SiparislerPage>
             ),
           );
         }
+        // Ürün görsel eşleştirmesi
+        final Map<String, String> borcGorselleri = {
+          'Küçük Çay': 'assets/images/kücük_cay.jpg',
+          'Büyük Çay': 'assets/images/büyük_cay.jpg',
+          'Nescafe': 'assets/images/nescafe.jpg',
+          'Limonlu Soda': 'assets/images/soda.webp',
+          'Sütlü Nescafe': 'assets/images/nescafe.jpg',
+        };
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -553,6 +581,22 @@ class _SiparislerPageState extends State<SiparislerPage>
                           ),
                           materialTapTargetSize:
                               MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        // Ürün görseli
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8.0,
+                            horizontal: 4.0,
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.asset(
+                              borcGorselleri[b.urun] ?? 'assets/images/cay.png',
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
                         ),
                         Expanded(
                           child: Padding(
@@ -699,15 +743,27 @@ class _SiparislerPageState extends State<SiparislerPage>
 
   // Ürünler sekmesi (yeni kod)
   Widget _urunlerTab(BuildContext context) {
-    // Sabit ürün listesi
+    // Sabit ürün listesi (resim path'leri eklendi)
     final urunler = [
-      {'name': 'Küçük Çay', 'price': 5.5},
-      {'name': 'Büyük Çay', 'price': 6.5},
-      {'name': 'Türk Kahvesi', 'price': 15.0},
-      {'name': 'Nescafe', 'price': 15.0},
-      {'name': 'Saklıköy', 'price': 6.5},
-      {'name': 'Sade Soda', 'price': 6.5},
-      {'name': 'Probis', 'price': 6.5},
+      {
+        'name': 'Küçük Çay',
+        'price': 5.5,
+        'image': 'assets/images/kücük_cay.jpg',
+      },
+      {
+        'name': 'Büyük Çay',
+        'price': 6.5,
+        'image': 'assets/images/büyük_cay.jpg',
+      },
+      {
+        'name': 'Türk Kahvesi',
+        'price': 15.0,
+        'image': 'assets/images/türk_kahve.jpg',
+      },
+      {'name': 'Nescafe', 'price': 15.0, 'image': 'assets/images/nescafe.jpg'},
+      {'name': 'Saklıköy', 'price': 6.5, 'image': 'assets/images/sakizli.jpg'},
+      {'name': 'Sade Soda', 'price': 6.5, 'image': 'assets/images/soda.webp'},
+      {'name': 'Probis', 'price': 6.5, 'image': 'assets/images/probis.jpg'},
     ];
     final List<String> seciliUrunler = [];
     return StatefulBuilder(
@@ -762,6 +818,22 @@ class _SiparislerPageState extends State<SiparislerPage>
                           materialTapTargetSize:
                               MaterialTapTargetSize.shrinkWrap,
                         ),
+                        // Ürün görseli
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8.0,
+                            horizontal: 4.0,
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.asset(
+                              urun['image'] as String,
+                              width: 44,
+                              height: 44,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 18.0),
@@ -808,27 +880,17 @@ class _SiparislerPageState extends State<SiparislerPage>
                                     CartItem(
                                       id: urun['name'] as String,
                                       name: urun['name'] as String,
-                                      imagePath: '',
+                                      imagePath: urun['image'] as String,
                                       price: urun['price'] as double,
                                     ),
                                   );
                                 }
                               }
-                              // Sepet ödeme ekranına yönlendir
+                              // Sepet ekranına yönlendir
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => PaymentPage(
-                                    totalPrice: seciliUrunler.fold(
-                                      0.0,
-                                      (sum, name) =>
-                                          sum +
-                                          (urunler.firstWhere(
-                                                (u) => u['name'] == name,
-                                              )['price']
-                                              as double),
-                                    ),
-                                  ),
+                                  builder: (context) => const CartPage(),
                                 ),
                               );
                             }
