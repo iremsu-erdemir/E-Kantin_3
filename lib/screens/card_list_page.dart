@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../components/ek_bottom_nav_bar.dart';
 import '../models/user_card.dart';
 import '../services/user_card_service.dart';
+import 'karte_ekle_page.dart';
 
 class OdemeKartiYonetimPage extends StatefulWidget {
   const OdemeKartiYonetimPage({Key? key}) : super(key: key);
@@ -340,7 +341,16 @@ class _OdemeKartiYonetimPageState extends State<OdemeKartiYonetimPage> {
                       if (!isEditing) ...[
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () {},
+                            onPressed: () async {
+                              final result = await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => KartEklePage(),
+                                ),
+                              );
+                              if (result == true) {
+                                await _loadUserCards();
+                              }
+                            },
                             icon: const Icon(Icons.add, size: 20),
                             label: const Text('Kart Ekle'),
                             style: ElevatedButton.styleFrom(
