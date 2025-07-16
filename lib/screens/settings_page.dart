@@ -114,27 +114,77 @@ class SettingsPage extends StatelessWidget {
             _SettingsTile(
               icon: Icons.show_chart,
               title: 'Özet Sayfa',
-              onTap: () {},
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Bunlara erişme yetkiniz yok, sadece yönetici erişebilir.',
+                    ),
+                    backgroundColor: Colors.red,
+                    duration: Duration(seconds: 1),
+                  ),
+                );
+              },
             ),
             _SettingsTile(
               icon: Icons.receipt_long,
               title: 'Siparişler',
-              onTap: () {},
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Bunlara erişme yetkiniz yok, sadece yönetici erişebilir.',
+                    ),
+                    backgroundColor: Colors.red,
+                    duration: Duration(seconds: 1),
+                  ),
+                );
+              },
             ),
             _SettingsTile(
               icon: Icons.coffee,
               title: 'Çay Ocakları',
-              onTap: () {},
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Bunlara erişme yetkiniz yok, sadece yönetici erişebilir.',
+                    ),
+                    backgroundColor: Colors.red,
+                    duration: Duration(seconds: 1),
+                  ),
+                );
+              },
             ),
             _SettingsTile(
               icon: Icons.add_box,
               title: 'Menü Ekle',
-              onTap: () {},
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Bunlara erişme yetkiniz yok, sadece yönetici erişebilir.',
+                    ),
+                    backgroundColor: Colors.red,
+                    duration: Duration(seconds: 1),
+                  ),
+                );
+              },
             ),
             _SettingsTile(
               icon: Icons.add_circle_outline,
               title: 'Ürün Ekle',
-              onTap: () {},
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Bunlara erişme yetkiniz yok, sadece yönetici erişebilir.',
+                    ),
+                    backgroundColor: Colors.red,
+                    duration: Duration(seconds: 1),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 32),
           ],

@@ -162,7 +162,7 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                duration: const Duration(milliseconds: 900),
+                                duration: Duration(seconds: 1),
                               ),
                             );
                           }
@@ -355,6 +355,7 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
                                 'Lütfen giriş yapmadan önce bu işlemi gerçekleştiremezsiniz.',
                               ),
                               backgroundColor: Colors.red,
+                              duration: Duration(seconds: 1),
                             ),
                           );
                           return;
@@ -366,6 +367,7 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
                             SnackBar(
                               content: Text('Bu ürün stokta kalmamıştır.'),
                               backgroundColor: Colors.red,
+                              duration: Duration(seconds: 1),
                             ),
                           );
                           return;

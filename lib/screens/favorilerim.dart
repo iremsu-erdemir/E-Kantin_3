@@ -104,7 +104,7 @@ class FavorilerimPage extends StatelessWidget {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                duration: const Duration(milliseconds: 900),
+                                duration: Duration(seconds: 1),
                               ),
                             );
                           },

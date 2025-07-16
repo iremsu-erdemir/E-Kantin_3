@@ -177,7 +177,7 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                duration: const Duration(milliseconds: 900),
+                                duration: Duration(seconds: 1),
                               ),
                             );
                           },
@@ -258,6 +258,7 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
                 SnackBar(
                   content: Text('Favorilere eklendi!'),
                   backgroundColor: Colors.green,
+                  duration: Duration(seconds: 1),
                 ),
               );
             },
@@ -447,6 +448,7 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
                                     'Lütfen giriş yapmadan önce bu işlemi gerçekleştiremezsiniz.',
                                   ),
                                   backgroundColor: Colors.red,
+                                  duration: Duration(seconds: 1),
                                 ),
                               );
                               return;
@@ -456,6 +458,7 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
                                 SnackBar(
                                   content: Text('Bu ürün stokta kalmamıştır.'),
                                   backgroundColor: Colors.red,
+                                  duration: Duration(seconds: 1),
                                 ),
                               );
                               return;

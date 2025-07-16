@@ -740,6 +740,7 @@ class _PaymentPageState extends State<PaymentPage> {
                                     'Lütfen giriş yapmadan önce bu işlemi gerçekleştiremezsiniz.',
                                   ),
                                   backgroundColor: Colors.red,
+                                  duration: Duration(seconds: 1),
                                 ),
                               );
                             }
@@ -759,6 +760,7 @@ class _PaymentPageState extends State<PaymentPage> {
                                       const SnackBar(
                                         content: Text('Yanlış bilgi girdiniz'),
                                         backgroundColor: Colors.red,
+                                        duration: Duration(seconds: 1),
                                       ),
                                     );
                                     return;
@@ -851,6 +853,7 @@ class _PaymentPageState extends State<PaymentPage> {
                                       'Lütfen bilgileri eksiksiz ve doğru girin',
                                     ),
                                     backgroundColor: Colors.red,
+                                    duration: Duration(seconds: 1),
                                   ),
                                 );
                               }
