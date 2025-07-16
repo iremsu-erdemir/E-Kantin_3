@@ -175,6 +175,7 @@ class _PaymentPageState extends State<PaymentPage> {
   @override
   void initState() {
     super.initState();
+    _addSampleCardsIfNeeded();
     _loadUserCards();
     // Sayfa ilk açıldığında hiçbir kart seçili olmasın, alanlar boş gelsin
     selectedUserCard = null;
@@ -186,6 +187,36 @@ class _PaymentPageState extends State<PaymentPage> {
       debugPrint('initState içinden _pay çağrılıyor');
       _pay();
     });
+  }
+
+  Future<void> _addSampleCardsIfNeeded() async {
+    final existingCards = await UserCardService.getCards();
+    if (existingCards.isEmpty) {
+      await UserCardService.addCard(
+        UserCard(
+          cardHolder: 'CENGIZ DEMIR',
+          cardNumber: '5400123412341234',
+          expiryDate: '12/27',
+          cvc: '123',
+        ),
+      );
+      await UserCardService.addCard(
+        UserCard(
+          cardHolder: 'CENGIZ DEMIR',
+          cardNumber: '4543123412345678',
+          expiryDate: '11/28',
+          cvc: '456',
+        ),
+      );
+      await UserCardService.addCard(
+        UserCard(
+          cardHolder: 'CENGIZ DEMIR',
+          cardNumber: '4023123412349876',
+          expiryDate: '10/29',
+          cvc: '789',
+        ),
+      );
+    }
   }
 
   @override
