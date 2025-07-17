@@ -17,6 +17,13 @@ class UserService {
       role: 'Yazılım Şube Müdürü',
       image: 'assets/images/cengizBey.png',
     ),
+    User(
+      username: 'turgay',
+      password: '1234',
+      name: 'Turgay Tülü',
+      role: 'Kültür ve Sosyal İşler Şube Müdürü',
+      image: 'assets/images/turgay.png',
+    ),
   ];
 
   Future<User?> login(String username, String password) async {

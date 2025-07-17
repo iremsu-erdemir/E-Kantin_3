@@ -3,6 +3,7 @@ import '../services/user_service.dart';
 import '../models/user.dart';
 import '../components/ek_bottom_nav_bar.dart';
 import 'home_page.dart' hide EKBottomNavBar;
+import 'admin_home_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -209,9 +210,15 @@ class _LoginPageState extends State<LoginPage> {
     });
     if (user != null) {
       UserSingleton().user = user;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => HomePage(user: user)),
-      );
+      if (user.username == 'turgay') {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => AdminHomePage(user: user)),
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => HomePage(user: user)),
+        );
+      }
     } else {
       setState(() {
         _error = 'Kullanıcı adı veya şifre hatalı!';
