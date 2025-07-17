@@ -3,6 +3,7 @@ import 'dart:ui';
 import '../models/user.dart';
 import '../services/user_service.dart';
 import 'login_page.dart';
+import 'ozet_sayfa.dart';
 
 class AdminHomePage extends StatelessWidget {
   final User user;
@@ -10,14 +11,19 @@ class AdminHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Özet kutusunun yüksekliği (tahmini)
+    const double summaryBoxHeight = 100;
+    // Kırmızı arka plan yüksekliği: kutunun 1/4'ü kadar daha fazla
+    final double redBgHeight = 170 + summaryBoxHeight * 0.25;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-      body: Column(
+      body: Stack(
         children: [
-          // Üst kırmızı desenli alan + profil satırı
+          // Kırmızı desenli arka plan
           Container(
             width: double.infinity,
-            height: 170,
+            height: redBgHeight,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [Color(0xFFD32F2F), Color(0xFFEE4343)],
@@ -28,414 +34,437 @@ class AdminHomePage extends StatelessWidget {
                 image: AssetImage('assets/images/Pattern.png'),
                 repeat: ImageRepeat.repeat,
                 alignment: Alignment.topLeft,
-                scale: 2.0,
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 48, left: 24, right: 24),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 28,
-                    backgroundImage: AssetImage(
-                      user.image ?? 'assets/images/turgay.png',
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          user.name ?? 'Turgay Tülü',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          user.role?.contains('Şube Müdürü') == true
-                              ? user.role!.replaceAll(' Şube Müdürü', '')
-                              : (user.role ?? 'Kültür ve Sosyal İşler'),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                        const SizedBox(height: 2),
-                        const Text(
-                          'Şube Müdürü',
-                          style: TextStyle(color: Colors.white, fontSize: 15),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      ],
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        barrierDismissible: true,
-                        barrierColor: Colors.black.withOpacity(0.3),
-                        builder: (context) {
-                          return Stack(
-                            children: [
-                              BackdropFilter(
-                                filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-                                child: Container(color: Colors.transparent),
-                              ),
-                              Center(
-                                child: Material(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                  elevation: 0,
-                                  child: Container(
-                                    width: 320,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 24,
-                                      vertical: 28,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(20),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.07),
-                                          blurRadius: 18,
-                                          offset: const Offset(0, 6),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Text(
-                                          "Çıkmak İstediğinizden\nEmin misiniz?",
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 20,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 28),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: OutlinedButton(
-                                                style: OutlinedButton.styleFrom(
-                                                  side: const BorderSide(
-                                                    color: Colors.red,
-                                                    width: 1.5,
-                                                  ),
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          16,
-                                                        ),
-                                                  ),
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        vertical: 14,
-                                                      ),
-                                                  backgroundColor: Colors.white,
-                                                ),
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: const Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Icon(
-                                                      Icons.close,
-                                                      color: Colors.red,
-                                                    ),
-                                                    SizedBox(width: 8),
-                                                    Text(
-                                                      "Hayır",
-                                                      style: TextStyle(
-                                                        color: Colors.red,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 16),
-                                            Expanded(
-                                              child: OutlinedButton(
-                                                style: OutlinedButton.styleFrom(
-                                                  side: const BorderSide(
-                                                    color: Colors.green,
-                                                    width: 1.5,
-                                                  ),
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          16,
-                                                        ),
-                                                  ),
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        vertical: 14,
-                                                      ),
-                                                  backgroundColor: Colors.white,
-                                                ),
-                                                onPressed: () {
-                                                  UserSingleton().user = null;
-                                                  Navigator.of(
-                                                    context,
-                                                  ).pushAndRemoveUntil(
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          const LoginPage(),
-                                                    ),
-                                                    (route) => false,
-                                                  );
-                                                },
-                                                child: const Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Icon(
-                                                      Icons.check,
-                                                      color: Colors.green,
-                                                    ),
-                                                    SizedBox(width: 8),
-                                                    Text(
-                                                      "Evet",
-                                                      style: TextStyle(
-                                                        color: Colors.green,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    child: const Icon(
-                      Icons.logout,
-                      color: Colors.white,
-                      size: 28,
-                    ),
-                  ),
-                ],
+                scale: 3.0,
               ),
             ),
           ),
-          // Alt içerik (kutular, kartlar)
-          Expanded(
-            child: SingleChildScrollView(
-              child: Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(36),
-                    topRight: Radius.circular(36),
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 18.0,
-                    vertical: 18,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Özet ve detay kutusu
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 8,
-                              offset: Offset(0, 2),
+          // Ana içerik
+          Column(
+            children: [
+              // Profil satırı (üstte)
+              Padding(
+                padding: const EdgeInsets.only(top: 48, left: 24, right: 24),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 28,
+                      backgroundImage: AssetImage(
+                        user.image ?? 'assets/images/turgay.png',
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user.name ?? 'Turgay Tülü',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
                             ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Text(
-                                  'Özet Sayfa',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: Colors.black87,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            user.role?.contains('Şube Müdürü') == true
+                                ? user.role!.replaceAll(' Şube Müdürü', '')
+                                : (user.role ?? 'Kültür ve Sosyal İşler'),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                          const SizedBox(height: 2),
+                          const Text(
+                            'Şube Müdürü',
+                            style: TextStyle(color: Colors.white, fontSize: 15),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ],
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          barrierDismissible: true,
+                          barrierColor: Colors.black.withOpacity(0.3),
+                          builder: (context) {
+                            return Stack(
+                              children: [
+                                BackdropFilter(
+                                  filter: ImageFilter.blur(
+                                    sigmaX: 6,
+                                    sigmaY: 6,
+                                  ),
+                                  child: Container(color: Colors.transparent),
+                                ),
+                                Center(
+                                  child: Material(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    elevation: 0,
+                                    child: Container(
+                                      width: 320,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 24,
+                                        vertical: 28,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(20),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(
+                                              0.07,
+                                            ),
+                                            blurRadius: 18,
+                                            offset: const Offset(0, 6),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Text(
+                                            "Çıkmak İstediğinizden\nEmin misiniz?",
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 20,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 28),
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: OutlinedButton(
+                                                  style: OutlinedButton.styleFrom(
+                                                    side: const BorderSide(
+                                                      color: Colors.red,
+                                                      width: 1.5,
+                                                    ),
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            16,
+                                                          ),
+                                                    ),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          vertical: 14,
+                                                        ),
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                  ),
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  child: const Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Icon(
+                                                        Icons.close,
+                                                        color: Colors.red,
+                                                      ),
+                                                      SizedBox(width: 8),
+                                                      Text(
+                                                        "Hayır",
+                                                        style: TextStyle(
+                                                          color: Colors.red,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 16),
+                                              Expanded(
+                                                child: OutlinedButton(
+                                                  style: OutlinedButton.styleFrom(
+                                                    side: const BorderSide(
+                                                      color: Colors.green,
+                                                      width: 1.5,
+                                                    ),
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            16,
+                                                          ),
+                                                    ),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          vertical: 14,
+                                                        ),
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                  ),
+                                                  onPressed: () {
+                                                    UserSingleton().user = null;
+                                                    Navigator.of(
+                                                      context,
+                                                    ).pushAndRemoveUntil(
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            const LoginPage(),
+                                                      ),
+                                                      (route) => false,
+                                                    );
+                                                  },
+                                                  child: const Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Icon(
+                                                        Icons.check,
+                                                        color: Colors.green,
+                                                      ),
+                                                      SizedBox(width: 8),
+                                                      Text(
+                                                        "Evet",
+                                                        style: TextStyle(
+                                                          color: Colors.green,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                SizedBox(height: 8),
-                                Text(
-                                  '₺1.567.789,80',
-                                  style: TextStyle(
-                                    color: Color(0xFFFF3D3D),
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: const Icon(
+                        Icons.logout,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Expanded ile aşağıya devam eden içerik
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Container(
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(36),
+                        topRight: Radius.circular(36),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 18.0,
+                        vertical: 18,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Özet ve detay kutusu
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 8,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: const [
+                                    Text(
+                                      'Özet Sayfa',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      '₺1.567.789,80',
+                                      style: TextStyle(
+                                        color: Color(0xFFFF3D3D),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => const OzetSayfa(),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text(
+                                    'Detayları Gör',
+                                    style: TextStyle(
+                                      color: Color(0xFFFF3D3D),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
-                            TextButton(
-                              onPressed: () {},
-                              child: const Text(
-                                'Detayları Gör',
-                                style: TextStyle(
-                                  color: Color(0xFFFF3D3D),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
+                          ),
+                          const SizedBox(height: 16),
+                          // Kantin ve Çay Ocağı kutuları
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black12,
+                                        blurRadius: 8,
+                                        offset: Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: const [
+                                      Text(
+                                        'Kantin',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      SizedBox(height: 6),
+                                      Text(
+                                        '₺1.567.789,80',
+                                        style: TextStyle(
+                                          color: Color(0xFFFF3D3D),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      // Kantin ve Çay Ocağı kutuları
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 8,
-                                    offset: Offset(0, 2),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black12,
+                                        blurRadius: 8,
+                                        offset: Offset(0, 2),
+                                      ),
+                                    ],
                                   ),
-                                ],
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: const [
+                                      Text(
+                                        'Çay Ocağı',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      SizedBox(height: 6),
+                                      Text(
+                                        '₺1.567.789,80',
+                                        style: TextStyle(
+                                          color: Color(0xFFFF3D3D),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
-                                  Text(
-                                    'Kantin',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                  SizedBox(height: 6),
-                                  Text(
-                                    '₺1.567.789,80',
-                                    style: TextStyle(
-                                      color: Color(0xFFFF3D3D),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            ],
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 8,
-                                    offset: Offset(0, 2),
-                                  ),
-                                ],
+                          const SizedBox(height: 18),
+                          // Menü kartları
+                          GridView.count(
+                            crossAxisCount: 2,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            mainAxisSpacing: 12,
+                            crossAxisSpacing: 12,
+                            childAspectRatio: 1.1,
+                            children: [
+                              _MenuCard(
+                                image: 'assets/images/tost.png',
+                                title: 'Tostlar',
+                                onTap: () {},
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
-                                  Text(
-                                    'Çay Ocağı',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                  SizedBox(height: 6),
-                                  Text(
-                                    '₺1.567.789,80',
-                                    style: TextStyle(
-                                      color: Color(0xFFFF3D3D),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                ],
+                              _MenuCard(
+                                image: 'assets/images/sandwich_2.png',
+                                title: 'Sandviçler',
+                                onTap: () {},
                               ),
-                            ),
+                              _MenuCard(
+                                image: 'assets/images/karisik.png',
+                                title: 'Kendi Menünü Oluştur',
+                                onTap: () {},
+                              ),
+                              _MenuCard(
+                                image: 'assets/images/cay.png',
+                                title: 'Çay Ocağı',
+                                onTap: () {},
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                      const SizedBox(height: 18),
-                      // Menü kartları
-                      GridView.count(
-                        crossAxisCount: 2,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
-                        childAspectRatio: 1.1,
-                        children: [
-                          _MenuCard(
-                            image: 'assets/images/tost.png',
-                            title: 'Tostlar',
-                            onTap: () {},
-                          ),
-                          _MenuCard(
-                            image: 'assets/images/sandwich_2.png',
-                            title: 'Sandviçler',
-                            onTap: () {},
-                          ),
-                          _MenuCard(
-                            image: 'assets/images/karisik.png',
-                            title: 'Kendi Menünü Oluştur',
-                            onTap: () {},
-                          ),
-                          _MenuCard(
-                            image: 'assets/images/cay.png',
-                            title: 'Çay Ocağı',
-                            onTap: () {},
-                          ),
-                        ],
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
         ],
       ),
