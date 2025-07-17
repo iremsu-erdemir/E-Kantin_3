@@ -222,7 +222,7 @@ class _AdminSiparisState extends State<AdminSiparis>
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            s.tarih,
+                            aktif ? s.tarih : (s.tamamlanmaTarihi ?? s.tarih),
                             style: const TextStyle(
                               fontSize: 14,
                               color: Color(0xFFBDBDBD),

@@ -48,10 +48,16 @@ class LocalStorageService {
     for (var s in orders) {
       if (s.id == orderId) {
         s.durum = 'pasif';
+        s.tamamlanmaTarihi = _nowTurkishString();
       }
     }
     final updated = orders.map((e) => json.encode(e.toJson())).toList();
     await prefs.setStringList(key, updated);
+  }
+
+  static String _nowTurkishString() {
+    final now = DateTime.now();
+    return '${now.day.toString().padLeft(2, '0')}.${now.month.toString().padLeft(2, '0')}.${now.year} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
   }
 
   static Future<void> removeOrder(String username, String orderId) async {

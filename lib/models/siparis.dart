@@ -7,6 +7,7 @@ class Siparis {
   String siparisNo;
   String tarih;
   String kayitTarihi;
+  String? tamamlanmaTarihi;
 
   Siparis({
     required this.id,
@@ -17,6 +18,7 @@ class Siparis {
     required this.siparisNo,
     required this.tarih,
     required this.kayitTarihi,
+    this.tamamlanmaTarihi,
   });
 
   factory Siparis.fromJson(Map<String, dynamic> json) => Siparis(
@@ -28,6 +30,7 @@ class Siparis {
     siparisNo: json['siparisNo'] ?? '',
     tarih: json['tarih'] ?? '',
     kayitTarihi: json['kayitTarihi'] ?? '',
+    tamamlanmaTarihi: json['tamamlanmaTarihi'],
   );
 
   Map<String, dynamic> toJson() => {
@@ -39,5 +42,6 @@ class Siparis {
     'siparisNo': siparisNo,
     'tarih': tarih,
     'kayitTarihi': kayitTarihi,
+    if (tamamlanmaTarihi != null) 'tamamlanmaTarihi': tamamlanmaTarihi,
   };
 }
