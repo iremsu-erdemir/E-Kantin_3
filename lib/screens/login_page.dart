@@ -197,6 +197,13 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _handleLogin() async {
+    if (_usernameController.text.trim().isEmpty ||
+        _passwordController.text.trim().isEmpty) {
+      setState(() {
+        _error = 'Lütfen kullanıcı adı ve şifreyi giriniz.';
+      });
+      return;
+    }
     setState(() {
       _loading = true;
       _error = null;

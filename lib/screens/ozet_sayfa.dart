@@ -47,8 +47,8 @@ class _OzetSayfaState extends State<OzetSayfa> {
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
+                      children: [
+                        const Text(
                           "LOKASYON",
                           style: TextStyle(
                             color: Color(0xFFFF3D3D),
@@ -57,13 +57,45 @@ class _OzetSayfaState extends State<OzetSayfa> {
                             letterSpacing: 1,
                           ),
                         ),
-                        SizedBox(height: 2),
-                        Text(
-                          "Merkez Kantin",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 15,
+                        const SizedBox(height: 2),
+                        Container(
+                          height: 32,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Color(0xFFE0E0E0)),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: selectedLokasyon,
+                              items: const [
+                                DropdownMenuItem(
+                                  value: "Merkez Kantin",
+                                  child: Text("Merkez Kantin"),
+                                ),
+                                DropdownMenuItem(
+                                  value: "Çay Ocağı",
+                                  child: Text("Çay Ocağı"),
+                                ),
+                              ],
+                              onChanged: (value) {
+                                if (value != null) {
+                                  setState(() {
+                                    selectedLokasyon = value;
+                                  });
+                                }
+                              },
+                              icon: const Icon(
+                                Icons.keyboard_arrow_down,
+                                color: Colors.black,
+                                size: 20,
+                              ),
+                              style: const TextStyle(
+                                fontSize: 15,
+                                color: Colors.black87,
+                              ),
+                            ),
                           ),
                         ),
                       ],
