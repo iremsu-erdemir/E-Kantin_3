@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math';
 import 'package:e_kantin/components/custom_bottom_nav_bar.dart';
+import 'admin_siparis.dart';
+import 'admin_home_page.dart';
+import '../models/user.dart';
+import '../services/local_storage_service.dart';
 
 class OzetSayfa extends StatefulWidget {
   const OzetSayfa({Key? key}) : super(key: key);
@@ -11,8 +15,8 @@ class OzetSayfa extends StatefulWidget {
 }
 
 class _OzetSayfaState extends State<OzetSayfa> {
-  int bekleyenSiparis = 20;
-  int bitenSiparis = 95;
+  int bekleyenSiparis = 0;
+  int bitenSiparis = 0;
   double cayOcagiAlacagi = 1679.00;
   int borcluListesi = 134;
   double totalKartGeliri = 19679.50;
@@ -31,6 +35,32 @@ class _OzetSayfaState extends State<OzetSayfa> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _loadSiparisSayilari();
+  }
+
+  Future<void> _loadSiparisSayilari() async {
+    int aktif = 0;
+    int pasif = 0;
+    final usernames = await LocalStorageService.getAllUsernames();
+    for (final username in usernames) {
+      final orders = await LocalStorageService.getUserOrders(username);
+      for (final s in orders) {
+        if (s.durum == 'aktif') {
+          aktif++;
+        } else {
+          pasif++;
+        }
+      }
+    }
+    setState(() {
+      bekleyenSiparis = aktif;
+      bitenSiparis = pasif;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
@@ -41,64 +71,47 @@ class _OzetSayfaState extends State<OzetSayfa> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Geri butonu
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back_ios_new,
+                        color: Colors.black,
+                      ),
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                AdminHomePage(user: UserSingleton().user!),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(width: 4),
+                    const Text(
+                      'Özet',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
                 // Üst başlık ve sağda tarih dropdown
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "LOKASYON",
-                          style: TextStyle(
-                            color: Color(0xFFFF3D3D),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                            letterSpacing: 1,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Container(
-                          height: 32,
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Color(0xFFE0E0E0)),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: selectedLokasyon,
-                              items: const [
-                                DropdownMenuItem(
-                                  value: "Merkez Kantin",
-                                  child: Text("Merkez Kantin"),
-                                ),
-                                DropdownMenuItem(
-                                  value: "Çay Ocağı",
-                                  child: Text("Çay Ocağı"),
-                                ),
-                              ],
-                              onChanged: (value) {
-                                if (value != null) {
-                                  setState(() {
-                                    selectedLokasyon = value;
-                                  });
-                                }
-                              },
-                              icon: const Icon(
-                                Icons.keyboard_arrow_down,
-                                color: Colors.black,
-                                size: 20,
-                              ),
-                              style: const TextStyle(
-                                fontSize: 15,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                    const Text(
+                      "Merkez Kantin",
+                      style: TextStyle(
+                        color: Color(0xFFFF3D3D),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        letterSpacing: 1,
+                      ),
                     ),
                     Container(
                       height: 32,
@@ -153,8 +166,33 @@ class _OzetSayfaState extends State<OzetSayfa> {
                   mainAxisSpacing: 12.0,
                   childAspectRatio: 1.4,
                   children: [
-                    _buildStatCard('$bekleyenSiparis', 'BEKLEYEN\nSİPARİŞ'),
-                    _buildStatCard('$bitenSiparis', 'BİTEN SİPARİŞ'),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AdminSiparis(),
+                            settings: RouteSettings(arguments: 0),
+                          ),
+                        );
+                      },
+                      child: _buildStatCard(
+                        '$bekleyenSiparis',
+                        'BEKLEYEN\nSİPARİŞ',
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AdminSiparis(),
+                            settings: RouteSettings(arguments: 1),
+                          ),
+                        );
+                      },
+                      child: _buildStatCard('$bitenSiparis', 'BİTEN SİPARİŞ'),
+                    ),
                     _buildStatCard(
                       '₺${cayOcagiAlacagi.toStringAsFixed(2)}',
                       'ÇAY OCAĞI\nALACAĞI',

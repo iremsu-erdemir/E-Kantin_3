@@ -23,9 +23,7 @@ class Siparis {
     id: json['id'] ?? '',
     urun: json['urun'] ?? '',
     tutar: (json['tutar'] as num).toDouble(),
-
     durum: json['durum'] ?? 'aktif',
-
     img: json['img'] ?? '',
     siparisNo: json['siparisNo'] ?? '',
     tarih: json['tarih'] ?? '',

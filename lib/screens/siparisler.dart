@@ -385,31 +385,6 @@ class _SiparislerPageState extends State<SiparislerPage>
                           ),
                         ],
                       ),
-                      if (durum == 'aktif')
-                        Align(
-                          alignment: Alignment.bottomRight,
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: ElevatedButton(
-                              onPressed: () => siparisiTamamla(s.id),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 18,
-                                  vertical: 8,
-                                ),
-                                textStyle: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              child: const Text('Teslim Edildi'),
-                            ),
-                          ),
-                        ),
                     ],
                   ),
                 ),

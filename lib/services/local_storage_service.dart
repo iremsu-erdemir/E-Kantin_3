@@ -6,6 +6,23 @@ import '../models/notification.dart';
 import 'package:flutter/foundation.dart';
 
 class LocalStorageService {
+  // Kullanıcı adını kaydet (her sipariş eklendiğinde çağrılacak)
+  static Future<void> addUsername(String username) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'all_usernames';
+    final list = prefs.getStringList(key) ?? [];
+    if (!list.contains(username)) {
+      list.add(username);
+      await prefs.setStringList(key, list);
+    }
+  }
+
+  // Tüm kullanıcı adlarını getir
+  static Future<List<String>> getAllUsernames() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList('all_usernames') ?? [];
+  }
+
   // SİPARİŞLER
   static Future<List<Siparis>> getUserOrders(String username) async {
     final prefs = await SharedPreferences.getInstance();
@@ -19,6 +36,8 @@ class LocalStorageService {
     final list = prefs.getStringList(key) ?? [];
     list.add(json.encode(siparis.toJson()));
     await prefs.setStringList(key, list);
+    // Kullanıcı adını da kaydet
+    await addUsername(username);
   }
 
   static Future<void> markAsDelivered(String username, String orderId) async {
