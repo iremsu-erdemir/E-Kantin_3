@@ -4,10 +4,40 @@ import '../models/user.dart';
 import '../services/user_service.dart';
 import 'login_page.dart';
 import 'ozet_sayfa.dart';
+import '../services/local_storage_service.dart';
 
-class AdminHomePage extends StatelessWidget {
+class AdminHomePage extends StatefulWidget {
   final User user;
   const AdminHomePage({Key? key, required this.user}) : super(key: key);
+
+  @override
+  State<AdminHomePage> createState() => _AdminHomePageState();
+}
+
+class _AdminHomePageState extends State<AdminHomePage> {
+  double toplamKantinGeliri = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadKantinGeliri();
+  }
+
+  Future<void> _loadKantinGeliri() async {
+    double toplam = 0;
+    final usernames = await LocalStorageService.getAllUsernames();
+    for (final username in usernames) {
+      final orders = await LocalStorageService.getUserOrders(username);
+      for (final s in orders) {
+        if (s.durum == 'pasif') {
+          toplam += s.tutar;
+        }
+      }
+    }
+    setState(() {
+      toplamKantinGeliri = toplam;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +80,7 @@ class AdminHomePage extends StatelessWidget {
                     CircleAvatar(
                       radius: 28,
                       backgroundImage: AssetImage(
-                        user.image ?? 'assets/images/turgay.png',
+                        widget.user.image ?? 'assets/images/turgay.png',
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -59,7 +89,7 @@ class AdminHomePage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            user.name ?? 'Turgay Tülü',
+                            widget.user.name ?? 'Turgay Tülü',
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -70,9 +100,13 @@ class AdminHomePage extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            user.role?.contains('Şube Müdürü') == true
-                                ? user.role!.replaceAll(' Şube Müdürü', '')
-                                : (user.role ?? 'Kültür ve Sosyal İşler'),
+                            widget.user.role?.contains('Şube Müdürü') == true
+                                ? widget.user.role!.replaceAll(
+                                    ' Şube Müdürü',
+                                    '',
+                                  )
+                                : (widget.user.role ??
+                                      'Kültür ve Sosyal İşler'),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 15,
@@ -301,7 +335,7 @@ class AdminHomePage extends StatelessWidget {
                               children: [
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: const [
+                                  children: [
                                     Text(
                                       'Özet Sayfa',
                                       style: TextStyle(
@@ -312,11 +346,11 @@ class AdminHomePage extends StatelessWidget {
                                     ),
                                     SizedBox(height: 8),
                                     Text(
-                                      '₺1.567.789,80',
+                                      '₺1234.56',
                                       style: TextStyle(
                                         color: Color(0xFFFF3D3D),
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 20,
+                                        fontSize: 28,
                                       ),
                                     ),
                                   ],
@@ -362,7 +396,7 @@ class AdminHomePage extends StatelessWidget {
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
-                                    children: const [
+                                    children: [
                                       Text(
                                         'Kantin',
                                         style: TextStyle(
@@ -372,12 +406,13 @@ class AdminHomePage extends StatelessWidget {
                                         ),
                                       ),
                                       SizedBox(height: 6),
+
                                       Text(
-                                        '₺1.567.789,80',
+                                        '₺${toplamKantinGeliri.toStringAsFixed(2)}',
                                         style: TextStyle(
                                           color: Color(0xFFFF3D3D),
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 15,
+                                          fontSize: 28,
                                         ),
                                       ),
                                     ],
@@ -411,7 +446,7 @@ class AdminHomePage extends StatelessWidget {
                                           color: Colors.black87,
                                         ),
                                       ),
-                                      SizedBox(height: 6),
+                                      SizedBox(height: 25),
                                       Text(
                                         '₺1.567.789,80',
                                         style: TextStyle(
@@ -519,7 +554,7 @@ class _AdminBottomNavBar extends StatelessWidget {
     const selectedColor = Color(0xFFFF3D3D);
     const unselectedColor = Color(0xFFBDBDBD);
     const indicatorColor = Colors.black;
-    final currentIndex = 0;
+    final currentIndex = 0; // Ana Sayfa aktif
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.only(bottom: 8, top: 2),
@@ -529,22 +564,22 @@ class _AdminBottomNavBar extends StatelessWidget {
           _NavBarItem(
             icon: Icons.search_outlined,
             label: 'Ana Sayfa',
-            selected: currentIndex == 0,
+            selected: true,
           ),
           _NavBarItem(
             icon: Icons.favorite_border,
             label: 'Favorilerim',
-            selected: currentIndex == 1,
+            selected: false,
           ),
           _NavBarItem(
             icon: Icons.notifications_none_outlined,
             label: 'Sepetim',
-            selected: currentIndex == 2,
+            selected: false,
           ),
           _NavBarItem(
             icon: Icons.person_outline,
             label: 'Siparişlerim',
-            selected: currentIndex == 3,
+            selected: false,
           ),
         ],
       ),

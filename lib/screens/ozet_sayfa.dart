@@ -20,6 +20,7 @@ class _OzetSayfaState extends State<OzetSayfa> {
   double cayOcagiAlacagi = 1679.00;
   int borcluListesi = 134;
   double totalKartGeliri = 19679.50;
+  double toplamKantinGeliri = 0;
 
   String selectedLokasyon = "Merkez Kantin";
   String selectedTarih = "Bugün";
@@ -38,6 +39,7 @@ class _OzetSayfaState extends State<OzetSayfa> {
   void initState() {
     super.initState();
     _loadSiparisSayilari();
+    _loadKantinGeliri();
   }
 
   Future<void> _loadSiparisSayilari() async {
@@ -57,6 +59,22 @@ class _OzetSayfaState extends State<OzetSayfa> {
     setState(() {
       bekleyenSiparis = aktif;
       bitenSiparis = pasif;
+    });
+  }
+
+  Future<void> _loadKantinGeliri() async {
+    double toplam = 0;
+    final usernames = await LocalStorageService.getAllUsernames();
+    for (final username in usernames) {
+      final orders = await LocalStorageService.getUserOrders(username);
+      for (final s in orders) {
+        if (s.durum == 'pasif') {
+          toplam += s.tutar;
+        }
+      }
+    }
+    setState(() {
+      toplamKantinGeliri = toplam;
     });
   }
 
@@ -491,7 +509,7 @@ class _OzetSayfaState extends State<OzetSayfa> {
         ),
       ),
       // Alt navigation bar
-      bottomNavigationBar: CustomBottomNavBar(selectedIndex: 0, onTap: (i) {}),
+      bottomNavigationBar: _AdminBottomNavBar(),
     );
   }
 
@@ -528,6 +546,94 @@ class _OzetSayfaState extends State<OzetSayfa> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _AdminBottomNavBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    const selectedColor = Color(0xFFFF3D3D);
+    const unselectedColor = Color(0xFFBDBDBD);
+    const indicatorColor = Colors.black;
+    final currentIndex = 0; // Ana Sayfa aktif
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.only(bottom: 8, top: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _NavBarItem(
+            icon: Icons.search_outlined,
+            label: 'Ana Sayfa',
+            selected: true,
+          ),
+          _NavBarItem(
+            icon: Icons.favorite_border,
+            label: 'Favorilerim',
+            selected: false,
+          ),
+          _NavBarItem(
+            icon: Icons.notifications_none_outlined,
+            label: 'Sepetim',
+            selected: false,
+          ),
+          _NavBarItem(
+            icon: Icons.person_outline,
+            label: 'Siparişlerim',
+            selected: false,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NavBarItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool selected;
+  const _NavBarItem({
+    required this.icon,
+    required this.label,
+    required this.selected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: selected ? const Color(0xFFFF3D3D) : const Color(0xFFBDBDBD),
+            size: 30,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: TextStyle(
+              color: selected
+                  ? const Color(0xFFFF3D3D)
+                  : const Color(0xFFBDBDBD),
+              fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 2),
+          selected
+              ? Container(
+                  width: 32,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                )
+              : const SizedBox(height: 4),
+        ],
       ),
     );
   }
