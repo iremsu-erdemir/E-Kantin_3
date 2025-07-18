@@ -94,60 +94,25 @@ class _SiparislerPageState extends State<SiparislerPage>
     siparisler = await LocalStorageService.getUserOrders(username);
 
     // Eğer hiç borç yoksa örnek borçlar ekle (sadece SharedPreferences boşsa)
-    final borclar = await LocalStorageService.getUserDebts(username);
-    if (borclar.isEmpty) {
-      await LocalStorageService.addDebt(
-        username,
-        Borc(
-          id: '1',
-          urun: 'Küçük Çay',
-          tutar: 5.5,
-          tarih: DateTime.now().toString(),
-        ),
-      );
-      await LocalStorageService.addDebt(
-        username,
-        Borc(
-          id: '2',
-          urun: 'Büyük Çay',
-          tutar: 7.0,
-          tarih: DateTime.now().toString(),
-        ),
-      );
-      await LocalStorageService.addDebt(
-        username,
-        Borc(
-          id: '3',
-          urun: 'Nescafe',
-          tutar: 8.0,
-          tarih: DateTime.now().toString(),
-        ),
-      );
-      // Yeni ürünler
-      await LocalStorageService.addDebt(
-        username,
-        Borc(
-          id: '4',
-          urun: 'Limonlu Soda',
-          tutar: 9.0,
-          tarih: DateTime.now().toString(),
-        ),
-      );
-      await LocalStorageService.addDebt(
-        username,
-        Borc(
-          id: '5',
-          urun: 'Sütlü Nescafe',
-          tutar: 10.0,
-          tarih: DateTime.now().toString(),
-        ),
-      );
-      // Borçlar eklendikten sonra Provider'ı güncelle
-      await Provider.of<DebtProvider>(
-        context,
-        listen: false,
-      ).loadDebts(username);
-    }
+    // --- Aşağıdaki örnek borç ekleme kodunu kaldırıyorum ---
+    // final borclar = await LocalStorageService.getUserDebts(username);
+    // if (borclar.isEmpty) {
+    //   await LocalStorageService.addDebt(
+    //     username,
+    //     Borc(
+    //       id: '1',
+    //       urun: 'Küçük Çay',
+    //       tutar: 5.5,
+    //       tarih: DateTime.now().toString(),
+    //     ),
+    //   );
+    //   ... (diğer örnek borçlar)
+    //   await Provider.of<DebtProvider>(
+    //     context,
+    //     listen: false,
+    //   ).loadDebts(username);
+    // }
+    // --- SONU ---
 
     print(
       'siparisler (sayısı):  [33m [1m [4m [7m [41m [30m [0m${siparisler.length}',
@@ -643,6 +608,7 @@ class _SiparislerPageState extends State<SiparislerPage>
                                     totalPrice: seciliBorc,
                                     isCayOcagiBorcu: true,
                                     kalanBorc: kalanBorc,
+                                    showDebtButton: false,
                                   ),
                                 ),
                               );
@@ -865,7 +831,7 @@ class _SiparislerPageState extends State<SiparislerPage>
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const CartPage(),
+                                  builder: (context) => CartPage(),
                                 ),
                               );
                             }

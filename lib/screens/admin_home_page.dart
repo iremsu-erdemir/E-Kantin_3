@@ -5,6 +5,7 @@ import '../services/user_service.dart';
 import 'login_page.dart';
 import 'ozet_sayfa.dart';
 import '../services/local_storage_service.dart';
+import 'admin_cay_ocagi_page.dart';
 
 class AdminHomePage extends StatefulWidget {
   final User user;
@@ -16,11 +17,15 @@ class AdminHomePage extends StatefulWidget {
 
 class _AdminHomePageState extends State<AdminHomePage> {
   double toplamKantinGeliri = 0;
+  double toplamCayOcagiNetGelir = 0;
+  double toplamGelir = 0;
 
   @override
   void initState() {
     super.initState();
     _loadKantinGeliri();
+    _loadCayOcagiNetGelir();
+    _loadToplamGelir();
   }
 
   Future<void> _loadKantinGeliri() async {
@@ -36,6 +41,23 @@ class _AdminHomePageState extends State<AdminHomePage> {
     }
     setState(() {
       toplamKantinGeliri = toplam;
+    });
+  }
+
+  Future<void> _loadCayOcagiNetGelir() async {
+    final siparis = await AdminCayOcagiPageState.toplamCayOcagiSiparisTutari();
+    final borc = await AdminCayOcagiPageState.toplamCayOcagiBorcu();
+    setState(() {
+      toplamCayOcagiNetGelir = siparis - borc;
+    });
+  }
+
+  Future<void> _loadToplamGelir() async {
+    final cayOcagiSiparis =
+        await AdminCayOcagiPageState.toplamCayOcagiSiparisTutari();
+    final cayOcagiBorc = await AdminCayOcagiPageState.toplamCayOcagiBorcu();
+    setState(() {
+      toplamGelir = toplamKantinGeliri + (cayOcagiSiparis - cayOcagiBorc);
     });
   }
 
@@ -346,7 +368,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                     ),
                                     SizedBox(height: 8),
                                     Text(
-                                      '₺1234.56',
+                                      '₺${toplamGelir.toStringAsFixed(2)}',
                                       style: TextStyle(
                                         color: Color(0xFFFF3D3D),
                                         fontWeight: FontWeight.bold,
@@ -437,7 +459,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
-                                    children: const [
+                                    children: [
                                       Text(
                                         'Çay Ocağı',
                                         style: TextStyle(
@@ -448,7 +470,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                       ),
                                       SizedBox(height: 25),
                                       Text(
-                                        '₺1.567.789,80',
+                                        '₺${toplamCayOcagiNetGelir.toStringAsFixed(2)}',
                                         style: TextStyle(
                                           color: Color(0xFFFF3D3D),
                                           fontWeight: FontWeight.bold,
@@ -489,7 +511,14 @@ class _AdminHomePageState extends State<AdminHomePage> {
                               _MenuCard(
                                 image: 'assets/images/cay.png',
                                 title: 'Çay Ocağı',
-                                onTap: () {},
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const AdminCayOcagiPage(),
+                                    ),
+                                  );
+                                },
                               ),
                             ],
                           ),

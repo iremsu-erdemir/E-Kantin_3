@@ -8,6 +8,9 @@ import '../models/favorite_menu.dart';
 import '../components/ek_bottom_nav_bar.dart';
 import '../providers/favorite_provider.dart';
 import 'successpayment.dart';
+import 'cart.dart';
+import 'payment.dart';
+import '../models/user.dart';
 
 class SandwichDetailPage extends StatefulWidget {
   final String imagePath;
@@ -485,18 +488,7 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
                             cartProvider.addOrUpdate(newItem);
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) => SuccessPaymentPage(
-                                  totalPrice:
-                                      double.tryParse(
-                                        widget.price
-                                            .replaceAll('₺', '')
-                                            .replaceAll(',', '.'),
-                                      ) ??
-                                      0,
-                                  orderNumber:
-                                      '', // Sipariş numarası burada oluşturulabilir
-                                  productName: widget.title,
-                                ),
+                                builder: (context) => CartPage(),
                               ),
                             );
                           },

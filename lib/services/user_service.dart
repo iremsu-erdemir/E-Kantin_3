@@ -24,6 +24,27 @@ class UserService {
       role: 'Kültür ve Sosyal İşler Şube Müdürü',
       image: 'assets/images/turgay.png',
     ),
+    User(
+      username: 'taner',
+      password: '1234',
+      name: 'Taner Mutlu',
+      role: 'Personel',
+      image: 'assets/images/person.png',
+    ),
+    User(
+      username: 'esma',
+      password: '1234',
+      name: 'Esma Nur Kayhan',
+      role: 'Personel',
+      image: 'assets/images/person.png',
+    ),
+    User(
+      username: 'erkan',
+      password: '1234',
+      name: 'Erkan Öztürk',
+      role: 'Personel',
+      image: 'assets/images/person.png',
+    ),
   ];
 
   Future<User?> login(String username, String password) async {
@@ -35,5 +56,9 @@ class UserService {
     } catch (e) {
       return null;
     }
+  }
+
+  List<User> getAllUsers() {
+    return _dummyUsers;
   }
 }

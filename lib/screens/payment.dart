@@ -137,6 +137,7 @@ class PaymentPage extends StatefulWidget {
   final bool isCayOcagiBorcu;
   final double? kalanBorc;
   final List<Borc> borcList;
+  final bool showDebtButton;
   const PaymentPage({
     Key? key,
     required this.totalPrice,
@@ -144,6 +145,7 @@ class PaymentPage extends StatefulWidget {
     this.isCayOcagiBorcu = false,
     this.kalanBorc,
     this.borcList = const [],
+    this.showDebtButton = true,
   }) : super(key: key);
 
   @override
@@ -729,108 +731,202 @@ class _PaymentPageState extends State<PaymentPage> {
                     style: kAmountStyle,
                   ),
                   const Spacer(),
-                  SizedBox(
-                    height: 48,
-                    child: ElevatedButton(
-                      onPressed: (!isLoggedIn)
-                          ? () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Lütfen giriş yapmadan önce bu işlemi gerçekleştiremezsiniz.',
+                  Expanded(
+                    child: SizedBox(
+                      height: 48,
+                      child: ElevatedButton(
+                        onPressed: (!isLoggedIn)
+                            ? () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Lütfen giriş yapmadan önce bu işlemi gerçekleştiremezsiniz.',
+                                    ),
+                                    backgroundColor: Colors.red,
+                                    duration: Duration(seconds: 1),
                                   ),
-                                  backgroundColor: Colors.red,
-                                  duration: Duration(seconds: 1),
-                                ),
-                              );
-                            }
-                          : () async {
-                              _validateAllFields();
-                              if ((isCardSelected ||
-                                      (nameError == null &&
-                                          cardError == null &&
-                                          dateError == null)) &&
-                                  cvcError == null) {
-                                // Eğer kayıtlı kart seçiliyse CVC kontrolü yap
-                                if (selectedUserCard != null &&
-                                    selectedUserCard!.cvc != null) {
-                                  if (cvcController.text.trim() !=
-                                      selectedUserCard!.cvc) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Yanlış bilgi girdiniz'),
-                                        backgroundColor: Colors.red,
-                                        duration: Duration(seconds: 1),
+                                );
+                              }
+                            : () async {
+                                _validateAllFields();
+                                if ((isCardSelected ||
+                                        (nameError == null &&
+                                            cardError == null &&
+                                            dateError == null)) &&
+                                    cvcError == null) {
+                                  // Eğer kayıtlı kart seçiliyse CVC kontrolü yap
+                                  if (selectedUserCard != null &&
+                                      selectedUserCard!.cvc != null) {
+                                    if (cvcController.text.trim() !=
+                                        selectedUserCard!.cvc) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Yanlış bilgi girdiniz',
+                                          ),
+                                          backgroundColor: Colors.red,
+                                          duration: Duration(seconds: 1),
+                                        ),
+                                      );
+                                      return;
+                                    }
+                                  }
+                                  // Ürün adını sepet temizlenmeden önce al
+                                  final productName = _getProductName(context);
+                                  Provider.of<CartProvider>(
+                                    context,
+                                    listen: false,
+                                  ).clear();
+                                  if (widget.isCayOcagiBorcu) {
+                                    await showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) => AlertDialog(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 24,
+                                            ),
+                                        content: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(
+                                              Icons.check_circle,
+                                              color: Colors.green,
+                                              size: 48,
+                                            ),
+                                            const SizedBox(height: 16),
+                                            const Text(
+                                              'Ödeme Başarıyla Tamamlandı!',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 12),
+                                            Text(
+                                              'Şu kadar borcunuz kaldı: ₺${(widget.kalanBorc ?? 0).toStringAsFixed(2)}',
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 18),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                Navigator.of(
+                                                  context,
+                                                ).pop(); // Önce dialogu kapat
+                                                Navigator.of(context).pop(
+                                                  'odeme_basarili',
+                                                ); // Sonra PaymentPage'i kapat
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    Colors.redAccent,
+                                                foregroundColor: Colors.white,
+                                              ),
+                                              child: const Text('Kapat'),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     );
-                                    return;
+                                    // HomePage'e yönlendirme kodunu kaldırıyoruz
+                                    // Navigator.of(context).pushAndRemoveUntil(...);
+                                  } else {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => SuccessPaymentPage(
+                                          totalPrice: totalPrice,
+                                          orderNumber:
+                                              (1000 +
+                                                      DateTime.now()
+                                                              .millisecondsSinceEpoch %
+                                                          9000)
+                                                  .toString(),
+                                          productName: productName,
+                                        ),
+                                      ),
+                                    );
                                   }
-                                }
-                                // Ürün adını sepet temizlenmeden önce al
-                                final productName = _getProductName(context);
-                                Provider.of<CartProvider>(
-                                  context,
-                                  listen: false,
-                                ).clear();
-                                if (widget.isCayOcagiBorcu) {
-                                  await showDialog(
-                                    context: context,
-                                    barrierDismissible: false,
-                                    builder: (context) => AlertDialog(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Lütfen bilgileri eksiksiz ve doğru girin',
                                       ),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                            horizontal: 24,
-                                            vertical: 32,
-                                          ),
-                                      content: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Icon(
-                                            Icons.check_circle,
-                                            color: Colors.green,
-                                            size: 48,
-                                          ),
-                                          const SizedBox(height: 16),
-                                          const Text(
-                                            'Ödeme Başarıyla Tamamlandı!',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 20,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 12),
-                                          Text(
-                                            'Şu kadar borcunuz kaldı: ₺${(widget.kalanBorc ?? 0).toStringAsFixed(2)}',
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 18),
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.of(
-                                                context,
-                                              ).pop(); // Önce dialogu kapat
-                                              Navigator.of(context).pop(
-                                                'odeme_basarili',
-                                              ); // Sonra PaymentPage'i kapat
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.redAccent,
-                                              foregroundColor: Colors.white,
-                                            ),
-                                            child: const Text('Kapat'),
-                                          ),
-                                        ],
-                                      ),
+                                      backgroundColor: Colors.red,
+                                      duration: Duration(seconds: 1),
                                     ),
                                   );
-                                  // HomePage'e yönlendirme kodunu kaldırıyoruz
-                                  // Navigator.of(context).pushAndRemoveUntil(...);
-                                } else {
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(
+                            255,
+                            36,
+                            143,
+                            15,
+                          ),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          elevation: 0,
+                          padding: EdgeInsets.symmetric(horizontal: 8.0),
+                          minimumSize: Size(90, 48),
+                        ),
+                        child: const Text('Ödeme Yap', style: kButtonTextStyle),
+                      ),
+                    ),
+                  ),
+                  if (widget.showDebtButton) ...[
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: SizedBox(
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: (!isLoggedIn)
+                              ? () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Lütfen giriş yapmadan önce bu işlemi gerçekleştiremezsiniz.',
+                                      ),
+                                      backgroundColor: Colors.red,
+                                      duration: Duration(seconds: 1),
+                                    ),
+                                  );
+                                }
+                              : () {
+                                  final productName = _getProductName(context);
+                                  Provider.of<CartProvider>(
+                                    context,
+                                    listen: false,
+                                  ).clear();
+                                  // Ürün adı ile görsel eşleştirme
+                                  String? imagePath;
+                                  final urunGorselleri = {
+                                    'Küçük Çay': 'assets/images/kücük_cay.jpg',
+                                    'Büyük Çay': 'assets/images/büyük_cay.jpg',
+                                    'Nescafe': 'assets/images/nescafe.jpg',
+                                    'Limonlu Soda': 'assets/images/soda.webp',
+                                    'Türk Kahvesi':
+                                        'assets/images/türk_kahve.jpg',
+                                    'Sakızlı': 'assets/images/sakizli.jpg',
+                                    'Probis': 'assets/images/probis.jpg',
+                                  };
+                                  imagePath = urunGorselleri[productName];
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
                                       builder: (context) => SuccessPaymentPage(
@@ -842,40 +938,36 @@ class _PaymentPageState extends State<PaymentPage> {
                                                         9000)
                                                 .toString(),
                                         productName: productName,
+                                        imagePath: imagePath,
+                                        isDebt: true,
                                       ),
                                     ),
                                   );
-                                }
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Lütfen bilgileri eksiksiz ve doğru girin',
-                                    ),
-                                    backgroundColor: Colors.red,
-                                    duration: Duration(seconds: 1),
-                                  ),
-                                );
-                              }
-                            },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFF3D3D),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromARGB(
+                              255,
+                              218,
+                              20,
+                              20,
+                            ),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            textStyle: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            elevation: 0,
+                            padding: EdgeInsets.symmetric(horizontal: 8.0),
+                            minimumSize: Size(90, 48),
+                          ),
+                          child: const Text('Borç Al', style: kButtonTextStyle),
                         ),
-                        textStyle: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 24.0),
-                        child: Text('Ödeme Yap', style: kButtonTextStyle),
                       ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ],

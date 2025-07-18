@@ -6,6 +6,7 @@ import 'admin_siparis.dart';
 import 'admin_home_page.dart';
 import '../models/user.dart';
 import '../services/local_storage_service.dart';
+import 'admin_cay_ocagi_page.dart';
 
 class OzetSayfa extends StatefulWidget {
   const OzetSayfa({Key? key}) : super(key: key);
@@ -17,10 +18,11 @@ class OzetSayfa extends StatefulWidget {
 class _OzetSayfaState extends State<OzetSayfa> {
   int bekleyenSiparis = 0;
   int bitenSiparis = 0;
-  double cayOcagiAlacagi = 1679.00;
-  int borcluListesi = 134;
+  double cayOcagiAlacagi = 0.0;
+  int borcluListesi = 0;
   double totalKartGeliri = 19679.50;
   double toplamKantinGeliri = 0;
+  double toplamGelir = 0.0;
 
   String selectedLokasyon = "Merkez Kantin";
   String selectedTarih = "Bugün";
@@ -40,6 +42,9 @@ class _OzetSayfaState extends State<OzetSayfa> {
     super.initState();
     _loadSiparisSayilari();
     _loadKantinGeliri();
+    _loadBorcluListesi();
+    _loadCayOcagiAlacagi();
+    _loadToplamGelir();
   }
 
   Future<void> _loadSiparisSayilari() async {
@@ -75,6 +80,29 @@ class _OzetSayfaState extends State<OzetSayfa> {
     }
     setState(() {
       toplamKantinGeliri = toplam;
+    });
+  }
+
+  Future<void> _loadBorcluListesi() async {
+    final count = await AdminCayOcagiPageState.borcluKullaniciSayisi();
+    setState(() {
+      borcluListesi = count;
+    });
+  }
+
+  Future<void> _loadCayOcagiAlacagi() async {
+    final borc = await AdminCayOcagiPageState.toplamCayOcagiBorcu();
+    setState(() {
+      cayOcagiAlacagi = borc;
+    });
+  }
+
+  Future<void> _loadToplamGelir() async {
+    final cayOcagiSiparis =
+        await AdminCayOcagiPageState.toplamCayOcagiSiparisTutari();
+    final cayOcagiBorc = await AdminCayOcagiPageState.toplamCayOcagiBorcu();
+    setState(() {
+      toplamGelir = toplamKantinGeliri + (cayOcagiSiparis - cayOcagiBorc);
     });
   }
 
