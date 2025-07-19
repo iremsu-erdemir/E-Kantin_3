@@ -148,6 +148,7 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
                               imagePath: ekmekTipi == 'Tost'
                                   ? 'assets/images/tost.png'
                                   : 'assets/images/sandwich.png',
+                              price: totalPrice,
                             );
                             Provider.of<FavoriteProvider>(
                               context,

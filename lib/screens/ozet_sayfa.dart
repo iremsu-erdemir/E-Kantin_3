@@ -7,6 +7,7 @@ import 'admin_home_page.dart';
 import '../models/user.dart';
 import '../services/local_storage_service.dart';
 import 'admin_cay_ocagi_page.dart';
+import 'admin_menu_duzenle_page.dart';
 
 class OzetSayfa extends StatefulWidget {
   const OzetSayfa({Key? key}) : super(key: key);
@@ -486,7 +487,13 @@ class _OzetSayfaState extends State<OzetSayfa> {
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => AdminMenuDuzenlePage(),
+                            ),
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFFFB300),
                           padding: const EdgeInsets.symmetric(vertical: 18),

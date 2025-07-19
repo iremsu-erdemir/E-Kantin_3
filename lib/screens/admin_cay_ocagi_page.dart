@@ -105,116 +105,82 @@ class AdminCayOcagiPageState extends State<AdminCayOcagiPage>
     final toplam = toplamTutar;
     final username = seciliKullanici!.username;
     final name = seciliKullanici!.name ?? seciliKullanici!.username;
-    final onay = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 8),
-              Text(
-                'Borç eklemek istiyor musunuz?',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 18),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    icon: const Icon(Icons.close, color: Colors.red),
-                    label: const Text(
-                      'Hayır',
-                      style: TextStyle(color: Colors.red),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.red,
-                      side: const BorderSide(color: Colors.red, width: 2),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 12,
-                      ),
-                      textStyle: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                      elevation: 0,
-                    ),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    icon: const Icon(Icons.check, color: Colors.green),
-                    label: const Text(
-                      'Evet',
-                      style: TextStyle(color: Colors.green),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.green,
-                      side: const BorderSide(color: Colors.green, width: 2),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 12,
-                      ),
-                      textStyle: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                      elevation: 0,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-    if (onay == true) {
-      final now = DateTime.now();
-      final tarih =
-          '${now.day.toString().padLeft(2, '0')}.${now.month.toString().padLeft(2, '0')}.${now.year} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
-      for (var urun in urunler) {
-        if (urun['adet'] > 0) {
-          final borc = Borc(
-            id: UniqueKey().toString(),
-            urun: urun['isim'],
-            tutar: (urun['fiyat'] as double) * (urun['adet'] as int),
-            tarih: tarih,
-            count: urun['adet'],
-          );
-          await LocalStorageService.addDebt(username, borc);
-        }
-      }
-      // Seçimleri sıfırla
-      setState(() {
-        for (var u in urunler) {
-          u['adet'] = 0;
-        }
-        seciliKullanici = null;
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Borç başarıyla eklendi.'),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 2),
-          ),
+    // Borç ekleme işlemi
+    final now = DateTime.now();
+    final tarih =
+        '${now.day.toString().padLeft(2, '0')}.${now.month.toString().padLeft(2, '0')}.${now.year} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+    for (var urun in urunler) {
+      if (urun['adet'] > 0) {
+        final borc = Borc(
+          id: UniqueKey().toString(),
+          urun: urun['isim'],
+          tutar: (urun['fiyat'] as double) * (urun['adet'] as int),
+          tarih: tarih,
+          count: urun['adet'],
         );
+        await LocalStorageService.addDebt(username, borc);
       }
+    }
+    // Seçimleri sıfırla
+    setState(() {
+      for (var u in urunler) {
+        u['adet'] = 0;
+      }
+      seciliKullanici = null;
+    });
+    if (mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (context) {
+          return Center(
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                width: 320,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 28,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.green.withOpacity(0.15),
+                      blurRadius: 18,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.check_circle,
+                      color: Colors.green,
+                      size: 48,
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Borç başarıyla eklendi!',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.green,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      );
+      await Future.delayed(const Duration(seconds: 1));
+      if (Navigator.canPop(context)) Navigator.pop(context);
     }
   }
 

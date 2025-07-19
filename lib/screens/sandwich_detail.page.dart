@@ -166,7 +166,19 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
                               ekmekTuru: '',
                               secilenIcerikler: [],
                               imagePath: widget.imagePath,
+                              price:
+                                  double.tryParse(
+                                    widget.price
+                                        .replaceAll('₺', '')
+                                        .replaceAll(',', '.'),
+                                  ) ??
+                                  0.0,
                             );
+                            // Favori eklemenin yanına provider ile kaydet
+                            Provider.of<FavoriteProvider>(
+                              context,
+                              listen: false,
+                            ).addFavorite(yeniFavori);
                             setState(() {
                               favoriListesi.add(yeniFavori);
                             });
@@ -253,6 +265,11 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
                 ekmekTuru: '',
                 secilenIcerikler: [],
                 imagePath: widget.imagePath,
+                price:
+                    double.tryParse(
+                      widget.price.replaceAll('₺', '').replaceAll(',', '.'),
+                    ) ??
+                    0.0,
               );
               Provider.of<FavoriteProvider>(
                 context,
@@ -260,8 +277,12 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
               ).addFavorite(menu);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Favorilere eklendi!'),
+                  content: const Text('Favorilere başarıyla eklendi!'),
                   backgroundColor: Colors.green,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   duration: Duration(seconds: 1),
                 ),
               );
