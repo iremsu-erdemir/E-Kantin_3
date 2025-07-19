@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
-import '../models/favorite_menu.dart';
-import '../providers/favorite_provider.dart';
+import '../services/local_menu_service.dart';
 
 class MenuOlusturPage extends StatefulWidget {
   const MenuOlusturPage({Key? key}) : super(key: key);
@@ -26,19 +24,71 @@ class _MenuOlusturPageState extends State<MenuOlusturPage> {
   ];
   List<bool> _malzemeSecili = [true, false, false, false];
 
+  void _malzemeSec(int index) {
+    setState(() {
+      // Kaşar peynir kontrolü (index 0 ve 1)
+      if (index == 0 || index == 1) {
+        // Diğer kaşar peyniri seçimini kaldır
+        _malzemeSecili[1 - index] = false;
+      }
+      // Çeçil peynir kontrolü (index 2 ve 3)
+      else if (index == 2 || index == 3) {
+        // Diğer çeçil peyniri seçimini kaldır
+        _malzemeSecili[5 - index] = false;
+      }
+      // Seçilen malzemeyi toggle et
+      _malzemeSecili[index] = !_malzemeSecili[index];
+    });
+  }
+
   Future<void> _pickImage() async {
-    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (picked != null) {
-      setState(() {
-        _image = File(picked.path);
-      });
-    }
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Kamera ile çek'),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  final picked = await ImagePicker().pickImage(
+                    source: ImageSource.camera,
+                  );
+                  if (picked != null) {
+                    setState(() {
+                      _image = File(picked.path);
+                    });
+                  }
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Galeriden seç'),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  final picked = await ImagePicker().pickImage(
+                    source: ImageSource.gallery,
+                  );
+                  if (picked != null) {
+                    setState(() {
+                      _image = File(picked.path);
+                    });
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -63,107 +113,237 @@ class _MenuOlusturPageState extends State<MenuOlusturPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  GestureDetector(
-                    onTap: _pickImage,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: _image != null
-                          ? Image.file(
-                              _image!,
-                              width: 80,
-                              height: 80,
-                              fit: BoxFit.cover,
-                            )
-                          : Image.asset(
-                              'assets/images/sandwichMenu.png',
-                              width: 80,
-                              height: 80,
-                              fit: BoxFit.cover,
+                  // Fotoğraf yükle alanı
+                  _image == null
+                      ? GestureDetector(
+                          onTap: _pickImage,
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 8),
+                              Container(
+                                width: 80,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: Color(0xFFE0E0E0)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.04),
+                                      blurRadius: 4,
+                                    ),
+                                  ],
+                                ),
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.camera_alt,
+                                      size: 32,
+                                      color: Colors.grey[400],
+                                    ),
+                                    Positioned(
+                                      top: 16,
+                                      right: 16,
+                                      child: Container(
+                                        width: 18,
+                                        height: 18,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Color(0xFFE0E0E0),
+                                          ),
+                                        ),
+                                        child: const Center(
+                                          child: Icon(
+                                            Icons.add,
+                                            size: 14,
+                                            color: Colors.redAccent,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              const Text(
+                                'Resim Ekle',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.file(
+                                _image!,
+                                width: 80,
+                                height: 80,
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: GestureDetector(
+                                onTap: _pickImage,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 4,
+                                      ),
+                                    ],
+                                  ),
+                                  padding: const EdgeInsets.all(4),
+                                  child: const Icon(
+                                    Icons.camera_alt,
+                                    size: 22,
+                                    color: Colors.redAccent,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                  const SizedBox(width: 24),
+                  // Menü adı, fiyat ve aktif/pasif kutuları tek bir sütunda
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'MENÜ ADI',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                          ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'MENÜ ADI',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFFF5F5F5),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: TextField(
+                                      controller: _menuNameController,
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 8,
+                                            ),
+                                      ),
+                                      style: const TextStyle(fontSize: 15),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'FİYAT',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFFF5F5F5),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: TextField(
+                                      controller: _priceController,
+                                      enabled: _aktif,
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 8,
+                                            ),
+                                      ),
+                                      style: const TextStyle(fontSize: 15),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 4),
-                        TextField(
-                          controller: _menuNameController,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Color(0xFFF5F5F5),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Checkbox(
+                                    value: _aktif,
+                                    onChanged: (val) =>
+                                        setState(() => _aktif = true),
+                                    activeColor: const Color(0xFFFF3D3D),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    materialTapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  const Text(
+                                    'Aktif',
+                                    style: TextStyle(fontSize: 13),
+                                  ),
+                                  const SizedBox(width: 80),
+                                  Checkbox(
+                                    value: !_aktif,
+                                    onChanged: (val) =>
+                                        setState(() => _aktif = false),
+                                    activeColor: const Color(0xFFFF3D3D),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    materialTapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  const Text(
+                                    'Pasif',
+                                    style: TextStyle(fontSize: 13),
+                                  ),
+                                ],
+                              ),
                             ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                          ),
-                          style: const TextStyle(fontSize: 15),
+                          ],
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'FİYAT',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      SizedBox(
-                        width: 80,
-                        child: TextField(
-                          controller: _priceController,
-                          enabled: _aktif,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                          ),
-                          style: const TextStyle(fontSize: 15),
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: _aktif,
-                            onChanged: (val) => setState(() => _aktif = true),
-                            activeColor: const Color(0xFFFF3D3D),
-                          ),
-                          const Text('Aktif', style: TextStyle(fontSize: 13)),
-                          Checkbox(
-                            value: !_aktif,
-                            onChanged: (val) => setState(() => _aktif = false),
-                            activeColor: Colors.grey,
-                          ),
-                          const Text('Pasif', style: TextStyle(fontSize: 13)),
-                        ],
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -202,8 +382,7 @@ class _MenuOlusturPageState extends State<MenuOlusturPage> {
                     children: [
                       Checkbox(
                         value: _malzemeSecili[i],
-                        onChanged: (val) =>
-                            setState(() => _malzemeSecili[i] = val!),
+                        onChanged: (val) => _malzemeSec(i),
                         activeColor: const Color(0xFFFF3D3D),
                       ),
                       Expanded(
@@ -220,42 +399,38 @@ class _MenuOlusturPageState extends State<MenuOlusturPage> {
                   );
                 },
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Seçili malzemeleri al
+                  onPressed: () async {
                     final seciliIcerikler = <String>[];
                     for (int i = 0; i < _malzemeler.length; i++) {
                       if (_malzemeSecili[i])
                         seciliIcerikler.add(_malzemeler[i]);
                     }
-                    // FavoriteMenu oluştur
-                    final yeniMenu = FavoriteMenu(
+                    final menu = MenuModel(
                       name: _menuNameController.text,
-                      isCeyrek: _ekmekTipi == 'Tost',
-                      isTam: _ekmekTipi == 'Sandviç',
+                      price: _priceController.text,
+                      desc: seciliIcerikler.join(', '),
+                      imagePath:
+                          _image?.path ?? 'assets/images/sandwichMenu.png',
                       ekmekTipi: _ekmekTipi,
-                      ekmekTuru: '', // Eğer ekmek türü seçiliyorsa buraya ekle
-                      secilenIcerikler: seciliIcerikler,
-                      imagePath: _image != null
-                          ? _image!.path
-                          : 'assets/images/sandwichMenu.png',
-                      price:
-                          double.tryParse(
-                            _priceController.text
-                                .replaceAll('₺', '')
-                                .replaceAll(',', '.'),
-                          ) ??
-                          0.0,
+                      icerikler: seciliIcerikler,
+                      aktif: _aktif,
                     );
-                    Provider.of<FavoriteProvider>(
-                      context,
-                      listen: false,
-                    ).addFavorite(yeniMenu);
-                    Navigator.pop(context);
+                    await LocalMenuService.addMenu(menu);
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Başarı ile kaydedilmiştir'),
+                          backgroundColor: Colors.green,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                      Navigator.pop(context, true);
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFF3D3D),
@@ -282,7 +457,7 @@ class _MenuOlusturPageState extends State<MenuOlusturPage> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         selectedItemColor: const Color(0xFFFF3D3D),
-        unselectedItemColor: Colors.black38,
+        unselectedItemColor: Colors.grey,
         showSelectedLabels: true,
         showUnselectedLabels: true,
         items: const [
@@ -296,12 +471,12 @@ class _MenuOlusturPageState extends State<MenuOlusturPage> {
             label: 'Sepetim',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long),
+            icon: Icon(Icons.person_outline),
             label: 'Siparişlerim',
           ),
         ],
         currentIndex: 0,
-        onTap: (_) {},
+        onTap: (index) {},
       ),
     );
   }

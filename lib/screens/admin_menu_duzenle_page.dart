@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
-import '../models/sandwich.dart';
+import '../services/local_menu_service.dart';
 import '../services/sandwich_service.dart';
+import '../services/tost_service.dart';
 import 'dart:io';
+import 'menu_olustur_page.dart';
 
-class AdminMenuDuzenlePage extends StatelessWidget {
+class AdminMenuDuzenlePage extends StatefulWidget {
+  @override
+  _AdminMenuDuzenlePageState createState() => _AdminMenuDuzenlePageState();
+}
+
+class _AdminMenuDuzenlePageState extends State<AdminMenuDuzenlePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,26 +31,64 @@ class AdminMenuDuzenlePage extends StatelessWidget {
         ),
         centerTitle: false,
       ),
-      body: FutureBuilder<List<Sandwich>>(
-        future: SandwichService().fetchSandwiches(),
+      body: FutureBuilder<List<dynamic>>(
+        future: Future.wait([
+          LocalMenuService.getMenus(),
+          SandwichService().fetchSandwiches(),
+          TostService().fetchTostlar(),
+        ]),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
-          final menus = snapshot.data!;
-          if (menus.isEmpty) {
+          final localMenus = snapshot.data![0] as List<MenuModel>;
+          final sandwiches = snapshot.data![1];
+          final tostlar = snapshot.data![2];
+          final allMenus = [
+            ...localMenus.reversed.map(
+              (menu) => {
+                'image': menu.imagePath,
+                'title': menu.name,
+                'desc': menu.desc,
+                'price': menu.price,
+                'stock': menu.aktif,
+                'isLocal': true,
+              },
+            ),
+            ...sandwiches.map(
+              (item) => {
+                'image': item.image,
+                'title': item.title,
+                'desc': item.desc,
+                'price': item.price,
+                'stock': item.stock,
+                'isLocal': false,
+              },
+            ),
+            ...tostlar.map(
+              (item) => {
+                'image': item.image,
+                'title': item.title,
+                'desc': item.desc,
+                'price': item.price,
+                'stock': item.stock,
+                'isLocal': false,
+              },
+            ),
+          ];
+          if (allMenus.isEmpty) {
             return Center(
               child: Text(
-                "Hiç menü yok. + Yeni Menü Ekle ile menü ekleyin.",
+                "Hiç menü yok.Yeni Menü Ekle ile menü ekleyin.",
                 style: TextStyle(fontSize: 16, color: Colors.black54),
               ),
             );
           }
           return ListView.builder(
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-            itemCount: menus.length,
+            itemCount: allMenus.length,
             itemBuilder: (context, index) {
-              final menu = menus[index];
+              final menu = allMenus[index];
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
                 decoration: BoxDecoration(
@@ -64,12 +109,19 @@ class AdminMenuDuzenlePage extends StatelessWidget {
                       padding: const EdgeInsets.all(12.0),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: Image.asset(
-                          menu.image,
-                          width: 60,
-                          height: 60,
-                          fit: BoxFit.cover,
-                        ),
+                        child: menu['image'].toString().startsWith('assets/')
+                            ? Image.asset(
+                                menu['image'].toString(),
+                                width: 60,
+                                height: 60,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.file(
+                                File(menu['image'].toString()),
+                                width: 60,
+                                height: 60,
+                                fit: BoxFit.cover,
+                              ),
                       ),
                     ),
                     Expanded(
@@ -78,17 +130,9 @@ class AdminMenuDuzenlePage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Menü ${index + 1}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                                color: Color(0xFFFF3D3D),
-                              ),
-                            ),
                             const SizedBox(height: 2),
                             Text(
-                              menu.price,
+                              menu['price'].toString(),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
@@ -97,7 +141,7 @@ class AdminMenuDuzenlePage extends StatelessWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              menu.title,
+                              menu['title'].toString(),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 15,
@@ -106,7 +150,7 @@ class AdminMenuDuzenlePage extends StatelessWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              menu.desc,
+                              menu['desc'].toString(),
                               style: const TextStyle(
                                 fontSize: 13,
                                 color: Colors.black87,
@@ -158,8 +202,15 @@ class AdminMenuDuzenlePage extends StatelessWidget {
           width: double.infinity,
           height: 48,
           child: ElevatedButton(
-            onPressed: () {
-              // Yeni menü ekle işlemi burada yapılacak
+            onPressed: () async {
+              final result = await Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => MenuOlusturPage()),
+              );
+              if (result == true) {
+                setState(() {
+                  // Bu sayfa yeniden build edilecek ve yeni menüler yüklenecek
+                });
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFFF3D3D),

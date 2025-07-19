@@ -1,9 +1,10 @@
-import 'package:e_kantin/screens/sandwich_detail.page.dart';
 import 'package:flutter/material.dart';
 import '../models/sandwich.dart';
 import '../services/sandwich_service.dart';
+import '../services/local_menu_service.dart';
 import '../components/ek_bottom_nav_bar.dart';
 import 'favorilerim.dart';
+import 'dart:io';
 
 class SandwichPage extends StatelessWidget {
   const SandwichPage({Key? key}) : super(key: key);
@@ -36,45 +37,64 @@ class SandwichPage extends StatelessWidget {
         ),
         centerTitle: false,
       ),
-      body: FutureBuilder<List<Sandwich>>(
-        future: SandwichService().fetchSandwiches(),
+      body: FutureBuilder<List<dynamic>>(
+        future: Future.wait([
+          LocalMenuService.getMenus(),
+          SandwichService().fetchSandwiches(),
+        ]),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
-          final sandwiches = snapshot.data!;
+          final localMenus = snapshot.data![0] as List<MenuModel>;
+          final sandwiches = snapshot.data![1] as List<Sandwich>;
+          final allMenus = [
+            ...localMenus
+                .where((menu) => menu.ekmekTipi == 'Sandviç')
+                .map(
+                  (menu) => {
+                    'image': menu.imagePath,
+                    'title': menu.name,
+                    'desc': menu.desc,
+                    'price': menu.price,
+                    'stock': menu.aktif,
+                    'isLocal': true,
+                  },
+                ),
+            ...sandwiches.map(
+              (item) => {
+                'image': item.image,
+                'title': item.title,
+                'desc': item.desc,
+                'price': item.price,
+                'stock': item.stock,
+                'isLocal': false,
+              },
+            ),
+          ];
           return ListView.separated(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            itemCount: sandwiches.length,
+            itemCount: allMenus.length,
             separatorBuilder: (context, index) =>
                 const Divider(height: 1, color: Color(0xFFF0F0F0)),
             itemBuilder: (context, index) {
-              final item = sandwiches[index];
+              final item = allMenus[index];
               return GestureDetector(
                 onTap: () {
-                  if (!item.stock) {
+                  if (item['isLocal'] == true && !(item['stock'] as bool)) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
+                      const SnackBar(
                         content: Text('Ürün tükendi'),
                         duration: Duration(milliseconds: 900),
                         backgroundColor: Colors.red,
                       ),
                     );
                   } else {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => SandwichDetailPage(
-                          imagePath: 'assets/images/sandwichMenu.png',
-                          title: item.title,
-                          desc: item.desc,
-                          price: item.price,
-                        ),
-                      ),
-                    );
+                    // Buraya sistem menüsü için detay sayfası açma kodu eklenebilir
                   }
                 },
                 child: Opacity(
-                  opacity: item.stock ? 1.0 : 0.4,
+                  opacity: (item['stock'] as bool) ? 1.0 : 0.4,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Row(
@@ -82,12 +102,19 @@ class SandwichPage extends StatelessWidget {
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(10),
-                          child: Image.asset(
-                            item.image,
-                            width: 56,
-                            height: 56,
-                            fit: BoxFit.cover,
-                          ),
+                          child: item['image'].toString().startsWith('assets/')
+                              ? Image.asset(
+                                  item['image'].toString(),
+                                  width: 56,
+                                  height: 56,
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.file(
+                                  File(item['image'].toString()),
+                                  width: 56,
+                                  height: 56,
+                                  fit: BoxFit.cover,
+                                ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -95,7 +122,7 @@ class SandwichPage extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                item.title,
+                                item['title'].toString(),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 15,
@@ -104,7 +131,7 @@ class SandwichPage extends StatelessWidget {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                item.desc,
+                                item['desc'].toString(),
                                 style: const TextStyle(
                                   fontSize: 13,
                                   color: Colors.black54,
@@ -116,7 +143,7 @@ class SandwichPage extends StatelessWidget {
                               Row(
                                 children: [
                                   Text(
-                                    item.price,
+                                    item['price'].toString(),
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 15,
@@ -124,7 +151,7 @@ class SandwichPage extends StatelessWidget {
                                     ),
                                   ),
                                   const SizedBox(width: 12),
-                                  if (!item.stock)
+                                  if (!(item['stock'] as bool))
                                     const Text(
                                       'Tükendi',
                                       style: TextStyle(
