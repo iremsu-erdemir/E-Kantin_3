@@ -6,6 +6,10 @@ import 'login_page.dart';
 import 'ozet_sayfa.dart';
 import '../services/local_storage_service.dart';
 import 'admin_cay_ocagi_page.dart';
+import 'tost.page.dart';
+import 'sandwich.page.dart';
+import 'menu_olustur_page.dart';
+import 'siparisler.dart';
 
 class AdminHomePage extends StatefulWidget {
   final User user;
@@ -443,41 +447,51 @@ class _AdminHomePageState extends State<AdminHomePage> {
                               ),
                               const SizedBox(width: 12),
                               Expanded(
-                                child: Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(16),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black12,
-                                        blurRadius: 8,
-                                        offset: Offset(0, 2),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const AdminCayOcagiPage(),
                                       ),
-                                    ],
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Çay Ocağı',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15,
-                                          color: Colors.black87,
+                                    );
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(16),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black12,
+                                          blurRadius: 8,
+                                          offset: Offset(0, 2),
                                         ),
-                                      ),
-                                      SizedBox(height: 25),
-                                      Text(
-                                        '₺${toplamCayOcagiNetGelir.toStringAsFixed(2)}',
-                                        style: TextStyle(
-                                          color: Color(0xFFFF3D3D),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15,
+                                      ],
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Çay Ocağı',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15,
+                                            color: Colors.black87,
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                        SizedBox(height: 25),
+                                        Text(
+                                          '₺${toplamCayOcagiNetGelir.toStringAsFixed(2)}',
+                                          style: TextStyle(
+                                            color: Color(0xFFFF3D3D),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -496,17 +510,37 @@ class _AdminHomePageState extends State<AdminHomePage> {
                               _MenuCard(
                                 image: 'assets/images/tost.png',
                                 title: 'Tostlar',
-                                onTap: () {},
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => const TostPage(),
+                                    ),
+                                  );
+                                },
                               ),
                               _MenuCard(
                                 image: 'assets/images/sandwich_2.png',
                                 title: 'Sandviçler',
-                                onTap: () {},
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const SandwichPage(),
+                                    ),
+                                  );
+                                },
                               ),
                               _MenuCard(
                                 image: 'assets/images/karisik.png',
                                 title: 'Kendi Menünü Oluştur',
-                                onTap: () {},
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const MenuOlusturPage(),
+                                    ),
+                                  );
+                                },
                               ),
                               _MenuCard(
                                 image: 'assets/images/cay.png',
@@ -515,7 +549,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
                                       builder: (context) =>
-                                          const AdminCayOcagiPage(),
+                                          SiparislerPage(initialTab: 2),
                                     ),
                                   );
                                 },
