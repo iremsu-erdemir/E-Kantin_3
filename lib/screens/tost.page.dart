@@ -7,6 +7,7 @@ import 'favorilerim.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
 import 'sandwich_detail.page.dart';
+import '../models/menu_model.dart';
 
 class TostPage extends StatelessWidget {
   const TostPage({Key? key}) : super(key: key);
@@ -57,8 +58,10 @@ class TostPage extends StatelessWidget {
                   (menu) => {
                     'image': menu.imagePath,
                     'title': menu.name,
-                    'desc': menu.desc,
-                    'price': menu.price,
+                    'desc': menu.urunler.map((u) => u.name).join(', '),
+                    'price': menu.urunler.isNotEmpty
+                        ? menu.urunler[0].price
+                        : '',
                     'stock': menu.aktif,
                     'isLocal': true,
                   },
@@ -82,7 +85,7 @@ class TostPage extends StatelessWidget {
             itemBuilder: (context, index) {
               final item = allMenus[index];
               return GestureDetector(
-                onTap: () {
+                onTap: () async {
                   if (item['isLocal'] == true && !(item['stock'] as bool)) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -99,6 +102,20 @@ class TostPage extends StatelessWidget {
                         backgroundColor: Colors.red,
                       ),
                     );
+                  } else if (item['isLocal'] == true) {
+                    // Menü düzenleme sayfası açılırsa ve ürün eklenirse güncelle
+                    final result = await Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => SandwichDetailPage(
+                          imagePath: item['image'].toString(),
+                          title: item['title'].toString(),
+                          desc: item['desc'].toString(),
+                          price: item['price'].toString(),
+                          stock: item['stock'] as bool,
+                        ),
+                      ),
+                    );
+                    if (result == true) (context as Element).markNeedsBuild();
                   } else {
                     Navigator.of(context).push(
                       MaterialPageRoute(

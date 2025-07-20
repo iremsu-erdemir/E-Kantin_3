@@ -5,6 +5,7 @@ import 'dart:convert';
 import '../components/ek_bottom_nav_bar.dart';
 import 'payment.dart';
 import 'home_page.dart';
+import 'admin_home_page.dart';
 import '../models/user.dart';
 import '../models/siparis.dart';
 import '../models/borc.dart';
@@ -69,11 +70,11 @@ class _SiparislerPageState extends State<SiparislerPage>
     });
   }
 
-  Future<void> clearPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-    print('SharedPreferences temizlendi');
-  }
+  // Future<void> clearPrefs() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   await prefs.clear();
+  //   print('SharedPreferences temizlendi');
+  // }
 
   @override
   void didChangeDependencies() {
@@ -195,7 +196,24 @@ class _SiparislerPageState extends State<SiparislerPage>
             Icons.arrow_back_ios_new_rounded,
             color: Colors.black,
           ),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            final user = UserSingleton().user;
+            if (user != null && user.username == 'turgay') {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: (context) => AdminHomePage(user: user),
+                ),
+                (route) => false,
+              );
+            } else if (user != null) {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => HomePage(user: user)),
+                (route) => false,
+              );
+            } else {
+              Navigator.of(context).pop();
+            }
+          },
         ),
         title: const Text(
           'Siparişlerim',

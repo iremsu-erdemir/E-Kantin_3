@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import '../services/local_menu_service.dart';
+import '../models/urun_model.dart';
+import '../models/menu_model.dart';
 
 class MenuOlusturPage extends StatefulWidget {
   const MenuOlusturPage({Key? key}) : super(key: key);
@@ -23,6 +25,7 @@ class _MenuOlusturPageState extends State<MenuOlusturPage> {
     'Tam Çeçil Peynir',
   ];
   List<bool> _malzemeSecili = [true, false, false, false];
+  final List<UrunModel> _urunler = [];
 
   void _malzemeSec(int index) {
     setState(() {
@@ -405,28 +408,26 @@ class _MenuOlusturPageState extends State<MenuOlusturPage> {
                 height: 48,
                 child: ElevatedButton(
                   onPressed: () async {
-                    final seciliIcerikler = <String>[];
-                    for (int i = 0; i < _malzemeler.length; i++) {
-                      if (_malzemeSecili[i])
-                        seciliIcerikler.add(_malzemeler[i]);
-                    }
                     final menu = MenuModel(
                       name: _menuNameController.text,
-                      price: _priceController.text,
-                      desc: seciliIcerikler.join(', '),
                       imagePath:
                           _image?.path ?? 'assets/images/sandwichMenu.png',
                       ekmekTipi: _ekmekTipi,
-                      icerikler: seciliIcerikler,
+                      urunler: _urunler,
                       aktif: _aktif,
                     );
                     await LocalMenuService.addMenu(menu);
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
+                        SnackBar(
                           content: Text('Başarı ile kaydedilmiştir'),
                           backgroundColor: Colors.green,
                           duration: Duration(seconds: 2),
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          margin: EdgeInsets.all(16),
                         ),
                       );
                       Navigator.pop(context, true);

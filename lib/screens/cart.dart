@@ -6,6 +6,7 @@ import 'payment.dart';
 import '../models/user.dart';
 import '../components/ek_bottom_nav_bar.dart';
 import 'favorilerim.dart';
+import 'dart:io';
 
 class CartPage extends StatelessWidget {
   const CartPage({Key? key}) : super(key: key);
@@ -183,12 +184,19 @@ class CartPage extends StatelessWidget {
                             // Ürün görseli
                             ClipRRect(
                               borderRadius: BorderRadius.circular(12),
-                              child: Image.asset(
-                                item.imagePath,
-                                width: 56,
-                                height: 56,
-                                fit: BoxFit.cover,
-                              ),
+                              child: item.imagePath.startsWith('assets/')
+                                  ? Image.asset(
+                                      item.imagePath,
+                                      width: 56,
+                                      height: 56,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.file(
+                                      File(item.imagePath),
+                                      width: 56,
+                                      height: 56,
+                                      fit: BoxFit.cover,
+                                    ),
                             ),
                             const SizedBox(width: 12),
                             // Ürün adı ve fiyatı

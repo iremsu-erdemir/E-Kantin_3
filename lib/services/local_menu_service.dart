@@ -1,45 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-
-class MenuModel {
-  final String name;
-  final String price;
-  final String desc;
-  final String imagePath;
-  final String ekmekTipi;
-  final List<String> icerikler;
-  final bool aktif;
-
-  MenuModel({
-    required this.name,
-    required this.price,
-    required this.desc,
-    required this.imagePath,
-    required this.ekmekTipi,
-    required this.icerikler,
-    required this.aktif,
-  });
-
-  Map<String, dynamic> toJson() => {
-    'name': name,
-    'price': price,
-    'desc': desc,
-    'imagePath': imagePath,
-    'ekmekTipi': ekmekTipi,
-    'icerikler': icerikler,
-    'aktif': aktif,
-  };
-
-  factory MenuModel.fromJson(Map<String, dynamic> json) => MenuModel(
-    name: json['name'],
-    price: json['price'],
-    desc: json['desc'],
-    imagePath: json['imagePath'],
-    ekmekTipi: json['ekmekTipi'],
-    icerikler: List<String>.from(json['icerikler'] ?? []),
-    aktif: json['aktif'] ?? true,
-  );
-}
+import '../models/menu_model.dart';
+import '../models/urun_model.dart';
 
 class LocalMenuService {
   static const String _key = 'localMenus';
@@ -66,4 +28,25 @@ class LocalMenuService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_key);
   }
+
+  static Future<void> deleteMenusByNames(List<String> names) async {
+    final menus = await getMenus();
+    final namesNormalized = names.map((e) => e.toLowerCase().trim()).toList();
+    menus.removeWhere(
+      (menu) => namesNormalized.contains(menu.name.toLowerCase().trim()),
+    );
+    await saveMenus(menus);
+  }
+}
+
+// Sadece script olarak çalıştırmak için:
+void main(List<String> args) async {
+  // Komut satırından isimler alınabilir veya sabit isimler kullanılabilir
+  await LocalMenuService.deleteMenusByNames([
+    'Menü 18',
+    'Doğal Sandviç',
+    'Acı Lezzet',
+    'Enfess',
+  ]);
+  print('Belirtilen menüler silindi.');
 }

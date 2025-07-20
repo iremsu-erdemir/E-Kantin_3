@@ -6,6 +6,11 @@ import 'admin_home_page.dart';
 import '../models/user_card.dart';
 import '../services/user_card_service.dart';
 import 'card_list_page.dart';
+import 'ozet_sayfa.dart';
+import 'admin_siparis.dart';
+import 'admin_cay_ocagi_page.dart';
+import 'menu_olustur_page.dart';
+import 'admin_menu_duzenle_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -130,75 +135,105 @@ class SettingsPage extends StatelessWidget {
               icon: Icons.show_chart,
               title: 'Özet Sayfa',
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Bunlara erişme yetkiniz yok, sadece yönetici erişebilir.',
+                if (user?.username == 'turgay') {
+                  Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute(builder: (_) => OzetSayfa()));
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Bunlara erişme yetkiniz yok, sadece yönetici erişebilir.',
+                      ),
+                      backgroundColor: Colors.red,
+                      duration: Duration(seconds: 1),
                     ),
-                    backgroundColor: Colors.red,
-                    duration: Duration(seconds: 1),
-                  ),
-                );
+                  );
+                }
               },
             ),
             _SettingsTile(
               icon: Icons.receipt_long,
               title: 'Siparişler',
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Bunlara erişme yetkiniz yok, sadece yönetici erişebilir.',
+                if (user?.username == 'turgay') {
+                  Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute(builder: (_) => AdminSiparis()));
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Bunlara erişme yetkiniz yok, sadece yönetici erişebilir.',
+                      ),
+                      backgroundColor: Colors.red,
+                      duration: Duration(seconds: 1),
                     ),
-                    backgroundColor: Colors.red,
-                    duration: Duration(seconds: 1),
-                  ),
-                );
+                  );
+                }
               },
             ),
             _SettingsTile(
               icon: Icons.coffee,
               title: 'Çay Ocakları',
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Bunlara erişme yetkiniz yok, sadece yönetici erişebilir.',
+                if (user?.username == 'turgay') {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => AdminCayOcagiPage()),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Bunlara erişme yetkiniz yok, sadece yönetici erişebilir.',
+                      ),
+                      backgroundColor: Colors.red,
+                      duration: Duration(seconds: 1),
                     ),
-                    backgroundColor: Colors.red,
-                    duration: Duration(seconds: 1),
-                  ),
-                );
+                  );
+                }
               },
             ),
             _SettingsTile(
               icon: Icons.add_box,
               title: 'Menü Ekle',
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Bunlara erişme yetkiniz yok, sadece yönetici erişebilir.',
+                if (user?.username == 'turgay') {
+                  Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute(builder: (_) => MenuOlusturPage()));
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Bunlara erişme yetkiniz yok, sadece yönetici erişebilir.',
+                      ),
+                      backgroundColor: Colors.red,
+                      duration: Duration(seconds: 1),
                     ),
-                    backgroundColor: Colors.red,
-                    duration: Duration(seconds: 1),
-                  ),
-                );
+                  );
+                }
               },
             ),
             _SettingsTile(
               icon: Icons.add_circle_outline,
               title: 'Ürün Ekle',
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Bunlara erişme yetkiniz yok, sadece yönetici erişebilir.',
+                if (user?.username == 'turgay') {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => AdminMenuDuzenlePage()),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Bunlara erişme yetkiniz yok, sadece yönetici erişebilir.',
+                      ),
+                      backgroundColor: Colors.red,
+                      duration: Duration(seconds: 1),
                     ),
-                    backgroundColor: Colors.red,
-                    duration: Duration(seconds: 1),
-                  ),
-                );
+                  );
+                }
               },
             ),
             const SizedBox(height: 32),
