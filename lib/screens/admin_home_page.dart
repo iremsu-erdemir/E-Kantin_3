@@ -10,6 +10,7 @@ import 'tost.page.dart';
 import 'sandwich.page.dart';
 import 'menu_olustur_page.dart';
 import 'siparisler.dart';
+import 'kendi_menum_page.dart';
 
 class AdminHomePage extends StatefulWidget {
   final User user;
@@ -537,7 +538,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
                                       builder: (context) =>
-                                          const MenuOlusturPage(),
+                                          const KendiMenumPage(),
                                     ),
                                   );
                                 },

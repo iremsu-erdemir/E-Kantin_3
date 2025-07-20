@@ -159,6 +159,7 @@ class _PaymentPageState extends State<PaymentPage> {
   bool isLoading = true;
   bool showCardDropdown = false;
   bool isCardSelected = false; // Dropdown'dan kart seçildi mi?
+  bool isFormFilled = false; // Form alanları dolduruldu mu?
 
   // Form controllerlar
   final TextEditingController nameController = TextEditingController();
@@ -185,9 +186,26 @@ class _PaymentPageState extends State<PaymentPage> {
     cardController.clear();
     dateController.clear();
     cvcController.clear();
+
+    // Form alanlarına listener ekle
+    nameController.addListener(_checkFormFilled);
+    cardController.addListener(_checkFormFilled);
+    dateController.addListener(_checkFormFilled);
+    cvcController.addListener(_checkFormFilled);
+
     Future.delayed(Duration(seconds: 2), () {
       debugPrint('initState içinden _pay çağrılıyor');
       _pay();
+    });
+  }
+
+  void _checkFormFilled() {
+    setState(() {
+      isFormFilled =
+          nameController.text.isNotEmpty ||
+          cardController.text.isNotEmpty ||
+          dateController.text.isNotEmpty ||
+          cvcController.text.isNotEmpty;
     });
   }
 
@@ -263,6 +281,19 @@ class _PaymentPageState extends State<PaymentPage> {
       cardError = null;
       dateError = null;
       cvcError = cvcController.text.trim().isEmpty ? 'CVC zorunlu' : null;
+    });
+  }
+
+  void _selectCard(UserCard card) {
+    setState(() {
+      selectedUserCard = card;
+      isCardSelected = true;
+      showCardDropdown = false;
+      // Seçilen kartın bilgilerini form alanlarına doldur
+      nameController.text = card.cardHolder ?? '';
+      cardController.text = card.cardNumber ?? '';
+      dateController.text = card.expiryDate ?? '';
+      cvcController.text = card.cvc ?? '';
     });
   }
 

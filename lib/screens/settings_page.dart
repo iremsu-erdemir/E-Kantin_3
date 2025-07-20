@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../components/ek_bottom_nav_bar.dart';
 import '../models/user.dart';
 import 'home_page.dart';
+import 'admin_home_page.dart';
 import '../models/user_card.dart';
 import '../services/user_card_service.dart';
 import 'card_list_page.dart';
@@ -19,7 +20,21 @@ class SettingsPage extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
-          onPressed: () => Navigator.pushReplacementNamed(context, '/homepage'),
+          onPressed: () {
+            if (user?.role?.contains('Şube Müdürü') == true) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AdminHomePage(user: user!),
+                ),
+              );
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => HomePage(user: user!)),
+              );
+            }
+          },
         ),
         title: const Text(
           'Ayarlar',

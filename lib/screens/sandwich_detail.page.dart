@@ -8,9 +8,7 @@ import '../models/favorite_menu.dart';
 import '../components/ek_bottom_nav_bar.dart';
 import '../providers/favorite_provider.dart';
 import 'successpayment.dart';
-import 'cart.dart';
-import 'payment.dart';
-import '../models/user.dart';
+import 'dart:io';
 
 class SandwichDetailPage extends StatefulWidget {
   final String imagePath;
@@ -174,11 +172,6 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
                                   ) ??
                                   0.0,
                             );
-                            // Favori eklemenin yanına provider ile kaydet
-                            Provider.of<FavoriteProvider>(
-                              context,
-                              listen: false,
-                            ).addFavorite(yeniFavori);
                             setState(() {
                               favoriListesi.add(yeniFavori);
                             });
@@ -277,12 +270,8 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
               ).addFavorite(menu);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: const Text('Favorilere başarıyla eklendi!'),
+                  content: Text('Favorilere eklendi!'),
                   backgroundColor: Colors.green,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
                   duration: Duration(seconds: 1),
                 ),
               );
@@ -297,7 +286,9 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
               SizedBox(
                 width: double.infinity,
                 height: 200,
-                child: Image.asset(widget.imagePath, fit: BoxFit.cover),
+                child: widget.imagePath.startsWith('assets/')
+                    ? Image.asset(widget.imagePath, fit: BoxFit.cover)
+                    : Image.file(File(widget.imagePath), fit: BoxFit.cover),
               ),
               Positioned.fill(
                 child: Container(color: Colors.black.withOpacity(0.28)),
@@ -508,9 +499,7 @@ class _SandwichDetailPageState extends State<SandwichDetailPage> {
                             );
                             cartProvider.addOrUpdate(newItem);
                             Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => CartPage(),
-                              ),
+                              MaterialPageRoute(builder: (_) => CartPage()),
                             );
                           },
                           style: ElevatedButton.styleFrom(

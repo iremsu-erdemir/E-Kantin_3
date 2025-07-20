@@ -5,6 +5,7 @@ import '../services/local_menu_service.dart';
 import '../components/ek_bottom_nav_bar.dart';
 import 'favorilerim.dart';
 import 'dart:io';
+import 'sandwich_detail.page.dart';
 
 class SandwichPage extends StatelessWidget {
   const SandwichPage({Key? key}) : super(key: key);
@@ -89,8 +90,26 @@ class SandwichPage extends StatelessWidget {
                         backgroundColor: Colors.red,
                       ),
                     );
+                  } else if (!(item['stock'] as bool)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Ürün tükenmiştir'),
+                        duration: Duration(milliseconds: 900),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
                   } else {
-                    // Buraya sistem menüsü için detay sayfası açma kodu eklenebilir
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => SandwichDetailPage(
+                          imagePath: item['image'].toString(),
+                          title: item['title'].toString(),
+                          desc: item['desc'].toString(),
+                          price: item['price'].toString(),
+                          stock: item['stock'] as bool,
+                        ),
+                      ),
+                    );
                   }
                 },
                 child: Opacity(
