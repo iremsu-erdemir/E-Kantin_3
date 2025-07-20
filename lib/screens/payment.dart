@@ -74,11 +74,15 @@ class CardDisplayBox extends StatelessWidget {
   final String title;
   final String maskedNumber;
   final VoidCallback? onTap;
+  final VoidCallback? onClear;
+  final bool isSelected;
   const CardDisplayBox({
     super.key,
     required this.title,
     required this.maskedNumber,
     this.onTap,
+    this.onClear,
+    this.isSelected = false,
   });
 
   @override
@@ -118,11 +122,27 @@ class CardDisplayBox extends StatelessWidget {
             Positioned(
               right: 0,
               top: 0,
-              child: Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: Colors.white,
-                size: 28,
-              ),
+              child: isSelected
+                  ? GestureDetector(
+                      onTap: onClear,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    )
+                  : const Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: Colors.white,
+                      size: 28,
+                    ),
             ),
           ],
         ),
@@ -209,6 +229,23 @@ class _PaymentPageState extends State<PaymentPage> {
     });
   }
 
+  @override
+  void dispose() {
+    nameController.removeListener(_checkFormFilled);
+    cardController.removeListener(_checkFormFilled);
+    dateController.removeListener(_checkFormFilled);
+    cvcController.removeListener(_checkFormFilled);
+    nameController.dispose();
+    cardController.dispose();
+    dateController.dispose();
+    cvcController.dispose();
+    nameFocus.dispose();
+    cardFocus.dispose();
+    dateFocus.dispose();
+    cvcFocus.dispose();
+    super.dispose();
+  }
+
   Future<void> _addSampleCardsIfNeeded() async {
     final existingCards = await UserCardService.getCards();
     if (existingCards.isEmpty) {
@@ -237,19 +274,6 @@ class _PaymentPageState extends State<PaymentPage> {
         ),
       );
     }
-  }
-
-  @override
-  void dispose() {
-    nameController.dispose();
-    cardController.dispose();
-    dateController.dispose();
-    cvcController.dispose();
-    nameFocus.dispose();
-    cardFocus.dispose();
-    dateFocus.dispose();
-    cvcFocus.dispose();
-    super.dispose();
   }
 
   Future<void> _loadUserCards() async {
@@ -294,6 +318,18 @@ class _PaymentPageState extends State<PaymentPage> {
       cardController.text = card.cardNumber ?? '';
       dateController.text = card.expiryDate ?? '';
       cvcController.text = card.cvc ?? '';
+    });
+  }
+
+  void _clearCardSelection() {
+    setState(() {
+      selectedUserCard = null;
+      isCardSelected = false;
+      // Form alanlarını temizle
+      nameController.clear();
+      cardController.clear();
+      dateController.clear();
+      cvcController.clear();
     });
   }
 
@@ -486,6 +522,10 @@ class _PaymentPageState extends State<PaymentPage> {
                     }
                   });
                 },
+                onClear: () {
+                  _clearCardSelection();
+                },
+                isSelected: isCardSelected,
               ),
               if (showCardDropdown && userCards.length > 1)
                 Padding(
@@ -927,18 +967,9 @@ class _PaymentPageState extends State<PaymentPage> {
                       child: SizedBox(
                         height: 48,
                         child: ElevatedButton(
-                          onPressed: (!isLoggedIn)
-                              ? () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Lütfen giriş yapmadan önce bu işlemi gerçekleştiremezsiniz.',
-                                      ),
-                                      backgroundColor: Colors.red,
-                                      duration: Duration(seconds: 1),
-                                    ),
-                                  );
-                                }
+                          onPressed:
+                              (!isLoggedIn || isCardSelected || isFormFilled)
+                              ? null // Buton pasif
                               : () {
                                   final productName = _getProductName(context);
                                   Provider.of<CartProvider>(
@@ -976,12 +1007,16 @@ class _PaymentPageState extends State<PaymentPage> {
                                   );
                                 },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromARGB(
-                              255,
-                              218,
-                              20,
-                              20,
-                            ),
+                            backgroundColor:
+                                (!isLoggedIn || isCardSelected || isFormFilled)
+                                ? Colors
+                                      .grey // Pasif durumda gri renk
+                                : const Color.fromARGB(
+                                    255,
+                                    218,
+                                    20,
+                                    20,
+                                  ), // Aktif durumda kırmızı
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
