@@ -11,6 +11,7 @@ import 'admin_siparis.dart';
 import 'admin_cay_ocagi_page.dart';
 import 'menu_olustur_page.dart';
 import 'admin_menu_duzenle_page.dart';
+import '../components/admin_bottom_nav_bar.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({Key? key}) : super(key: key);

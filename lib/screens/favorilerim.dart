@@ -4,6 +4,9 @@ import 'kendi_menum_page.dart';
 import '../components/ek_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 import '../providers/favorite_provider.dart';
+import '../screens/admin_home_page.dart';
+import '../models/user.dart';
+import '../components/admin_bottom_nav_bar.dart';
 
 class FavorilerimPage extends StatelessWidget {
   const FavorilerimPage({Key? key}) : super(key: key);
@@ -142,10 +145,18 @@ class FavorilerimPage extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    AdminHomePage(user: UserSingleton().user!),
+              ),
+            );
+          },
         ),
         title: const Text(
-          'Favoriler',
+          'Favorilerim',
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,

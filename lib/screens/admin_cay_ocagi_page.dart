@@ -6,7 +6,8 @@ import '../services/local_storage_service.dart';
 import '../models/borc.dart';
 
 class AdminCayOcagiPage extends StatefulWidget {
-  const AdminCayOcagiPage({Key? key}) : super(key: key);
+  final int initialTab;
+  const AdminCayOcagiPage({Key? key, this.initialTab = 0}) : super(key: key);
 
   @override
   State<AdminCayOcagiPage> createState() => AdminCayOcagiPageState();
@@ -36,7 +37,11 @@ class AdminCayOcagiPageState extends State<AdminCayOcagiPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: widget.initialTab,
+    );
     _kullanicilariYukle();
     aramaController.addListener(_aramaYap);
     _borclariYukle();

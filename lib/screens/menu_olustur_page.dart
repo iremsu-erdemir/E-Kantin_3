@@ -26,16 +26,14 @@ class _MenuOlusturPageState extends State<MenuOlusturPage> {
   List<bool> _malzemeSecili = [true, false, false, false];
   final List<UrunModel> _urunler = [];
 
+  // Fiyatı dinamik olarak seçili malzemelerden hesapla
   double get totalPrice {
     double sum = 0.0;
-    for (final urun in _urunler) {
-      final priceStr = urun.price
-          .toString()
-          .replaceAll('₺', '')
-          .replaceAll(',', '.')
-          .trim();
-      final price = double.tryParse(priceStr) ?? 0.0;
-      sum += price;
+    for (int i = 0; i < _malzemeler.length; i++) {
+      if (_malzemeSecili[i]) {
+        sum +=
+            5.5; // Her malzeme için sabit fiyat, gerekirse dinamikleştirilebilir
+      }
     }
     return sum;
   }

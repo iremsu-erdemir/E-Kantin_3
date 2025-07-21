@@ -8,6 +8,7 @@ import '../models/user.dart';
 import '../services/local_storage_service.dart';
 import 'admin_cay_ocagi_page.dart';
 import 'admin_menu_duzenle_page.dart';
+import '../components/admin_bottom_nav_bar.dart';
 
 class OzetSayfa extends StatefulWidget {
   const OzetSayfa({Key? key}) : super(key: key);
@@ -214,14 +215,15 @@ class _OzetSayfaState extends State<OzetSayfa> {
                   childAspectRatio: 1.4,
                   children: [
                     GestureDetector(
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => const AdminSiparis(),
                             settings: RouteSettings(arguments: 0),
                           ),
                         );
+                        _loadSiparisSayilari();
                       },
                       child: _buildStatCard(
                         '$bekleyenSiparis',
@@ -229,14 +231,15 @@ class _OzetSayfaState extends State<OzetSayfa> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => const AdminSiparis(),
                             settings: RouteSettings(arguments: 1),
                           ),
                         );
+                        _loadSiparisSayilari();
                       },
                       child: _buildStatCard('$bitenSiparis', 'BİTEN SİPARİŞ'),
                     ),
@@ -244,7 +247,17 @@ class _OzetSayfaState extends State<OzetSayfa> {
                       '₺${cayOcagiAlacagi.toStringAsFixed(2)}',
                       'ÇAY OCAĞI\nALACAĞI',
                     ),
-                    _buildStatCard('$borcluListesi', 'BORÇLU LİSTESİ'),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                AdminCayOcagiPage(initialTab: 1),
+                          ),
+                        );
+                      },
+                      child: _buildStatCard('$borcluListesi', 'BORÇLU LİSTESİ'),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 18),
@@ -516,7 +529,13 @@ class _OzetSayfaState extends State<OzetSayfa> {
                     const SizedBox(width: 16),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => AdminMenuDuzenlePage(),
+                            ),
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF2AD2C9),
                           padding: const EdgeInsets.symmetric(vertical: 18),

@@ -7,6 +7,8 @@ import '../models/user.dart';
 import '../components/ek_bottom_nav_bar.dart';
 import 'favorilerim.dart';
 import 'dart:io';
+import '../screens/admin_home_page.dart';
+import '../components/admin_bottom_nav_bar.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({Key? key}) : super(key: key);
@@ -25,6 +27,18 @@ class CartPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    AdminHomePage(user: UserSingleton().user!),
+              ),
+            );
+          },
+        ),
         title: const Text(
           'Sepetim',
           style: TextStyle(

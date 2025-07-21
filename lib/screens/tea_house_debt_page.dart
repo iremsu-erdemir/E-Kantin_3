@@ -48,7 +48,7 @@ class TeaHouseDebtPage extends StatelessWidget {
               tabs: [
                 Tab(text: 'Aktif Sipariş'),
                 Tab(text: 'Tamamlanan Sipariş'),
-                Tab(text: 'Çay Ocağı Borcu'),
+                Tab(text: 'Borçlarım'),
                 Tab(text: 'Bildirimler'),
               ],
             ),
@@ -64,7 +64,7 @@ class TeaHouseDebtPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Çay Ocağı Borcu',
+                    'Borçlarım',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
                   ),
                   const SizedBox(height: 10),

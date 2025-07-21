@@ -11,6 +11,10 @@ import 'sandwich.page.dart';
 import 'menu_olustur_page.dart';
 import 'siparisler.dart';
 import 'kendi_menum_page.dart';
+import 'favorilerim.dart';
+import 'cart.dart';
+import 'settings_page.dart';
+import '../components/admin_bottom_nav_bar.dart';
 
 class AdminHomePage extends StatefulWidget {
   final User user;
@@ -618,32 +622,72 @@ class _AdminBottomNavBar extends StatelessWidget {
     const selectedColor = Color(0xFFFF3D3D);
     const unselectedColor = Color(0xFFBDBDBD);
     const indicatorColor = Colors.black;
-    final currentIndex = 0; // Ana Sayfa aktif
+    // currentIndex'i parametre ile almak daha iyi olurdu ama burada sabit 0
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.only(bottom: 8, top: 2),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _NavBarItem(
-            icon: Icons.search_outlined,
-            label: 'Ana Sayfa',
-            selected: true,
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        AdminHomePage(user: UserSingleton().user!),
+                  ),
+                  (route) => false,
+                );
+              },
+              child: _NavBarItem(
+                icon: Icons.search_outlined,
+                label: 'Ana Sayfa',
+                selected: true,
+              ),
+            ),
           ),
-          _NavBarItem(
-            icon: Icons.favorite_border,
-            label: 'Favorilerim',
-            selected: false,
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => FavorilerimPage()),
+                );
+              },
+              child: _NavBarItem(
+                icon: Icons.favorite_border,
+                label: 'Favorilerim',
+                selected: false,
+              ),
+            ),
           ),
-          _NavBarItem(
-            icon: Icons.notifications_none_outlined,
-            label: 'Sepetim',
-            selected: false,
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (context) => CartPage()));
+              },
+              child: _NavBarItem(
+                icon: Icons.notifications_none_outlined,
+                label: 'Sepetim',
+                selected: false,
+              ),
+            ),
           ),
-          _NavBarItem(
-            icon: Icons.person_outline,
-            label: 'Siparişlerim',
-            selected: false,
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (context) => SettingsPage()));
+              },
+              child: _NavBarItem(
+                icon: Icons.person_outline,
+                label: 'Ayarlar',
+                selected: false,
+              ),
+            ),
           ),
         ],
       ),
