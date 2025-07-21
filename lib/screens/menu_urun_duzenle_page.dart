@@ -4,6 +4,20 @@ import '../services/local_menu_service.dart';
 import '../models/urun_model.dart';
 import '../models/menu_model.dart';
 
+// Dosyanın başına ekleyin:
+final List<MenuModel> dummyMenus = [
+  MenuModel(
+    name: 'Örnek Menü',
+    imagePath: 'assets/images/sandwichMenu.png',
+    ekmekTipi: 'Sandviç',
+    urunler: [
+      UrunModel(name: 'Kaşar Peynir', price: '10', stoktaVar: true),
+      UrunModel(name: 'Salam', price: '12', stoktaVar: true),
+    ],
+    aktif: true,
+  ),
+];
+
 class MenuUrunDuzenlePage extends StatefulWidget {
   final String menuName;
   final List<Map<String, dynamic>> urunler;
@@ -74,6 +88,15 @@ class _MenuUrunDuzenlePageState extends State<MenuUrunDuzenlePage> {
       }
       menus[menuIndex] = menu.copyWith(urunler: newUrunler);
       await LocalMenuService.saveMenus(menus);
+
+      // EKRANI GÜNCELLE: controller'ları ve urunler listesini senkronize et
+      setState(() {
+        urunler = List<UrunModel>.from(newUrunler);
+        // Controller'lar zaten güncel, gerekirse burada tekrar oluşturulabilir.
+        // nameControllers ve priceControllers'ın uzunluğu urunler ile aynı olmalı.
+        // (Eğer silme özelliği eklenirse burada dikkat edilmeli)
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Ürün bilgileri başarı ile güncellendi'),
@@ -300,6 +323,7 @@ class _MenuUrunDuzenlePageState extends State<MenuUrunDuzenlePage> {
                                   editingList[index] = false;
                                 });
                                 await _saveToLocalStorage();
+                                Navigator.of(context).pop(true);
                               }
                             : () {
                                 setState(() {
@@ -513,6 +537,10 @@ class _MenuUrunDuzenlePageState extends State<MenuUrunDuzenlePage> {
                     yeniUrunAdi.trim().isNotEmpty &&
                     yeniFiyat.trim().isNotEmpty) {
                   final menus = await LocalMenuService.getMenus();
+                  if (menus.isEmpty) {
+                    // Sadece hiç veri yoksa dummy veri ekle
+                    await LocalMenuService.saveMenus(dummyMenus);
+                  }
                   final menuIndex = menus.indexWhere(
                     (m) => m.name == widget.menuName,
                   );
@@ -538,6 +566,13 @@ class _MenuUrunDuzenlePageState extends State<MenuUrunDuzenlePage> {
                       );
                       stoktaVarList.add(true);
                       editingList.add(false);
+                      urunler.add(
+                        UrunModel(
+                          name: yeniUrunAdi.trim(),
+                          price: yeniFiyat.trim(),
+                          stoktaVar: true,
+                        ),
+                      );
                     });
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -551,6 +586,7 @@ class _MenuUrunDuzenlePageState extends State<MenuUrunDuzenlePage> {
                         margin: EdgeInsets.all(16),
                       ),
                     );
+                    Navigator.of(context).pop(true);
                   }
                 }
               });

@@ -408,6 +408,18 @@ class _MenuOlusturPageState extends State<MenuOlusturPage> {
                 height: 48,
                 child: ElevatedButton(
                   onPressed: () async {
+                    _urunler.clear();
+                    for (int i = 0; i < _malzemeler.length; i++) {
+                      if (_malzemeSecili[i]) {
+                        _urunler.add(
+                          UrunModel(
+                            name: _malzemeler[i],
+                            price: '5,50', // veya _priceController.text
+                            stoktaVar: true,
+                          ),
+                        );
+                      }
+                    }
                     final menu = MenuModel(
                       name: _menuNameController.text,
                       imagePath:
