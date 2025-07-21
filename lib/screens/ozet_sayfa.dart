@@ -9,6 +9,7 @@ import '../services/local_storage_service.dart';
 import 'admin_cay_ocagi_page.dart';
 import 'admin_menu_duzenle_page.dart';
 import '../components/admin_bottom_nav_bar.dart';
+import 'home_page.dart';
 
 class OzetSayfa extends StatefulWidget {
   const OzetSayfa({Key? key}) : super(key: key);
@@ -128,13 +129,24 @@ class _OzetSayfaState extends State<OzetSayfa> {
                         color: Colors.black,
                       ),
                       onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                AdminHomePage(user: UserSingleton().user!),
-                          ),
-                        );
+                        final user = UserSingleton().user;
+                        if (user != null && user.username == 'turgay') {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AdminHomePage(user: user),
+                            ),
+                          );
+                        } else if (user != null) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => HomePage(user: user),
+                            ),
+                          );
+                        } else {
+                          Navigator.of(context).pop();
+                        }
                       },
                     ),
                     const SizedBox(width: 4),

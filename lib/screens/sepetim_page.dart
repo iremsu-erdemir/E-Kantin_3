@@ -118,7 +118,7 @@ class _SepetimPageState extends State<SepetimPage>
               tabs: const [
                 Tab(text: 'Aktif Sipariş'),
                 Tab(text: 'Tamamlanan Sipariş'),
-                Tab(text: 'Çay Ocağı Borcu'),
+                Tab(text: 'Borçlarım'),
                 Tab(text: 'Bildirimler'),
               ],
             ),
@@ -186,9 +186,9 @@ class _SepetimPageState extends State<SepetimPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Çay Ocağı Borcu',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+          Text(
+            'Çay Ocağı Ürünleri',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           const SizedBox(height: 10),
           Expanded(

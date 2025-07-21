@@ -27,18 +27,21 @@ class SettingsPage extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
           onPressed: () {
-            if (user?.role?.contains('Şube Müdürü') == true) {
+            final user = UserSingleton().user;
+            if (user != null && user.username == 'turgay') {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AdminHomePage(user: user!),
+                  builder: (context) => AdminHomePage(user: user),
                 ),
               );
-            } else {
+            } else if (user != null) {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => HomePage(user: user!)),
+                MaterialPageRoute(builder: (context) => HomePage(user: user)),
               );
+            } else {
+              Navigator.of(context).pop();
             }
           },
         ),

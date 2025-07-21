@@ -246,7 +246,7 @@ class _SiparislerPageState extends State<SiparislerPage>
               tabs: const [
                 Tab(text: 'Aktif Sipariş'),
                 Tab(text: 'Tamamlanan Sipariş'),
-                Tab(text: 'Çay Ocağı Borcu'),
+                Tab(text: 'Borçlarım'),
                 Tab(text: 'Bildirimler'),
               ],
             ),
@@ -494,7 +494,7 @@ class _SiparislerPageState extends State<SiparislerPage>
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
               child: Text(
-                'Çay Ocağı Borcu',
+                'Borçlarım',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
             ),

@@ -9,6 +9,7 @@ import 'favorilerim.dart';
 import 'dart:io';
 import '../screens/admin_home_page.dart';
 import '../components/admin_bottom_nav_bar.dart';
+import '../screens/home_page.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({Key? key}) : super(key: key);
@@ -30,13 +31,22 @@ class CartPage extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
           onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    AdminHomePage(user: UserSingleton().user!),
-              ),
-            );
+            final user = UserSingleton().user;
+            if (user != null && user.username == 'turgay') {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AdminHomePage(user: user),
+                ),
+              );
+            } else if (user != null) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => HomePage(user: user)),
+              );
+            } else {
+              Navigator.of(context).pop();
+            }
           },
         ),
         title: const Text(
