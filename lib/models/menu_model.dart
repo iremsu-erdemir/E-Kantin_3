@@ -48,4 +48,19 @@ class MenuModel {
       aktif: aktif ?? this.aktif,
     );
   }
+
+  // Menüdeki ürünlerin fiyatlarının toplamı
+  double get totalPrice {
+    double sum = 0.0;
+    for (final u in urunler) {
+      final priceStr = u.price
+          .toString()
+          .replaceAll('₺', '')
+          .replaceAll(',', '.')
+          .trim();
+      final price = double.tryParse(priceStr) ?? 0.0;
+      sum += price;
+    }
+    return sum;
+  }
 }

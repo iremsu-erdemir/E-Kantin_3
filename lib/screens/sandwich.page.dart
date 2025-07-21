@@ -58,9 +58,9 @@ class SandwichPage extends StatelessWidget {
                     'image': menu.imagePath,
                     'title': menu.name,
                     'desc': menu.urunler.map((u) => u.name).join(', '),
-                    'price': menu.urunler.isNotEmpty
-                        ? menu.urunler[0].price
-                        : '',
+                    'price': menu.totalPrice.toStringAsFixed(
+                      2,
+                    ), // <-- ürünlerin toplamı
                     'stock': menu.aktif,
                     'isLocal': true,
                   },

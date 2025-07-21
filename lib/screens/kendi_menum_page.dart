@@ -38,7 +38,23 @@ class _KendiMenumPageState extends State<KendiMenumPage> {
   List<bool> icerikEnabled = [true, true, true, false];
   List<String> icerikFiyat = ['+₺5,50', '+₺5,50', '+₺5,50', 'Tükendi'];
 
-  double get totalPrice => 85.5;
+  double get totalPrice {
+    double base = 0.0;
+    // Seçili içeriklerin fiyatlarını topla
+    if (seciliIcerikIndex != null && icerikEnabled[seciliIcerikIndex!]) {
+      final fiyatStr = icerikFiyat[seciliIcerikIndex!]
+          .replaceAll('₺', '')
+          .replaceAll('+', '')
+          .replaceAll(',', '.')
+          .replaceAll('Tükendi', '')
+          .trim();
+      final fiyat = double.tryParse(fiyatStr) ?? 0.0;
+      base += fiyat;
+    }
+    // Eğer başka sabit ek ücretler varsa buraya eklenebilir
+    return base;
+  }
+
   int _selectedIndex = 0;
   List<FavoriteMenu> favoriListesi = [];
   // İçindekiler için seçili indexi tutan bir değişken ekle

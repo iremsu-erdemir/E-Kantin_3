@@ -15,7 +15,6 @@ class MenuOlusturPage extends StatefulWidget {
 class _MenuOlusturPageState extends State<MenuOlusturPage> {
   File? _image;
   final _menuNameController = TextEditingController(text: 'Menü 21');
-  final _priceController = TextEditingController(text: '₺50,00');
   bool _aktif = true;
   String _ekmekTipi = 'Tost';
   List<String> _malzemeler = [
@@ -26,6 +25,20 @@ class _MenuOlusturPageState extends State<MenuOlusturPage> {
   ];
   List<bool> _malzemeSecili = [true, false, false, false];
   final List<UrunModel> _urunler = [];
+
+  double get totalPrice {
+    double sum = 0.0;
+    for (final urun in _urunler) {
+      final priceStr = urun.price
+          .toString()
+          .replaceAll('₺', '')
+          .replaceAll(',', '.')
+          .trim();
+      final price = double.tryParse(priceStr) ?? 0.0;
+      sum += price;
+    }
+    return sum;
+  }
 
   void _malzemeSec(int index) {
     setState(() {
@@ -280,18 +293,15 @@ class _MenuOlusturPageState extends State<MenuOlusturPage> {
                                       color: Color(0xFFF5F5F5),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-                                    child: TextField(
-                                      controller: _priceController,
-                                      enabled: _aktif,
-                                      decoration: InputDecoration(
-                                        border: InputBorder.none,
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 8,
-                                            ),
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 8,
                                       ),
-                                      style: const TextStyle(fontSize: 15),
+                                      child: Text(
+                                        '₺' + totalPrice.toStringAsFixed(2),
+                                        style: TextStyle(fontSize: 15),
+                                      ),
                                     ),
                                   ),
                                 ],
